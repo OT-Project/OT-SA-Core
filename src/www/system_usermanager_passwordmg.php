@@ -64,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $savemsg = gettext('Your password does not match the selected security policies. Please provide a new one.');
     }
 
-    $pconfig['language'] = $userFound ? $config['system']['user'][$userindex[$username]]['language'] ?? '' : null;
+    // TODO: unhide this when language selection is supported again
+    // $pconfig['language'] = $userFound ? $config['system']['user'][$userindex[$username]]['language'] ?? '' : null;
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input_errors = array();
     $pconfig = $_POST;
@@ -105,11 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         if (count($input_errors) == 0) {
-            if (!empty($pconfig['language'])) {
-                $config['system']['user'][$userindex[$username]]['language'] = $pconfig['language'];
-            } elseif (isset($config['system']['user'][$userindex[$username]]['language'])) {
-                unset($config['system']['user'][$userindex[$username]]['language']);
-            }
+            // TODO: unhide this when language selection is supported again
+            // if (!empty($pconfig['language'])) {
+            //     $config['system']['user'][$userindex[$username]]['language'] = $pconfig['language'];
+            // } elseif (isset($config['system']['user'][$userindex[$username]]['language'])) {
+            //     unset($config['system']['user'][$userindex[$username]]['language']);
+            // }
 
             // only update password change date if there is a policy constraint
             if (!empty($config['system']['webgui']['enable_password_policy_constraints']) &&

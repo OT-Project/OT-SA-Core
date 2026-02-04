@@ -395,7 +395,7 @@ function display_login_form($Login_Error)
     <?php endif ?>
         </div>
       </header>
-
+    <h1 style="color: red; text-align: center; margin-bottom: 20px;">Login</h1>
       <div class="login-modal-content">
         <div id="inputerrors" class="text-danger"><?= !empty($Login_Error) ? $Login_Error : '&nbsp;' ?></div><br />
 

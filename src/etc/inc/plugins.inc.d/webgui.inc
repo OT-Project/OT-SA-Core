@@ -385,6 +385,11 @@ mimetype.assign             = (
 #       of the document-root
 url.access-deny             = ( "~", , ".core", ".inc" )
 
+# TODO: deny direct access to hidden UI routes
+#\$HTTP["url"] =~ "^(?:/ui/core/license|/ui/core/firmware|/ui/core/defaults|/ui/core/backup(?:/history/this)?|/ui/core/initial_setup|/crash_reporter\.php|/ui/diagnostics/log/core/(?:pkg|boot|configd|system|lighttpd|gateways|filter)|/ui/routing/configuration|/system_gateway_groups(?:_edit)?\.php|/ui/core/hasync(?:_status)?|/system_advanced_admin\.php|/system_general\.php(?:\?.*)?|/system_advanced_misc\.php|/ui/core/tunables|/ui/core/snapshots|/ui/trust/.*|/ui/diagnostics/log/core/audit|/ui/core/service|/ui/firewall/alias(?:_util)?/?.*|/ui/firewall/category|/ui/firewall/group|/firewall_nat_out(?:_edit)?\.php.*|/firewall_schedule(?:_edit)?\.php.*|/firewall_scrub(?:_edit)?\.php.*|/system_advanced_firewall\.php.*|/ui/diagnostics/firewall/(?:states|pf_top|statistics|stats)|/ui/firewall/npt/.*|/ui/firewall/source_nat/.*|/ui/firewall/filter/.*|/ui/interfaces/(?:bridge|gif|gre|lagg|vlan|vxlan|vip|neighbor|loopback)/?.*|/interfaces_ppps(?:_edit)?\.php.*|/interfaces_wireless(?:_edit)?\.php.*|/ui/openvpn/.*|/services_opendns\.php|/ui/dhcpv4/leases|/ui/dhcpv6/leases|/ui/kea/dhcp/(?:ctrl_agent|v6|leases6)|/ui/diagnostics/netflow|/ui/diagnostics/networkinsight|/ui/diagnostics/log/core/gateways)" {
+#    url.access-deny = ( "" )
+#}
+
 
 ######### Options that are good to be but not necessary to be changed #######
 
