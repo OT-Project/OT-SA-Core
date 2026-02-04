@@ -47,12 +47,18 @@
         <label>Endpoint address</label>
         <type>text</type>
         <help>Set public IP address the endpoint listens to.</help>
+        <grid_view>
+            <width>15em</width>
+        </grid_view>
     </field>
     <field>
         <id>client.serverport</id>
         <label>Endpoint port</label>
         <type>text</type>
         <help>Set port the endpoint listens to.</help>
+        <grid_view>
+            <width>8em</width>
+        </grid_view>
     </field>
     <field>
         <id>client.servers</id>

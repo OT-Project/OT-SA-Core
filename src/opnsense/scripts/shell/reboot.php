@@ -28,12 +28,13 @@
  */
 
 require_once("util.inc");
+require_once("/usr/local/opnsense/scripts/shell/langmode.php");
 
 $fp = fopen('php://stdin', 'r');
 
-echo 'The system will reboot. Do you want to proceed? [y/N]: ';
+echo __('The system will reboot. Do you want to proceed?') . ' ' . __('[y/N]: ');
 
-if (strcasecmp(chop(fgets($fp)), 'y') == 0) {
+if (strcasecmp(normalize_yes_no(chop(fgets($fp))), 'y') == 0) {
     echo PHP_EOL;
     pass_safe('/usr/local/etc/rc.reboot');
 }

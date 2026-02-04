@@ -718,9 +718,10 @@
             </section>
         </div>
     </div>
-    <div id="geoip" class="tab-pane fade in">
+    <!-- TODO: unhide this -->
+    <!-- <div id="geoip" class="tab-pane fade in">
       {{ partial("layout_partials/base_form",['fields':formGeoIPSettings,'id':'frm_GeopIPSettings'])}}
-    </div>
+    </div> -->
 </div>
 {{ partial('layout_partials/base_apply_button', {'data_endpoint': '/api/firewall/alias/reconfigure'}) }}
 
