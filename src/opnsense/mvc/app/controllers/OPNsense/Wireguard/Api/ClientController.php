@@ -146,11 +146,31 @@ class ClientController extends ApiMutableModelControllerBase
     public function addClientBuilderAction()
     {
         $uuid = null;
+        $server = null;
         if ($this->request->isPost() && !empty($this->request->getPost('configbuilder'))) {
             Config::getInstance()->lock();
             $mdl = new Server();
             $uuid = $this->getModel()->clients->generateUUID();
             $server = $this->request->getPost('configbuilder')['server'];
+            
+            // Get data from configbuilder
+            $configbuilder = $this->request->getPost('configbuilder');
+            
+            // Map serveraddress and serverport from form configbuilder
+            if (isset($configbuilder['serveraddress']) && !empty($configbuilder['serveraddress'])) {
+                // If serveraddress is already presented in the form
+            } elseif (isset($configbuilder['endpoint_ip']) && !empty($configbuilder['endpoint_ip'])) {
+                // Assign endpoint_ip to serveraddress
+                $_POST['configbuilder']['serveraddress'] = $configbuilder['endpoint_ip'];
+            }
+            
+            if (isset($configbuilder['serverport']) && !empty($configbuilder['serverport'])) {
+                // If serverport is already presented in the form
+            } elseif (isset($configbuilder['endpoint_port']) && !empty($configbuilder['endpoint_port'])) {
+                // Assign endpoint_port to serverport
+                $_POST['configbuilder']['serverport'] = $configbuilder['endpoint_port'];
+            }
+            
             foreach ($mdl->servers->server->iterateItems() as $key => $node) {
                 if ($key == $server) {
                     $peers = array_filter(explode(',', (string)$node->peers));
@@ -166,7 +186,105 @@ class ClientController extends ApiMutableModelControllerBase
             $mdl->serializeToConfig(false, true);
         }
 
-        return $this->setBase('configbuilder', 'clients.client', $uuid);
+        $result = $this->setBase('configbuilder', 'clients.client', $uuid);
+        
+        // Determine correct UUID
+        if (isset($result['uuid'])) {
+            $add_uuid = $result['uuid'];
+        } elseif ($uuid) {
+            $add_uuid = $uuid;
+        } else {
+            return $result;
+        }
+        
+        // If saved successully, return full configuration
+        if ($result['result'] == 'saved' && !empty($add_uuid)) {
+            try {
+                // Get newly created peer information
+                $clientNode = $this->getModel()->getNodeByReference('clients.client.' . $add_uuid);
+                if ($clientNode !== null) {
+                    $result['peer'] = [
+                        'uuid' => $add_uuid,
+                        'name' => (string)$clientNode->name,
+                        'enabled' => (string)$clientNode->enabled,
+                        'pubkey' => (string)$clientNode->pubkey,
+                        'tunneladdress' => (string)$clientNode->tunneladdress,
+                        'keepalive' => (string)$clientNode->keepalive,
+                        'psk' => !empty((string)$clientNode->psk) ? '[SET]' : '',
+                        'serveraddress' => (string)$clientNode->serveraddress,
+                        'serverport' => (string)$clientNode->serverport,
+                    ];
+                    
+                    // Get server information
+                    $server_uuid = $this->request->getPost('configbuilder')['server'] ?? $server;
+                    if (!empty($server_uuid)) {
+                        $serverModel = new Server();
+                        $serverNode = $serverModel->getNodeByReference('servers.server.' . $server_uuid);
+                        if ($serverNode !== null) {
+                            $result['server'] = [
+                                'name' => (string)$serverNode->name,
+                                'endpoint' => (string)$serverNode->endpoint,
+                                'pubkey' => (string)$serverNode->pubkey,
+                            ];
+                            
+                            // Create WireGuard configuration
+                            $configLines = [];
+                            $configLines[] = '[Interface]';
+                            $configLines[] = 'PrivateKey = [HIDDEN - Check peer generator form]';
+                            
+                            $tunnelAddr = (string)$clientNode->tunneladdress;
+                            if (!empty($tunnelAddr)) {
+                                $configLines[] = 'Address = ' . $tunnelAddr;
+                            }
+                            
+                            // Add DNS from request or server
+                            $configbuilder = $this->request->getPost('configbuilder');
+                            if (is_array($configbuilder) && !empty($configbuilder['peer_dns'])) {
+                                $configLines[] = 'DNS = ' . $configbuilder['peer_dns'];
+                            } elseif (!empty((string)$serverNode->peer_dns)) {
+                                $configLines[] = 'DNS = ' . (string)$serverNode->peer_dns;
+                            }
+                            
+                            // Add MTU if present from server
+                            if (!empty((string)$serverNode->mtu)) {
+                                $configLines[] = 'MTU = ' . (string)$serverNode->mtu;
+                            }
+                            
+                            $configLines[] = '';
+                            $configLines[] = '[Peer]';
+                            $configLines[] = 'PublicKey = ' . (string)$serverNode->pubkey;
+                            
+                            if (!empty((string)$clientNode->psk)) {
+                                $configLines[] = 'PresharedKey = [SET]';
+                            }
+                            
+                            $endpoint = (string)$serverNode->endpoint;
+                            if (!empty($endpoint)) {
+                                $configLines[] = 'Endpoint = ' . $endpoint;
+                            }
+                            
+                            // AllowedIPs - use client's tunnel address
+                            if (!empty($tunnelAddr)) {
+                                $configLines[] = 'AllowedIPs = ' . $tunnelAddr;
+                            } else {
+                                $configLines[] = 'AllowedIPs = 0.0.0.0/0, ::/0';
+                            }
+                            
+                            $keepalive = (string)$clientNode->keepalive;
+                            if (!empty($keepalive)) {
+                                $configLines[] = 'PersistentKeepalive = ' . $keepalive;
+                            }
+                            
+                            $result['config_preview'] = implode("\n", $configLines);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                $result['error'] = 'Error generating config: ' . $e->getMessage();
+            }
+        }
+        
+        return $result;
     }
 
     public function getServerInfoAction($uuid = null)

@@ -29,14 +29,15 @@
 
 require_once("config.inc");
 require_once("util.inc");
+require_once("/usr/local/opnsense/scripts/shell/langmode.php");
 
 $fp = fopen('php://stdin', 'r');
 
-echo "\nEnter a host name or IP address: ";
+echo "\n" . __('Enter a host name or IP address: ');
 
 $pinghost = chop(fgets($fp));
 echo "\n";
 pass_safe('/sbin/ping -c 3 -n %s', $pinghost);
-echo "\nPress ENTER to continue.\n";
+echo "\n" . __('Press ENTER to continue.') . "\n";
 fgets($fp);
 fclose($fp);

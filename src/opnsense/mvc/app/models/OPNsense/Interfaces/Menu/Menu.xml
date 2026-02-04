@@ -1,24 +1,25 @@
 <menu>
     <Interfaces>
         <Assignments order="200" url="/interfaces_assign.php" cssClass="fa fa-pencil fa-fw"/>
+        <!-- TODO: unhide this -->
         <Devices order="210" cssClass="fa fa-archive fa-fw">
-            <Bridge url="/ui/interfaces/bridge"/>
-            <GIF url="/ui/interfaces/gif"/>
-            <GRE url="/ui/interfaces/gre"/>
-            <LAGG url="/ui/interfaces/lagg"/>
-            <Loopback url="/ui/interfaces/loopback"/>
+            <Bridge url="/ui/interfaces/bridge" visibility="delete"/>
+            <GIF url="/ui/interfaces/gif" visibility="delete"/>
+            <GRE url="/ui/interfaces/gre" visibility="delete"/>
+            <LAGG url="/ui/interfaces/lagg" visibility="delete"/>
+            <Loopback url="/ui/interfaces/loopback" visibility="delete"/>
             <PPP VisibleName="Point-to-Point" url="/interfaces_ppps.php">
                 <Edit url="/interfaces_ppps_edit.php*" visibility="hidden"/>
             </PPP>
             <VLAN url="/ui/interfaces/vlan"/>
-            <VXLAN url="/ui/interfaces/vxlan"/>
+            <VXLAN url="/ui/interfaces/vxlan" visibility="delete"/>
         </Devices>
         <Neighbors order="220" cssClass="fa fa-users fa-fw">
             <Manual VisibleName="Static Assignments" url="/ui/interfaces/neighbor"/>
         </Neighbors>
         <Overview order="230" url="/ui/interfaces/overview" cssClass="fa fa-tasks fa-fw"/>
-        <Settings order="240" url="/ui/interfaces/settings" cssClass="fa fa-cogs fa-fw"/>
-        <VIP order="250" VisibleName="Virtual IPs" cssClass="fa fa-clone fa-fw">
+        <Settings order="240" url="/ui/interfaces/settings" cssClass="fa fa-cogs fa-fw" visibility="delete"/>
+        <VIP order="250" VisibleName="Virtual IPs" cssClass="fa fa-clone fa-fw" visibility="delete">
             <Settings url="/ui/interfaces/vip"/>
             <Status url="/ui/diagnostics/interface/vip"/>
         </VIP>
