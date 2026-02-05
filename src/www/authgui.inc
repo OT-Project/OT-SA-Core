@@ -329,7 +329,8 @@ function display_error_form($text)
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <title><?= gettext('Error') ?> | <?= $product->name() ?></title>
+    <!-- TODO: Change the name in Login UI -->
+    <title><?= gettext('Error') ?> | OT Security Appliance</title>
 
     <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
     <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
@@ -370,7 +371,8 @@ function display_login_form($Login_Error)
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <title><?= gettext('Login') ?> | <?= $product->name() ?></title>
+    <!-- TODO: Change the name in Login UI -->
+    <title><?= gettext('Login') ?> | OT Security Appliance</title>
 
     <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
     <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
@@ -388,11 +390,13 @@ function display_login_form($Login_Error)
     <main class="login-modal-container">
       <header class="login-modal-head" style="height:50px;">
         <div class="navbar-brand">
-    <?php if (get_themed_filename('/images/default-logo.svg', true)) : ?>
+    
+    <!-- TODO: Removed logo -->
+    <!-- <?php if (get_themed_filename('/images/default-logo.svg', true)) : ?>
           <img src="<?= cache_safe(get_themed_filename('/images/default-logo.svg')) ?>" height="30" alt="logo" />
     <?php else : ?>
           <img src="<?= cache_safe(get_themed_filename('/images/default-logo.png')) ?>" height="30" alt="logo" />
-    <?php endif ?>
+    <?php endif ?> -->
         </div>
       </header>
     <h1 style="color: red; text-align: center; margin-bottom: 20px;">Login</h1>
@@ -433,8 +437,9 @@ function display_login_form($Login_Error)
 
       </main>
       <div class="login-foot text-center">
-        <a target="_blank" href="<?= $product->website() ?>"><?= $product->name() ?></a> (c) <?= $product->copyright_years() ?>
-        <a target="_blank" href="<?= $product->copyright_url() ?>"><?= $product->copyright_owner() ?></a>
+      <!-- TODO: Removed footer -->
+        <!-- <a target="_blank" href="<?= $product->website() ?>"><?= $product->name() ?></a> (c) <?= $product->copyright_years() ?>
+        <a target="_blank" href="<?= $product->copyright_url() ?>"><?= $product->copyright_owner() ?></a> -->
       </div>
 
     </div>

@@ -1,6 +1,7 @@
 <menu>
     <Services>
-        <CaptivePortal VisibleName="Captive Portal" cssClass="fa fa-paper-plane-o fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <CaptivePortal VisibleName="Captive Portal" cssClass="fa fa-paper-plane-o fa-fw" visibility="delete">
             <Administration order="10" url="/ui/captiveportal"/>
             <Sessions order="20" url="/ui/captiveportal/session"/>
             <Vouchers order="30" url="/ui/captiveportal/voucher"/>

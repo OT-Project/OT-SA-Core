@@ -1,6 +1,7 @@
 <menu>
     <Services>
-        <Unbound VisibleName="Unbound DNS" cssClass="fa fa-tags fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <Unbound VisibleName="Unbound DNS" cssClass="fa fa-tags fa-fw" visibility="delete">
             <General order="10" url="/ui/unbound/general"/>
             <Overrides order="20" url="/ui/unbound/overrides"/>
             <Advanced order="30" url="/ui/unbound/advanced"/>
