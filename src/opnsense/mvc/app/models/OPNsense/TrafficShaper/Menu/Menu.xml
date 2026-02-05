@@ -1,6 +1,7 @@
 <menu>
     <Firewall>
-        <Shaper cssClass="fa fa-filter fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <Shaper cssClass="fa fa-filter fa-fw" visibility="delete">
             <Pipes order="10" url="/ui/trafficshaper#pipes"/>
             <Queues order="20" url="/ui/trafficshaper#queues"/>
             <Rules order="30" url="/ui/trafficshaper#rules"/>

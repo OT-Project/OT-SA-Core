@@ -1,6 +1,7 @@
 <menu>
     <Services>
-        <DHCRelay cssClass="fa fa-bullseye fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <DHCRelay cssClass="fa fa-bullseye fa-fw" visibility="delete">
             <Configuration url="/ui/dhcrelay/relay"/>
             <LogFile VisibleName="Log File" url="/ui/diagnostics/log/core/dhcrelay"/>
         </DHCRelay>

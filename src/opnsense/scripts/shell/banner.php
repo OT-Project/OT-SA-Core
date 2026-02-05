@@ -38,7 +38,7 @@ require_once("plugins.inc.d/openssh.inc");
 // require_once("/usr/local/opnsense/scripts/shell/langmode.php");
 // echo "\n*** {$config['system']['hostname']}.{$config['system']['domain']}: {$version} ***\n";
 
-echo "\n*** BKCSense ***\n";
+echo "\n*** OT Security Appliance ***\n";
 
 $iflist = legacy_config_get_interfaces(['enable' => true, 'virtual' => false]);
 $ifdetails = legacy_interfaces_details();

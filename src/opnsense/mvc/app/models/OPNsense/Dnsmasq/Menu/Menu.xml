@@ -1,6 +1,7 @@
 <menu>
     <Services>
-        <Dnsmasq VisibleName="Dnsmasq DNS &amp; DHCP" cssClass="fa fa-tags fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <Dnsmasq VisibleName="Dnsmasq DNS &amp; DHCP" cssClass="fa fa-tags fa-fw" visibility="delete">
           <General order="10" url="/ui/dnsmasq/settings#general"/>
           <Domains order="20" url="/ui/dnsmasq/settings#domains"/>
           <Hosts order="30" url="/ui/dnsmasq/settings#hosts"/>

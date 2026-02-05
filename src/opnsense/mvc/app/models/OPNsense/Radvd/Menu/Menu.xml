@@ -1,5 +1,6 @@
 <menu>
     <Services>
-        <RouterAdv VisibleName="Router Advertisements" url="/ui/radvd/settings" cssClass="fa fa-bullseye fa-fw"/>
+        <!-- TODO: Hide unnecessary menu items -->
+        <RouterAdv VisibleName="Router Advertisements" url="/ui/radvd/settings" cssClass="fa fa-bullseye fa-fw" visibility="delete"/>
     </Services>
 </menu>
