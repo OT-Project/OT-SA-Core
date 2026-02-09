@@ -1275,7 +1275,8 @@ input[type="color"] {
   }
 }
 
-.sidebar-menu .collapse .list-group-item {
+.sidebar-menu .collapse .list-group-item,
+.sidebar-menu .collapsing .list-group-item {
   padding-left: 44px;
   font-size: 15px;
   

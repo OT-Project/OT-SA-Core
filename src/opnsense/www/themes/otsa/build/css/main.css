@@ -7794,25 +7794,32 @@ input[type=color] {
   color: #5570F1;
 }
 
-.sidebar-menu .collapse .list-group-item {
+.sidebar-menu .collapse .list-group-item,
+.sidebar-menu .collapsing .list-group-item {
   padding-left: 44px;
   font-size: 15px;
 }
-.sidebar-menu .collapse .list-group-item.active {
+.sidebar-menu .collapse .list-group-item.active,
+.sidebar-menu .collapsing .list-group-item.active {
   background-color: #5570F1;
   color: #FFF;
 }
-.sidebar-menu .collapse .list-group-item {
+.sidebar-menu .collapse .list-group-item,
+.sidebar-menu .collapsing .list-group-item {
   /* For ancestor (parent) in level 2 when a level 3 is active */
 }
-.sidebar-menu .collapse .list-group-item.active-menu-title {
+.sidebar-menu .collapse .list-group-item.active-menu-title,
+.sidebar-menu .collapsing .list-group-item.active-menu-title {
   background-color: transparent;
   color: #5570F1;
   font-weight: 700;
 }
 .sidebar-menu .collapse .list-group-item.active-menu-title .__iconspacer .fa,
 .sidebar-menu .collapse .list-group-item.active-menu-title .__iconspacer .fa-solid,
-.sidebar-menu .collapse .list-group-item.active-menu-title .__iconspacer .glyphicon {
+.sidebar-menu .collapse .list-group-item.active-menu-title .__iconspacer .glyphicon,
+.sidebar-menu .collapsing .list-group-item.active-menu-title .__iconspacer .fa,
+.sidebar-menu .collapsing .list-group-item.active-menu-title .__iconspacer .fa-solid,
+.sidebar-menu .collapsing .list-group-item.active-menu-title .__iconspacer .glyphicon {
   color: #5570F1;
 }
 
@@ -21555,3 +21562,5 @@ input[type=color] {
   gap: 12px;
   justify-content: center;
 }
+
+/*# sourceMappingURL=main.css.map */
