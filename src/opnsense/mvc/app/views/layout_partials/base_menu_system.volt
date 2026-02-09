@@ -1,4 +1,4 @@
-<aside id="navigation" class="page-side col-xs-12 col-sm-3 col-lg-2 hidden-xs">
+<aside id="navigation" class="page-side col-xs-12 col-sm-3 col-lg-2 hidden-xs bbb">
     <div class="row">
         <nav class="page-side-nav">
             <div id="mainmenu" class="panel" style="border:0px">
@@ -70,6 +70,23 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-footer-btn sidebar-support-btn">
+                    <i class="fa fa-headphones"></i>
+                    <span>Contact Support</span>
+                </a>
+                <a href="#" class="sidebar-footer-btn sidebar-upgrade-btn">
+                    <i class="fa fa-gift"></i>
+                    <div class="sidebar-upgrade-content">
+                        <div class="sidebar-upgrade-title">Free Gift Awaits You!</div>
+                        <div class="sidebar-upgrade-subtitle">Upgrade your account <i class="fa fa-arrow-right"></i></div>
+                    </div>
+                </a>
+                <a href="/index.php?logout" class="sidebar-logout-link">
+                    <i class="fa fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
             </div>
         </nav>
     </div>
