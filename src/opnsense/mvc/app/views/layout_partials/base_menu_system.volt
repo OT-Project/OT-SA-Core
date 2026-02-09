@@ -125,16 +125,30 @@
 
             // Run on load and hash change
             fixSidebarActiveState();
-            $(window).on('hashchange', function () {
-                var newHash = window.location.hash;
+
+            function updateSidebarByHash(newHash) {
                 if (newHash) {
+                    var currentPath = window.location.pathname;
                     $('.sidebar-menu .list-group-item').each(function () {
                         var href = $(this).attr('href');
-                        if (href && href.endsWith(newHash)) {
+                        // Use strict match: href === pathname + hash
+                        if (href === currentPath + newHash) {
                             $(this).closest('.collapse').find('.list-group-item').removeClass('active');
                             $(this).addClass('active');
                         }
                     });
+                }
+            }
+
+            $(window).on('hashchange', function () {
+                updateSidebarByHash(window.location.hash);
+            });
+
+            // Listen for tab changes (Reverse sync: content tab -> sidebar)
+            $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+                var target = $(e.target).attr("href");
+                if (target && target.startsWith("#")) {
+                    updateSidebarByHash(target);
                 }
             });
         });
