@@ -302,14 +302,14 @@ div {
     display: flex;
     flex-flow: row wrap;
     padding: 0.5em 0.5em;
-    border-top: solid 1px transparentize(map-get($colors, brand-primary), 0.85);
+    border-top: solid 1px rgba(map-get($colors, brand-primary), 0.15);
 }
 
 .flextable-row {
     display: flex;
     flex-flow: row wrap;
     padding: 0.5em 0.5em;
-    border-top: solid 1px transparentize(map-get($colors, brand-primary), 0.85);
+    border-top: solid 1px rgba(map-get($colors, brand-primary), 0.15);
     align-items: center;
 }
 
@@ -338,7 +338,7 @@ div {
     width: 100%;
     padding: 0;
     border: 0;
-    border-top: transparentize(map-get($colors, brand-primary), 0.85);
+    border-top: rgba(map-get($colors, brand-primary), 0.15);
 }
 .column .flex-cell:hover {
     background: map-get($colors, content-background);
@@ -349,7 +349,7 @@ div {
 }
 
 .column .flex-cell:not(:last-child) {
-    border-bottom: solid 1px transparentize(map-get($colors, brand-primary), 0.85);
+    border-bottom: solid 1px rgba(map-get($colors, brand-primary), 0.15);
 }
 /* ----- */
 
@@ -362,7 +362,7 @@ div {
 .grid-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    border-top: 1px solid transparentize(map-get($colors, brand-primary), 0.85);
+    border-top: 1px solid rgba(map-get($colors, brand-primary), 0.15);
     opacity: 0.4;
 }
 
@@ -371,7 +371,7 @@ div {
 }
 
 .grid-header {
-    border-top: 1px solid transparentize(map-get($colors, brand-primary), 0.85);
+    border-top: 1px solid rgba(map-get($colors, brand-primary), 0.15);
     font-weight: bold;
 }
 

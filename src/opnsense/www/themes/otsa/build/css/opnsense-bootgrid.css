@@ -27,7 +27,8 @@
 }
 
 .tabulator .tabulator-headers {
-  height: 100% !important; /* make sure the border below appears */
+  height: 100% !important;
+  /* make sure the border below appears */
   border-bottom: 1px solid #E5E5E5;
 }
 
@@ -72,7 +73,8 @@
 }
 
 .tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
-  color: #373736; /* spinner icon */
+  color: #373736;
+  /* spinner icon */
 }
 
 /* Command column styles */
@@ -102,12 +104,14 @@
 }
 
 .tabulator-row.tabulator-group:has(> .tabulator-group-toggle:only-child) {
-  display: none; /* Trick to hide empty groupBy header rows */
+  display: none;
+  /* Trick to hide empty groupBy header rows */
 }
 
 /* Checkbox column styles */
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left {
-  border-right: 1px solid #E5E5E5; /* separates checkbox column from table rows */
+  border-right: 1px solid #E5E5E5;
+  /* separates checkbox column from table rows */
   border-left: 1px solid #FBFBFB;
 }
 
@@ -324,5 +328,3 @@
   font-size: 20px;
   color: black;
 }
-
-/*# sourceMappingURL=opnsense-bootgrid.css.map */

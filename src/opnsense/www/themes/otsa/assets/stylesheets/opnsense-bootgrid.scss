@@ -1,3 +1,4 @@
+@use "sass:color";
 @import "config/colors";
 
 /**
@@ -16,25 +17,31 @@
     border-bottom: none;
     border-left: 1px solid map-get($colors, border-default);
 }
+
 .tabulator .tabulator-header .tabulator-col {
     border-right: 1px solid map-get($colors, border-default);
     background-color: map-get($colors, brand-primary);
     color: #FFF;
 }
+
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable.tabulator-col-sorter-element:hover {
-    background-color: darken(map-get($colors, brand-primary), 10%);
+    background-color: color.adjust(map-get($colors, brand-primary), $lightness: -10%);
     color: #FFF;
 }
+
 .tabulator .tabulator-headers {
-    height: 100% !important; /* make sure the border below appears */
+    height: 100% !important;
+    /* make sure the border below appears */
     border-bottom: 1px solid map-get($colors, border-default);
 }
+
 /*------------*/
 
 /* theme: body */
 .tabulator .tabulator-tableholder .tabulator-table {
     background-color: transparent;
 }
+
 .tabulator-row {
     background-color: transparent;
     color: map-get($colors, text-color);
@@ -43,6 +50,7 @@
 .tabulator-row.tabulator-row-odd {
     background-color: map-get($colors, table-bg-accent);
 }
+
 .tabulator-row.tabulator-row-odd.tabulator-selectable:hover:not(.tabulator-selected) {
     background-color: #f0f3f9;
 }
@@ -50,28 +58,33 @@
 .tabulator-row.tabulator-row-even {
     background-color: map-get($colors, body-background);
 }
+
 .tabulator-row.tabulator-row-even.tabulator-selectable:hover:not(.tabulator-selected) {
     background-color: #f0f3f9;
 }
+
 .tabulator .tabulator-tableholder {
     background-color: transparent;
 }
+
 .tabulator-row.tabulator-selected {
     background-color: #e3e8f0;
 }
+
 .tabulator-row.tabulator-selected:hover {
     cursor: pointer;
     background-color: #e3e8f0;
 }
+
 .tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
-    color: map-get($colors, text-color); /* spinner icon */
+    color: map-get($colors, text-color);
+    /* spinner icon */
 }
 
 /* Command column styles */
-.tabulator-col.tabulator-frozen.tabulator-frozen-right {
-}
-.tabulator-row .tabulator-cell.tabulator-frozen.tabulator-frozen-right {
-}
+.tabulator-col.tabulator-frozen.tabulator-frozen-right {}
+
+.tabulator-row .tabulator-cell.tabulator-frozen.tabulator-frozen-right {}
 
 /* Tabulator groupBy row styles */
 .tabulator-row.tabulator-group {
@@ -99,22 +112,25 @@
 }
 
 .tabulator-row.tabulator-group:has(> .tabulator-group-toggle:only-child) {
-    display: none; /* Trick to hide empty groupBy header rows */
+    display: none;
+    /* Trick to hide empty groupBy header rows */
 }
 
 /* Checkbox column styles */
 .tabulator .tabulator-header .tabulator-frozen.tabulator-frozen-left {
-    border-right: 1px solid map-get($colors, border-default); /* separates checkbox column from table rows */
+    border-right: 1px solid map-get($colors, border-default);
+    /* separates checkbox column from table rows */
     border-left: 1px solid map-get($colors, table-bg-accent);
 
 }
+
 .tabulator-row .tabulator-cell.tabulator-frozen.tabulator-frozen-left {
     // border-right: 1px solid map-get($colors, border-default);
     // border-top: 1px solid map-get($colors, table-bg-accent);
     // border-bottom: 1px solid map-get($colors, border-default);
     // border-left: 1px solid map-get($colors, table-bg-accent);
     border: 0px;
-    
+
     input[type="checkbox"] {
         width: 16px !important;
         height: 16px !important;
@@ -123,13 +139,13 @@
         margin: 0;
     }
 }
-.tabulator-col.tabulator-row-header.tabulator-frozen.tabulator-frozen-left {
-}
-.tabulator-cell.tabulator-row-header.tabulator-frozen.tabulator-frozen-left {
-}
-.tabulator-row:last-child >
-.tabulator-cell.tabulator-row-header.tabulator-frozen.tabulator-frozen-left:first-child {
-}
+
+.tabulator-col.tabulator-row-header.tabulator-frozen.tabulator-frozen-left {}
+
+.tabulator-cell.tabulator-row-header.tabulator-frozen.tabulator-frozen-left {}
+
+.tabulator-row:last-child>.tabulator-cell.tabulator-row-header.tabulator-frozen.tabulator-frozen-left:first-child {}
+
 /*------------*/
 
 /* theme: cells */
@@ -139,10 +155,11 @@
     line-height: 1.2;
     vertical-align: top;
     border-right: 0;
-    height: 40px!important;
+    height: 40px !important;
     align-content: center;
-    border-left: 0px!important;
+    border-left: 0px !important;
 }
+
 /*-------------*/
 
 /* theme: footer */
@@ -150,39 +167,47 @@
     border-top: none;
     background-color: transparent;
 }
+
 .tabulator .tabulator-footer .tabulator-page {
     background-color: map-get($colors, body-background);
     color: map-get($colors, brand-primary);
 }
+
 .tabulator .tabulator-footer .tabulator-page.active {
     background-color: map-get($colors, brand-primary);
     border-color: map-get($colors, brand-primary);
     cursor: default;
     color: map-get($colors, body-background);
 }
+
 .tabulator .tabulator-footer .tabulator-page:not(disabled):hover {
-    color: darken(map-get($colors, brand-primary), 15%);
+    color: color.adjust(map-get($colors, brand-primary), $lightness: -15%);
     background-color: #eeeeee;
     border-color: #ddd;
 }
+
 .tabulator .tabulator-footer .tabulator-page:not(disabled).active:hover {
     background-color: map-get($colors, brand-primary);
     border-color: map-get($colors, brand-primary);
     color: map-get($colors, body-background);
     cursor: default;
 }
+
 .tabulator-page-counter {
-    color: map-get($colors,text-color);
+    color: map-get($colors, text-color);
 }
+
 .tabulator .tabulator-footer .tabulator-paginator {
     color: map-get($colors, text-color);
 }
+
 .tabulator .tabulator-footer .tabulator-page {
     border-radius: 0px;
     margin: 0px;
     padding: 6px 12px;
     border: 1px solid map-get($colors, border-default);
 }
+
 /*----------*/
 
 /* end of main theming elements */
@@ -190,10 +215,12 @@
 .tabulator-paginator {
     flex: 0 !important;
 }
+
 .tabulator-page-counter {
     flex: 1;
     text-align: right;
 }
+
 .tabulator-col-sorter i {
     display: flex;
     justify-content: center;
@@ -202,14 +229,14 @@
 
 .tabulator .tabulator-header .tabulator-col {
     padding: 5px;
-    height: 40px!important;
+    height: 40px !important;
     justify-content: center;
-    border-left: 0px!important;
+    border-left: 0px !important;
     background-color: map-get($colors, brand-primary) !important;
     color: #FFF !important;
 }
 
-.tabulator .tabulator-headers > :first-child {
+.tabulator .tabulator-headers> :first-child {
     padding-left: 10px;
 }
 
@@ -228,7 +255,7 @@
 }
 
 
-.tabulator-row > :first-child {
+.tabulator-row> :first-child {
     padding-left: 10px;
 }
 
@@ -264,7 +291,7 @@
 }
 
 /* border line corrections and hover/selection behavior */
-.tabulator-row:first-child >  .tabulator-cell {
+.tabulator-row:first-child>.tabulator-cell {
     border-top: none;
 }
 
@@ -277,10 +304,12 @@
     0% {
         background: #ffff99;
     }
+
     100% {
         background: none;
     }
 }
+
 .highlight-bg {
     animation: highlight 2s;
 }
@@ -289,13 +318,16 @@
 .tabulator .tabulator-alert {
     background: none;
 }
+
 .tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
     border: none;
 }
+
 .tabulator .tabulator-alert .tabulator-alert-msg {
     background: initial;
     font-size: 18px;
 }
+
 .tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-error {
     border: none;
 }
@@ -319,7 +351,8 @@
     align-items: center;
     z-index: 99;
 }
-.overlay > i {
+
+.overlay>i {
     font-size: 20px;
     color: black;
 }

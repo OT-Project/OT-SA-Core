@@ -21,7 +21,8 @@
   margin-right: 10px;
 }
 
-#save-btn-text, #icon-container {
+#save-btn-text,
+#icon-container {
   position: absolute;
 }
 
@@ -31,11 +32,13 @@
   justify-content: center;
 }
 
-#save-spinner, #save-check {
+#save-spinner,
+#save-check {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.transition-spinner, transition-check {
+.transition-spinner,
+transition-check {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -195,7 +198,8 @@ td {
 }
 
 .smoothie-chart-tooltip {
-  z-index: 1; /* necessary to force to foreground */
+  z-index: 1;
+  /* necessary to force to foreground */
   background: rgba(50, 50, 50, 0.9);
   padding-left: 15px;
   padding-right: 15px;
@@ -391,5 +395,3 @@ div {
   align-items: center;
   justify-content: center;
 }
-
-/*# sourceMappingURL=dashboard.css.map */
