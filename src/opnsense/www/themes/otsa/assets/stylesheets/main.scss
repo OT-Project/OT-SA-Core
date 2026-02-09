@@ -16826,3 +16826,30 @@ input[type="color"] {
     justify-content: center;
   }
 }
+/* Style for Live View Button */
+.live-view-btn {
+    background: linear-gradient(135deg, map-get($colors, brand-primary) 0%, darken(map-get($colors, brand-primary), 15%) 100%);
+    color: #fff !important;
+    border-radius: 50px; /* Pill shape */
+    padding: 8px 15px !important; /* Adjust padding for pill shape */
+    margin: 5px 15px 5px 44px; /* Adjust margins to sit nicely in the menu */
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    display: table !important; /* Override volt template display: block if any */
+    width: calc(100% - 60px) !important; /* Adjust width */
+}
+
+.live-view-btn:hover {
+    background: linear-gradient(135deg, lighten(map-get($colors, brand-primary), 5%) 0%, map-get($colors, brand-primary) 100%);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    text-decoration: none;
+    color: #fff !important;
+}
+
+.live-view-btn.active {
+    background: linear-gradient(135deg, darken(map-get($colors, brand-primary), 10%) 0%, darken(map-get($colors, brand-primary), 20%) 100%);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}

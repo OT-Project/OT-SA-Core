@@ -21558,4 +21558,32 @@ input[type=color] {
   justify-content: center;
 }
 
+/* Style for Live View Button */
+.live-view-btn {
+  background: linear-gradient(135deg, #5570F1 0%, rgb(18.9836956522, 55.5951086957, 230.5163043478) 100%);
+  color: #fff !important;
+  border-radius: 50px; /* Pill shape */
+  padding: 8px 15px !important; /* Adjust padding for pill shape */
+  margin: 5px 15px 5px 44px; /* Adjust margins to sit nicely in the menu */
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: table !important; /* Override volt template display: block if any */
+  width: calc(100% - 60px) !important; /* Adjust width */
+}
+
+.live-view-btn:hover {
+  background: linear-gradient(135deg, rgb(108.5597826087, 131.8179347826, 242.9402173913) 0%, #5570F1 100%);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: #fff !important;
+}
+
+.live-view-btn.active {
+  background: linear-gradient(135deg, rgb(37.8804347826, 72.3641304348, 237.1195652174) 0%, rgb(17.0434782609, 49.9130434783, 206.9565217391) 100%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /*# sourceMappingURL=main.css.map */
