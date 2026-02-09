@@ -90,4 +90,53 @@
 
         </nav>
     </div>
+    <script>
+        $(document).ready(function () {
+            // Fix sidebar active state for items with same base URL (e.g. WireGuard tabs)
+            function fixSidebarActiveState() {
+                var currentPath = window.location.pathname;
+                var currentHash = window.location.hash;
+                var fullUrl = currentPath + currentHash;
+
+                $('.sidebar-menu .collapse.in').each(function () {
+                    var activeItems = $(this).find('.list-group-item.active');
+                    if (activeItems.length > 1) {
+                        var bestMatch = null;
+
+                        activeItems.each(function () {
+                            var href = $(this).attr('href');
+                            if (href && href === fullUrl) {
+                                bestMatch = $(this);
+                                return false;
+                            }
+                        });
+
+                        if (bestMatch) {
+                            activeItems.removeClass('active');
+                            bestMatch.addClass('active');
+                        } else if (!currentHash) {
+                            // If no hash, default to the first active item
+                            activeItems.removeClass('active');
+                            $(activeItems[0]).addClass('active');
+                        }
+                    }
+                });
+            }
+
+            // Run on load and hash change
+            fixSidebarActiveState();
+            $(window).on('hashchange', function () {
+                var newHash = window.location.hash;
+                if (newHash) {
+                    $('.sidebar-menu .list-group-item').each(function () {
+                        var href = $(this).attr('href');
+                        if (href && href.endsWith(newHash)) {
+                            $(this).closest('.collapse').find('.list-group-item').removeClass('active');
+                            $(this).addClass('active');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </aside>
