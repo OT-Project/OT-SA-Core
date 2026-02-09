@@ -2,7 +2,7 @@
     <div class="row">
         <nav class="page-side-nav">
             <div id="mainmenu" class="panel" style="border:0px">
-                <div class="panel list-group" style="border:0px">
+                <div class="panel list-group sidebar-menu" style="border:0px">
                     {% for topMenuItem in menuSystem %}
                         {% if topMenuItem.Children|length >= 1 %}
                             <a href="#{{ topMenuItem.Id }}" class="list-group-item {% if topMenuItem.Selected %}  active-menu-title {% endif  %}" data-toggle="collapse" data-parent="#mainmenu">
