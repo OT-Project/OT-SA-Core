@@ -173,23 +173,6 @@ if (($theme === 'otsa-dark' || $theme === 'opnsense-dark') && get_themed_filenam
                         endforeach; ?>
                     </div>
                 </div>
-            <div class="sidebar-footer">
-                <a href="#" class="sidebar-footer-btn sidebar-support-btn">
-                    <i class="fa fa-headphones"></i>
-                    <span><?=gettext("Contact Support"); ?></span>
-                </a>
-                <a href="#" class="sidebar-footer-btn sidebar-upgrade-btn">
-                    <i class="fa fa-gift"></i>
-                    <div class="sidebar-upgrade-content">
-                        <div class="sidebar-upgrade-title"><?=gettext("Free Gift Awaits You!"); ?></div>
-                        <div class="sidebar-upgrade-subtitle"><?=gettext("Upgrade your account"); ?> <i class="fa fa-arrow-right"></i></div>
-                    </div>
-                </a>
-                <a href="/index.php?logout" class="sidebar-logout-link">
-                    <i class="fa fa-sign-out-alt"></i>
-                    <span><?=gettext("Logout"); ?></span>
-                </a>
-                </div>
             </nav>
         </div>
     </aside>
