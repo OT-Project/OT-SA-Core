@@ -1652,6 +1652,11 @@ include("head.inc");
   </script>
 
   <?php include("fbegin.inc"); ?>
+  <style>
+    .page-content-head {
+      display: none;
+    }
+  </style>
   <section class="page-content-main interfaces-page">
     <div class="container-fluid">
       <div class="row">
@@ -1745,7 +1750,7 @@ include("head.inc");
               </div>
             </div>
             <div id="allcfg" style="display:none">
-              <div class="tab-content content-box col-xs-12 __mb">
+              <div class="tab-content content-box col-xs-12 __mbinterfaces-card">
                 <div class="table-responsive">
                   <!-- Section : All -->
                   <table class="table table-striped opnsense_standard_table_form">
@@ -1787,7 +1792,7 @@ include("head.inc");
                         <td>
                           <select name="type" class="selectpicker" data-style="btn-default" id="type">
                             <?php foreach ($types4 as $key => $opt): ?>
-                              <option value="<?= html_safe($key) ?>" <?= $key == $pconfig['type'] ? 'selected="selected"' : '' ?>><?= $opt ?></option>
+                                <option value="<?= html_safe($key) ?>" <?= $key == $pconfig['type'] ? 'selected="selected"' : '' ?>><?= $opt ?></option>
                             <?php endforeach ?>
                           </select>
                         </td>
@@ -1797,7 +1802,7 @@ include("head.inc");
                         <td>
                           <select name="type6" class="selectpicker" data-style="btn-default" id="type6">
                             <?php foreach ($types6 as $key => $opt): ?>
-                              <option value="<?= html_safe($key) ?>" <?= $key == $pconfig['type6'] ? 'selected="selected"' : '' ?>><?= $opt ?></option>
+                                <option value="<?= html_safe($key) ?>" <?= $key == $pconfig['type6'] ? 'selected="selected"' : '' ?>><?= $opt ?></option>
                             <?php endforeach ?>
                           </select>
                         </td>
@@ -1820,9 +1825,9 @@ include("head.inc");
                             $mac = str_replace("\n", "", $mac);
                             if (!empty($mac)):
                               ?>
-                              <a onclick="document.getElementById('spoofmac').value='<?= html_safe($mac) ?>';"
-                                href="#"><?= gettext("Insert my currently connected MAC address (use with care)"); ?></a><br />
-                              <?php
+                                <a onclick="document.getElementById('spoofmac').value='<?= html_safe($mac) ?>';"
+                                  href="#"><?= gettext("Insert my currently connected MAC address (use with care)"); ?></a><br />
+                                <?php
                             endif; ?>
                           </div>
                         </td>
@@ -1869,26 +1874,26 @@ include("head.inc");
                       </tr>
                       <?php
                       if (count($mediaopts_list) > 1): ?>
-                        <tr>
-                          <td><a id="help_for_mediaopt" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Speed and duplex"); ?> </td>
-                          <td>
-                            <select name="mediaopt" class="selectpicker" data-style="btn-default" id="mediaopt">
-                              <option value=""><?= gettext('Default (no preference, typically autoselect)'); ?></option>
-                              <?php
-                              foreach ($mediaopts_list as $mediaopt): ?>
-                                <option value="<?= $mediaopt; ?>" <?= $mediaopt == trim($pconfig['media'] . " " . $pconfig['mediaopt']) ? "selected=\"selected\"" : ""; ?>>
-                                  <?= $mediaopt; ?>
-                                </option>
+                          <tr>
+                            <td><a id="help_for_mediaopt" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Speed and duplex"); ?> </td>
+                            <td>
+                              <select name="mediaopt" class="selectpicker" data-style="btn-default" id="mediaopt">
+                                <option value=""><?= gettext('Default (no preference, typically autoselect)'); ?></option>
                                 <?php
-                              endforeach; ?>
-                            </select>
-                            <div class="hidden" data-for="help_for_mediaopt">
-                              <?= gettext("Here you can explicitly set speed and duplex mode for this interface. WARNING: You MUST leave this set to autoselect (automatically negotiate speed) unless the port this interface connects to has its speed and duplex forced."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <?php
+                                foreach ($mediaopts_list as $mediaopt): ?>
+                                    <option value="<?= $mediaopt; ?>" <?= $mediaopt == trim($pconfig['media'] . " " . $pconfig['mediaopt']) ? "selected=\"selected\"" : ""; ?>>
+                                      <?= $mediaopt; ?>
+                                    </option>
+                                    <?php
+                                endforeach; ?>
+                              </select>
+                              <div class="hidden" data-for="help_for_mediaopt">
+                                <?= gettext("Here you can explicitly set speed and duplex mode for this interface. WARNING: You MUST leave this set to autoselect (automatically negotiate speed) unless the port this interface connects to has its speed and duplex forced."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <?php
                       endif; ?>
                       <tr>
                         <td><a id="help_for_gateway_interface" href="#" class="showhelp"><i
@@ -1909,90 +1914,90 @@ include("head.inc");
                 </div>
               </div>
               <?php if (in_array($pconfig['if'], $hwifs)): ?>
-                <!-- Hardware settings -->
-                <div class="tab-content content-box col-xs-12 __mb">
-                  <div class="table-responsive">
-                    <table class="table table-striped opnsense_standard_table_form">
-                      <thead>
-                        <tr>
-                          <th colspan="2"><?= gettext("Hardware settings"); ?></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td style="width:22%"><a id="help_for_hw_settings_overwrite" href="#" class="showhelp"> <i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Overwrite global settings"); ?></td>
-                          <td style="width:78%">
-                            <input id="hw_settings_overwrite" name="hw_settings_overwrite" type="checkbox" value="yes"
-                              <?= !empty($pconfig['hw_settings_overwrite']) ? 'checked="checked"' : '' ?> />
-                            <div class="hidden" data-for="help_for_hw_settings_overwrite">
-                              <?= gettext("Overwrite custom interface hardware settings with settings specified below"); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="hw_settings_overwrite" style="display:none">
-                          <td><a id="help_for_disablechecksumoffloading" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Hardware CRC"); ?></td>
-                          <td>
-                            <input name="disablechecksumoffloading" type="checkbox" id="disablechecksumoffloading"
-                              value="yes" <?= !empty($pconfig['disablechecksumoffloading']) ? "checked=\"checked\"" : ""; ?> />
-                            <?= gettext("Disable hardware checksum offload"); ?>
-                            <div class="hidden" data-for="help_for_disablechecksumoffloading">
-                              <?= gettext("Checking this option will disable hardware checksum offloading. Checksum offloading is broken in some hardware, particularly some Realtek cards. Rarely, drivers may have problems with checksum offloading and some specific NICs."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="hw_settings_overwrite" style="display:none">
-                          <td><a id="help_for_disablesegmentationoffloading" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Hardware TSO"); ?></td>
-                          <td>
-                            <input name="disablesegmentationoffloading" type="checkbox" id="disablesegmentationoffloading"
-                              value="yes" <?= !empty($pconfig['disablesegmentationoffloading']) ? "checked=\"checked\"" : ""; ?> />
-                            <?= gettext("Disable hardware TCP segmentation offload"); ?>
-                            <div class="hidden" data-for="help_for_disablesegmentationoffloading">
-                              <?= gettext("Checking this option will disable hardware TCP segmentation offloading (TSO, TSO4, TSO6). This offloading is broken in some hardware drivers, and may impact performance with some specific NICs."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="hw_settings_overwrite" style="display:none">
-                          <td><a id="help_for_disablelargereceiveoffloading" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Hardware LRO"); ?></td>
-                          <td>
-                            <input name="disablelargereceiveoffloading" type="checkbox" id="disablelargereceiveoffloading"
-                              value="yes" <?= !empty($pconfig['disablelargereceiveoffloading']) ? "checked=\"checked\"" : ""; ?> />
-                            <?= gettext("Disable hardware large receive offload"); ?>
-                            <div class="hidden" data-for="help_for_disablelargereceiveoffloading">
-                              <?= gettext("Checking this option will disable hardware large receive offloading (LRO). This offloading is broken in some hardware drivers, and may impact performance with some specific NICs."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="hw_settings_overwrite" style="display:none">
-                          <td><a id="help_for_disablevlanhwfilter" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("VLAN Hardware Filtering"); ?></td>
-                          <td>
-                            <select name="disablevlanhwfilter" class="selectpicker">
-                              <option value="0" <?= $pconfig['disablevlanhwfilter'] == "0" ? "selected=\"selected\"" : ""; ?>>
-                                <?= gettext("Enable VLAN Hardware Filtering"); ?>
-                              </option>
-                              <option value="1" <?= $pconfig['disablevlanhwfilter'] == "1" ? "selected=\"selected\"" : ""; ?>>
-                                <?= gettext("Disable VLAN Hardware Filtering"); ?>
-                              </option>
-                              <option value="2" <?= $pconfig['disablevlanhwfilter'] == "2" ? "selected=\"selected\"" : ""; ?>>
-                                <?= gettext("Leave default"); ?>
-                              </option>
-                            </select>
-                            <div class="hidden" data-for="help_for_disablevlanhwfilter">
-                              <?= gettext('Set usage of VLAN hardware filtering. This hardware acceleration may be broken in a particular device driver, or may impact performance.') ?>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <!-- Hardware settings -->
+                  <div class="tab-content content-box col-xs-12 __mb interfaces-card">
+                    <div class="table-responsive">
+                      <table class="table table-striped opnsense_standard_table_form">
+                        <thead>
+                          <tr>
+                            <th colspan="2"><?= gettext("Hardware settings"); ?></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="width:22%"><a id="help_for_hw_settings_overwrite" href="#" class="showhelp"> <i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Overwrite global settings"); ?></td>
+                            <td style="width:78%">
+                              <input id="hw_settings_overwrite" name="hw_settings_overwrite" type="checkbox" value="yes"
+                                <?= !empty($pconfig['hw_settings_overwrite']) ? 'checked="checked"' : '' ?> />
+                              <div class="hidden" data-for="help_for_hw_settings_overwrite">
+                                <?= gettext("Overwrite custom interface hardware settings with settings specified below"); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="hw_settings_overwrite" style="display:none">
+                            <td><a id="help_for_disablechecksumoffloading" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Hardware CRC"); ?></td>
+                            <td>
+                              <input name="disablechecksumoffloading" type="checkbox" id="disablechecksumoffloading"
+                                value="yes" <?= !empty($pconfig['disablechecksumoffloading']) ? "checked=\"checked\"" : ""; ?> />
+                              <?= gettext("Disable hardware checksum offload"); ?>
+                              <div class="hidden" data-for="help_for_disablechecksumoffloading">
+                                <?= gettext("Checking this option will disable hardware checksum offloading. Checksum offloading is broken in some hardware, particularly some Realtek cards. Rarely, drivers may have problems with checksum offloading and some specific NICs."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="hw_settings_overwrite" style="display:none">
+                            <td><a id="help_for_disablesegmentationoffloading" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Hardware TSO"); ?></td>
+                            <td>
+                              <input name="disablesegmentationoffloading" type="checkbox" id="disablesegmentationoffloading"
+                                value="yes" <?= !empty($pconfig['disablesegmentationoffloading']) ? "checked=\"checked\"" : ""; ?> />
+                              <?= gettext("Disable hardware TCP segmentation offload"); ?>
+                              <div class="hidden" data-for="help_for_disablesegmentationoffloading">
+                                <?= gettext("Checking this option will disable hardware TCP segmentation offloading (TSO, TSO4, TSO6). This offloading is broken in some hardware drivers, and may impact performance with some specific NICs."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="hw_settings_overwrite" style="display:none">
+                            <td><a id="help_for_disablelargereceiveoffloading" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Hardware LRO"); ?></td>
+                            <td>
+                              <input name="disablelargereceiveoffloading" type="checkbox" id="disablelargereceiveoffloading"
+                                value="yes" <?= !empty($pconfig['disablelargereceiveoffloading']) ? "checked=\"checked\"" : ""; ?> />
+                              <?= gettext("Disable hardware large receive offload"); ?>
+                              <div class="hidden" data-for="help_for_disablelargereceiveoffloading">
+                                <?= gettext("Checking this option will disable hardware large receive offloading (LRO). This offloading is broken in some hardware drivers, and may impact performance with some specific NICs."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="hw_settings_overwrite" style="display:none">
+                            <td><a id="help_for_disablevlanhwfilter" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("VLAN Hardware Filtering"); ?></td>
+                            <td>
+                              <select name="disablevlanhwfilter" class="selectpicker">
+                                <option value="0" <?= $pconfig['disablevlanhwfilter'] == "0" ? "selected=\"selected\"" : ""; ?>>
+                                  <?= gettext("Enable VLAN Hardware Filtering"); ?>
+                                </option>
+                                <option value="1" <?= $pconfig['disablevlanhwfilter'] == "1" ? "selected=\"selected\"" : ""; ?>>
+                                  <?= gettext("Disable VLAN Hardware Filtering"); ?>
+                                </option>
+                                <option value="2" <?= $pconfig['disablevlanhwfilter'] == "2" ? "selected=\"selected\"" : ""; ?>>
+                                  <?= gettext("Leave default"); ?>
+                                </option>
+                              </select>
+                              <div class="hidden" data-for="help_for_disablevlanhwfilter">
+                                <?= gettext('Set usage of VLAN hardware filtering. This hardware acceleration may be broken in a particular device driver, or may impact performance.') ?>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
               <?php endif ?>
               <!-- static IPv4 -->
-              <div class="tab-content content-box col-xs-12 __mb" id="staticv4" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="staticv4" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2016,10 +2021,10 @@ include("head.inc");
 
                                   <?php
                                   for ($i = 32; $i > 0; $i--): ?>
-                                    <option value="<?= $i; ?>" <?= $i == $pconfig['subnet'] ? "selected=\"selected\"" : ""; ?>>
-                                      <?= $i; ?>
-                                    </option>
-                                    <?php
+                                      <option value="<?= $i; ?>" <?= $i == $pconfig['subnet'] ? "selected=\"selected\"" : ""; ?>>
+                                        <?= $i; ?>
+                                      </option>
+                                      <?php
                                   endfor; ?>
                                 </select>
                               </td>
@@ -2038,10 +2043,10 @@ include("head.inc");
                             foreach ((new \OPNsense\Routing\Gateways())->gatewayIterator() as $gateway):
                               if ($gateway['interface'] == $if && is_ipaddrv4($gateway['gateway'])):
                                 ?>
-                                <option value="<?= $gateway['name']; ?>" <?= $gateway['name'] == $pconfig['gateway'] ? "selected=\"selected\"" : ""; ?>>
-                                  <?= htmlspecialchars($gateway['name'] . " - " . $gateway['gateway']); ?>
-                                </option>
-                                <?php
+                                    <option value="<?= $gateway['name']; ?>" <?= $gateway['name'] == $pconfig['gateway'] ? "selected=\"selected\"" : ""; ?>>
+                                      <?= htmlspecialchars($gateway['name'] . " - " . $gateway['gateway']); ?>
+                                    </option>
+                                    <?php
                               endif;
                             endforeach;
                             ?>
@@ -2057,7 +2062,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : dhcp v4 -->
-              <div class="tab-content content-box col-xs-12 __mb" id="dhcp" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="dhcp" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2111,10 +2116,10 @@ include("head.inc");
                                   id="alias-subnet" data-width="auto" data-size="10">
                                   <?php
                                   for ($i = 32; $i > 0; $i--): ?>
-                                    <option value="<?= $i; ?>" <?= $i == $pconfig['alias-subnet'] ? "selected=\"selected\"" : ""; ?>>
-                                      <?= $i; ?>
-                                    </option>
-                                    <?php
+                                      <option value="<?= $i; ?>" <?= $i == $pconfig['alias-subnet'] ? "selected=\"selected\"" : ""; ?>>
+                                        <?= $i; ?>
+                                      </option>
+                                      <?php
                                   endfor; ?>
                                 </select>
                               </td>
@@ -2173,8 +2178,8 @@ include("head.inc");
                             </option>
                             <?php
                             foreach (interfaces_vlan_priorities() as $pcp => $priority): ?>
-                              <option value="<?= html_safe($pcp) ?>" <?= "{$pconfig['dhcpvlanprio']}" === "$pcp" ? 'selected="selected"' : '' ?>><?= htmlspecialchars($priority) ?></option>
-                              <?php
+                                <option value="<?= html_safe($pcp) ?>" <?= "{$pconfig['dhcpvlanprio']}" === "$pcp" ? 'selected="selected"' : '' ?>><?= htmlspecialchars($priority) ?></option>
+                                <?php
                             endforeach ?>
                           </select>
                           <div class="hidden" data-for="help_for_dhcpvlanprio">
@@ -2284,7 +2289,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : PPP -->
-              <div class="tab-content content-box col-xs-12 __mb" id="ppp" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="ppp" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2311,7 +2316,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : static IPv6 -->
-              <div class="tab-content content-box col-xs-12 __mb" id="staticv6" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="staticv6" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2335,8 +2340,8 @@ include("head.inc");
                                   data-width="auto" data-size="10" data-id="subnetv6">
                                   <?php
                                   for ($i = 128; $i > 0; $i--): ?>
-                                    <option value="<?= $i; ?>" <?= $i == $pconfig['subnetv6'] ? "selected=\"selected\"" : ""; ?>><?= $i; ?></option>
-                                    <?php
+                                      <option value="<?= $i; ?>" <?= $i == $pconfig['subnetv6'] ? "selected=\"selected\"" : ""; ?>><?= $i; ?></option>
+                                      <?php
                                   endfor; ?>
                                 </select>
                               </td>
@@ -2355,10 +2360,10 @@ include("head.inc");
                             foreach ((new \OPNsense\Routing\Gateways())->gatewayIterator() as $gateway):
                               if ($gateway['interface'] == $if && is_ipaddrv6($gateway['gateway'])):
                                 ?>
-                                <option value="<?= $gateway['name']; ?>" <?= $gateway['name'] == $pconfig['gatewayv6'] ? "selected=\"selected\"" : ""; ?>>
-                                  <?= htmlspecialchars($gateway['name'] . " - " . $gateway['gateway']); ?>
-                                </option>
-                                <?php
+                                    <option value="<?= $gateway['name']; ?>" <?= $gateway['name'] == $pconfig['gatewayv6'] ? "selected=\"selected\"" : ""; ?>>
+                                      <?= htmlspecialchars($gateway['name'] . " - " . $gateway['gateway']); ?>
+                                    </option>
+                                    <?php
                               endif;
                             endforeach;
                             ?>
@@ -2374,7 +2379,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : dhcp v6 -->
-              <div class="tab-content content-box col-xs-12 __mb" id="dhcp6" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="dhcp6" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2393,8 +2398,8 @@ include("head.inc");
                             </option>
                             <?php
                             foreach (interfaces_vlan_priorities() as $pcp => $priority): ?>
-                              <option value="<?= html_safe($pcp) ?>" <?= "{$pconfig['dhcp6vlanprio']}" === "$pcp" ? 'selected="selected"' : '' ?>><?= htmlspecialchars($priority) ?></option>
-                              <?php
+                                <option value="<?= html_safe($pcp) ?>" <?= "{$pconfig['dhcp6vlanprio']}" === "$pcp" ? 'selected="selected"' : '' ?>><?= htmlspecialchars($priority) ?></option>
+                                <?php
                             endforeach ?>
                           </select>
                           <div class="hidden" data-for="help_for_dhcp6vlanprio">
@@ -2459,10 +2464,10 @@ include("head.inc");
                               16 => '48',
                               'none' => gettext('None'),
                             ] as $bits => $length): ?>
-                              <option value="<?= $bits; ?>" <?= "{$bits}" === "{$pconfig['dhcp6-ia-pd-len']}" ? 'selected="selected"' : '' ?>>
-                                <?= $length; ?>
-                              </option>
-                              <?php
+                                <option value="<?= $bits; ?>" <?= "{$bits}" === "{$pconfig['dhcp6-ia-pd-len']}" ? 'selected="selected"' : '' ?>>
+                                  <?= $length; ?>
+                                </option>
+                                <?php
                             endforeach; ?>
                           </select>
                           <div class="hidden" data-for="help_for_dhcp6-ia-pd-len">
@@ -2714,7 +2719,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : 6RD-->
-              <div class="tab-content content-box col-xs-12 __mb" id="6rd" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="6rd" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2752,10 +2757,10 @@ include("head.inc");
                             id="prefix-6rd-v4plen">
                             <?php
                             for ($i = 0; $i <= 32; $i++): ?>
-                              <option value="<?= $i; ?>" <?= $i == $pconfig['prefix-6rd-v4plen'] ? "selected=\"selected\"" : ""; ?>>
-                                <?= $i; ?>   <?= gettext("bits"); ?>
-                              </option>
-                              <?php
+                                <option value="<?= $i; ?>" <?= $i == $pconfig['prefix-6rd-v4plen'] ? "selected=\"selected\"" : ""; ?>>
+                                  <?= $i; ?>     <?= gettext("bits"); ?>
+                                </option>
+                                <?php
                             endfor; ?>
                           </select>
                           <div class="hidden" data-for="help_for_prefix-6rd-v4plen">
@@ -2780,7 +2785,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : ID-association 6 (duplicates track6 without overrides) -->
-              <div class="tab-content content-box col-xs-12 __mb" id="idassoc6" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="idassoc6" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2795,7 +2800,7 @@ include("head.inc");
                         <td style="width:78%">
                           <select name="idassoc6-interface" class="selectpicker" data-style="btn-default">
                             <?php foreach (find_track6_idassoc6($ifdescrs) as $iface => $ifdescr): ?>
-                              <option value="<?= html_safe($iface) ?>" <?= $iface == $pconfig['idassoc6-interface'] ? 'selected="selected"' : '' ?>><?= html_safe($ifdescr) ?></option>
+                                <option value="<?= html_safe($iface) ?>" <?= $iface == $pconfig['idassoc6-interface'] ? 'selected="selected"' : '' ?>><?= html_safe($ifdescr) ?></option>
                             <?php endforeach ?>
                           </select>
                           <div class="hidden" data-for="help_for_idassoc6-interface">
@@ -2841,7 +2846,7 @@ include("head.inc");
                 </div>
               </div>
               <!-- Section : Track 6 -->
-              <div class="tab-content content-box col-xs-12 __mb" id="track6" style="display:none">
+              <div class="tab-content content-box col-xs-12 __mb interfaces-card" id="track6" style="display:none">
                 <div class="table-responsive">
                   <table class="table table-striped opnsense_standard_table_form">
                     <thead>
@@ -2856,7 +2861,7 @@ include("head.inc");
                         <td style="width:78%">
                           <select name="track6-interface" class="selectpicker" data-style="btn-default">
                             <?php foreach (find_track6_idassoc6($ifdescrs) as $iface => $ifdescr): ?>
-                              <option value="<?= html_safe($iface) ?>" <?= $iface == $pconfig['track6-interface'] ? 'selected="selected"' : '' ?>><?= html_safe($ifdescr) ?></option>
+                                <option value="<?= html_safe($iface) ?>" <?= $iface == $pconfig['track6-interface'] ? 'selected="selected"' : '' ?>><?= html_safe($ifdescr) ?></option>
                             <?php endforeach ?>
                           </select>
                           <div class="hidden" data-for="help_for_track6-interface">
@@ -2916,737 +2921,737 @@ include("head.inc");
               <?php
               /* Wireless interface? */
               if (isset($a_interfaces[$if]['wireless'])): ?>
-                <!-- Section : Wireless -->
-                <div class="tab-content content-box col-xs-12 __mb">
-                  <div class="table-responsive">
-                    <table class="table table-striped opnsense_standard_table_form">
-                      <thead>
-                        <tr>
-                          <th colspan="2">
-                            <?= gettext("Common wireless configuration - Settings apply to all wireless networks on"); ?>
-                            <?= $wlanbaseif; ?>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td style="width:22%"><a id="help_for_persistcommonwireless" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Persist common settings"); ?></td>
-                          <td style="width:78%">
-                            <input name="persistcommonwireless" type="checkbox" value="yes" id="persistcommonwireless"
-                              <?= !empty($pconfig['persistcommonwireless']) ? "checked=\"checked\"" : ""; ?> />
-                            <div class="hidden" data-for="help_for_persistcommonwireless">
-                              <?= gettext("Enabling this preserves the common wireless configuration through interface deletions and reassignments."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("Standard"); ?></td>
-                          <td>
-                            <select name="standard" class="selectpicker" data-size="10" data-style="btn-default"
-                              id="standard">
-                              <?php foreach (array_keys($wl_modes) as $wl_standard): ?>
-                                <option value="<?= $wl_standard; ?>" <?= $pconfig['standard'] == $wl_standard ? "selected=\"selected\"" : ""; ?>>
-                                  802.<?= $wl_standard; ?>
-                                </option>
-                              <?php endforeach ?>
-                            </select>
-                          </td>
-                        </tr>
-                        <?php if (isset($wl_modes['11g'])): ?>
+                  <!-- Section : Wireless -->
+                  <div class="tab-content content-box col-xs-12 __mb interfaces-card">
+                    <div class="table-responsive">
+                      <table class="table table-striped opnsense_standard_table_form">
+                        <thead>
                           <tr>
-                            <td><a id="help_for_protmode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                              802.11g OFDM <?= gettext("Protection Mode"); ?></td>
-                            <td>
-                              <select name="protmode" class="selectpicker" data-style="btn-default" id="protmode">
-                                <option <?= $pconfig['protmode'] == 'off' ? "selected=\"selected\"" : ""; ?> value="off">
-                                  <?= gettext("Protection mode off"); ?>
-                                </option>
-                                <option <?= $pconfig['protmode'] == 'cts' ? "selected=\"selected\"" : ""; ?> value="cts">
-                                  <?= gettext("Protection mode CTS to self"); ?>
-                                </option>
-                                <option <?= $pconfig['protmode'] == 'rtscts' ? "selected=\"selected\"" : ""; ?> value="rtscts">
-                                  <?= gettext("Protection mode RTS and CTS"); ?>
-                                </option>
-                              </select>
-                              <div class="hidden" data-for="help_for_protmode">
-                                <?= gettext("For IEEE 802.11g, use the specified technique for protecting OFDM frames in a mixed 11b/11g network."); ?>
+                            <th colspan="2">
+                              <?= gettext("Common wireless configuration - Settings apply to all wireless networks on"); ?>
+                              <?= $wlanbaseif; ?>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="width:22%"><a id="help_for_persistcommonwireless" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Persist common settings"); ?></td>
+                            <td style="width:78%">
+                              <input name="persistcommonwireless" type="checkbox" value="yes" id="persistcommonwireless"
+                                <?= !empty($pconfig['persistcommonwireless']) ? "checked=\"checked\"" : ""; ?> />
+                              <div class="hidden" data-for="help_for_persistcommonwireless">
+                                <?= gettext("Enabling this preserves the common wireless configuration through interface deletions and reassignments."); ?>
                               </div>
                             </td>
                           </tr>
-                        <?php else: ?>
-                          <input name="protmode" type="hidden" id="protmode" value="off" />
-                        <?php endif ?>
-                        <tr>
-                          <td><a id="help_for_txpower" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Transmit power"); ?></td>
-                          <td>
-                            <select name="txpower" class="selectpicker" data-size="10" data-style="btn-default"
-                              id="txpower">
-                              <option value=""><?= gettext('default') ?></option>
-                              <?php
-                              for ($x = 99; $x > 0; $x--): ?>
-                                <option value="<?= $x; ?>" <?= $pconfig['txpower'] == $x ? 'selected="selected"' : ''; ?>>
-                                  <?= $x; ?>
+                          <tr>
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("Standard"); ?></td>
+                            <td>
+                              <select name="standard" class="selectpicker" data-size="10" data-style="btn-default"
+                                id="standard">
+                                <?php foreach (array_keys($wl_modes) as $wl_standard): ?>
+                                    <option value="<?= $wl_standard; ?>" <?= $pconfig['standard'] == $wl_standard ? "selected=\"selected\"" : ""; ?>>
+                                      802.<?= $wl_standard; ?>
+                                    </option>
+                                <?php endforeach ?>
+                              </select>
+                            </td>
+                          </tr>
+                          <?php if (isset($wl_modes['11g'])): ?>
+                              <tr>
+                                <td><a id="help_for_protmode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                                  802.11g OFDM <?= gettext("Protection Mode"); ?></td>
+                                <td>
+                                  <select name="protmode" class="selectpicker" data-style="btn-default" id="protmode">
+                                    <option <?= $pconfig['protmode'] == 'off' ? "selected=\"selected\"" : ""; ?> value="off">
+                                      <?= gettext("Protection mode off"); ?>
+                                    </option>
+                                    <option <?= $pconfig['protmode'] == 'cts' ? "selected=\"selected\"" : ""; ?> value="cts">
+                                      <?= gettext("Protection mode CTS to self"); ?>
+                                    </option>
+                                    <option <?= $pconfig['protmode'] == 'rtscts' ? "selected=\"selected\"" : ""; ?> value="rtscts">
+                                      <?= gettext("Protection mode RTS and CTS"); ?>
+                                    </option>
+                                  </select>
+                                  <div class="hidden" data-for="help_for_protmode">
+                                    <?= gettext("For IEEE 802.11g, use the specified technique for protecting OFDM frames in a mixed 11b/11g network."); ?>
+                                  </div>
+                                </td>
+                              </tr>
+                          <?php else: ?>
+                              <input name="protmode" type="hidden" id="protmode" value="off" />
+                          <?php endif ?>
+                          <tr>
+                            <td><a id="help_for_txpower" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Transmit power"); ?></td>
+                            <td>
+                              <select name="txpower" class="selectpicker" data-size="10" data-style="btn-default"
+                                id="txpower">
+                                <option value=""><?= gettext('default') ?></option>
+                                <?php
+                                for ($x = 99; $x > 0; $x--): ?>
+                                    <option value="<?= $x; ?>" <?= $pconfig['txpower'] == $x ? 'selected="selected"' : ''; ?>>
+                                      <?= $x; ?>
+                                    </option>
+                                    <?php
+                                endfor; ?>
+                              </select>
+                              <div class="hidden" data-for="help_for_txpower">
+                                <?= gettext("Typically only a few discreet power settings are available and the driver will use the setting closest to the specified value. Not all adapters support changing the transmit power setting."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><a id="help_for_channel" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Channel"); ?></td>
+                            <td>
+                              <select name="channel" class="selectpicker" data-size="10" data-style="btn-default"
+                                id="channel">
+                                <option <?= $pconfig['channel'] == 0 ? "selected=\"selected\"" : ""; ?> value="0">
+                                  <?= gettext("Auto"); ?>
                                 </option>
                                 <?php
-                              endfor; ?>
-                            </select>
-                            <div class="hidden" data-for="help_for_txpower">
-                              <?= gettext("Typically only a few discreet power settings are available and the driver will use the setting closest to the specified value. Not all adapters support changing the transmit power setting."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><a id="help_for_channel" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Channel"); ?></td>
-                          <td>
-                            <select name="channel" class="selectpicker" data-size="10" data-style="btn-default"
-                              id="channel">
-                              <option <?= $pconfig['channel'] == 0 ? "selected=\"selected\"" : ""; ?> value="0">
-                                <?= gettext("Auto"); ?>
-                              </option>
-                              <?php
-                              $wl_chaninfo = get_wireless_channel_info($if);
-                              $wl_chanlist = [];
-                              foreach ($wl_modes as $wl_standard => $wl_channels) {
-                                foreach ($wl_channels as $wl_channel) {
-                                  $wl_chanlist[$wl_channel][$wl_standard] = 1;
+                                $wl_chaninfo = get_wireless_channel_info($if);
+                                $wl_chanlist = [];
+                                foreach ($wl_modes as $wl_standard => $wl_channels) {
+                                  foreach ($wl_channels as $wl_channel) {
+                                    $wl_chanlist[$wl_channel][$wl_standard] = 1;
+                                  }
                                 }
-                              }
-                              ksort($wl_chanlist);
-                              foreach ($wl_chanlist as $wl_channel => $wl_standards): ?>
-                                <option value="<?= html_safe($wl_channel) ?>" <?= $pconfig['channel'] == $wl_channel ? 'selected="selected"' : '' ?>>
-                                  <?= $wl_channel ?> - <?= join(', ', array_keys($wl_standards)) ?>
-                                  <?= isset($wl_chaninfo[$wl_channel]) ? "({$wl_chaninfo[$wl_channel]})" : '' ?>
-                                </option>
-                              <?php endforeach ?>
-                            </select>
-                            <div class="hidden" data-for="help_for_channel">
-                              <?= gettext("Legend: wireless standards - channel # (frequency @ max TX power / TX power allowed in reg. domain)"); ?>
-                              <br />
-                              <?= gettext("Not all channels may be supported by your card. Auto may override the wireless standard selected above."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <?php
-                        if (isset($wl_sysctl["{$wl_sysctl_prefix}.diversity"]) || isset($wl_sysctl["{$wl_sysctl_prefix}.txantenna"]) || isset($wl_sysctl["{$wl_sysctl_prefix}.rxantenna"])): ?>
-                          <tr>
-                            <td><a id="help_for_antenna_settings" href="#" class="showhelp"><i
-                                  class="fa fa-info-circle"></i></a> <?= gettext("Antenna settings"); ?></td>
-                            <td>
-                              <table class="table table-condensed">
-                                <tr>
-                                  <?php
-                                  if (isset($wl_sysctl["{$wl_sysctl_prefix}.diversity"])): ?>
-                                    <td>
-                                      <?= gettext("Diversity"); ?><br />
-                                      <select name="diversity" class="selectpicker" data-style="btn-default" id="diversity">
-                                        <option <?= !isset($pconfig['diversity']) ? "selected=\"selected\"" : ""; ?> value="">
-                                          <?= gettext("Default"); ?>
-                                        </option>
-                                        <option <?= $pconfig['diversity'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
-                                          <?= gettext("Off"); ?>
-                                        </option>
-                                        <option <?= $pconfig['diversity'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
-                                          <?= gettext("On"); ?>
-                                        </option>
-                                      </select>
-                                    </td>
-                                    <td>&nbsp;&nbsp;</td>
-                                    <?php
-                                  endif;
-                                  if (isset($wl_sysctl["{$wl_sysctl_prefix}.txantenna"])): ?>
-                                    <td>
-                                      <?= gettext("Transmit antenna"); ?><br />
-                                      <select name="txantenna" class="selectpicker" data-style="btn-default" id="txantenna">
-                                        <option <?= !isset($pconfig['txantenna']) ? "selected=\"selected\"" : ""; ?> value="">
-                                          <?= gettext("Default"); ?>
-                                        </option>
-                                        <option <?= $pconfig['txantenna'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
-                                          <?= gettext("Auto"); ?>
-                                        </option>
-                                        <option <?= $pconfig['txantenna'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
-                                          <?= gettext("#1"); ?>
-                                        </option>
-                                        <option <?= $pconfig['txantenna'] === '2' ? "selected=\"selected\"" : ""; ?> value="2">
-                                          <?= gettext("#2"); ?>
-                                        </option>
-                                      </select>
-                                    </td>
-                                    <td>&nbsp;&nbsp;</td>
-                                    <?php
-                                  endif;
-                                  if (isset($wl_sysctl["{$wl_sysctl_prefix}.rxantenna"])): ?>
-                                    <td>
-                                      <?= gettext("Receive antenna"); ?><br />
-                                      <select name="rxantenna" class="selectpicker" data-style="btn-default" id="rxantenna">
-                                        <option <?= !isset($pconfig['rxantenna']) ? "selected=\"selected\"" : ""; ?> value="">
-                                          <?= gettext("Default"); ?>
-                                        </option>
-                                        <option <?= $pconfig['rxantenna'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
-                                          <?= gettext("Auto"); ?>
-                                        </option>
-                                        <option <?= $pconfig['rxantenna'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
-                                          <?= gettext("#1"); ?>
-                                        </option>
-                                        <option <?= $pconfig['rxantenna'] === '2' ? "selected=\"selected\"" : ""; ?> value="2">
-                                          <?= gettext("#2"); ?>
-                                        </option>
-                                      </select>
-                                    </td>
-                                    <?php
-                                  endif; ?>
-                                </tr>
-                              </table>
-                              <div class="hidden" data-for="help_for_antenna_settings">
-                                <?= gettext("Note: The antenna numbers do not always match up with the labels on the card."); ?>
+                                ksort($wl_chanlist);
+                                foreach ($wl_chanlist as $wl_channel => $wl_standards): ?>
+                                    <option value="<?= html_safe($wl_channel) ?>" <?= $pconfig['channel'] == $wl_channel ? 'selected="selected"' : '' ?>>
+                                      <?= $wl_channel ?> - <?= join(', ', array_keys($wl_standards)) ?>
+                                      <?= isset($wl_chaninfo[$wl_channel]) ? "({$wl_chaninfo[$wl_channel]})" : '' ?>
+                                    </option>
+                                <?php endforeach ?>
+                              </select>
+                              <div class="hidden" data-for="help_for_channel">
+                                <?= gettext("Legend: wireless standards - channel # (frequency @ max TX power / TX power allowed in reg. domain)"); ?>
+                                <br />
+                                <?= gettext("Not all channels may be supported by your card. Auto may override the wireless standard selected above."); ?>
                               </div>
                             </td>
                           </tr>
                           <?php
-                        endif; ?>
-                        <tr>
-                          <td><a id="help_for_regdomain" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Regulatory settings"); ?></td>
-                          <td>
-                            <?= gettext("Regulatory domain"); ?><br />
-                            <select name="regdomain" class="selectpicker" data-style="btn-default" id="regdomain">
-                              <option <?= empty($pconfig['regdomain']) ? "selected=\"selected\"" : ""; ?> value="">
-                                <?= gettext("Default"); ?>
-                              </option>
+                          if (isset($wl_sysctl["{$wl_sysctl_prefix}.diversity"]) || isset($wl_sysctl["{$wl_sysctl_prefix}.txantenna"]) || isset($wl_sysctl["{$wl_sysctl_prefix}.rxantenna"])): ?>
+                              <tr>
+                                <td><a id="help_for_antenna_settings" href="#" class="showhelp"><i
+                                      class="fa fa-info-circle"></i></a> <?= gettext("Antenna settings"); ?></td>
+                                <td>
+                                  <table class="table table-condensed">
+                                    <tr>
+                                      <?php
+                                      if (isset($wl_sysctl["{$wl_sysctl_prefix}.diversity"])): ?>
+                                          <td>
+                                            <?= gettext("Diversity"); ?><br />
+                                            <select name="diversity" class="selectpicker" data-style="btn-default" id="diversity">
+                                              <option <?= !isset($pconfig['diversity']) ? "selected=\"selected\"" : ""; ?> value="">
+                                                <?= gettext("Default"); ?>
+                                              </option>
+                                              <option <?= $pconfig['diversity'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
+                                                <?= gettext("Off"); ?>
+                                              </option>
+                                              <option <?= $pconfig['diversity'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
+                                                <?= gettext("On"); ?>
+                                              </option>
+                                            </select>
+                                          </td>
+                                          <td>&nbsp;&nbsp;</td>
+                                          <?php
+                                      endif;
+                                      if (isset($wl_sysctl["{$wl_sysctl_prefix}.txantenna"])): ?>
+                                          <td>
+                                            <?= gettext("Transmit antenna"); ?><br />
+                                            <select name="txantenna" class="selectpicker" data-style="btn-default" id="txantenna">
+                                              <option <?= !isset($pconfig['txantenna']) ? "selected=\"selected\"" : ""; ?> value="">
+                                                <?= gettext("Default"); ?>
+                                              </option>
+                                              <option <?= $pconfig['txantenna'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
+                                                <?= gettext("Auto"); ?>
+                                              </option>
+                                              <option <?= $pconfig['txantenna'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
+                                                <?= gettext("#1"); ?>
+                                              </option>
+                                              <option <?= $pconfig['txantenna'] === '2' ? "selected=\"selected\"" : ""; ?> value="2">
+                                                <?= gettext("#2"); ?>
+                                              </option>
+                                            </select>
+                                          </td>
+                                          <td>&nbsp;&nbsp;</td>
+                                          <?php
+                                      endif;
+                                      if (isset($wl_sysctl["{$wl_sysctl_prefix}.rxantenna"])): ?>
+                                          <td>
+                                            <?= gettext("Receive antenna"); ?><br />
+                                            <select name="rxantenna" class="selectpicker" data-style="btn-default" id="rxantenna">
+                                              <option <?= !isset($pconfig['rxantenna']) ? "selected=\"selected\"" : ""; ?> value="">
+                                                <?= gettext("Default"); ?>
+                                              </option>
+                                              <option <?= $pconfig['rxantenna'] === '0' ? "selected=\"selected\"" : ""; ?> value="0">
+                                                <?= gettext("Auto"); ?>
+                                              </option>
+                                              <option <?= $pconfig['rxantenna'] === '1' ? "selected=\"selected\"" : ""; ?> value="1">
+                                                <?= gettext("#1"); ?>
+                                              </option>
+                                              <option <?= $pconfig['rxantenna'] === '2' ? "selected=\"selected\"" : ""; ?> value="2">
+                                                <?= gettext("#2"); ?>
+                                              </option>
+                                            </select>
+                                          </td>
+                                          <?php
+                                      endif; ?>
+                                    </tr>
+                                  </table>
+                                  <div class="hidden" data-for="help_for_antenna_settings">
+                                    <?= gettext("Note: The antenna numbers do not always match up with the labels on the card."); ?>
+                                  </div>
+                                </td>
+                              </tr>
                               <?php
-                              foreach ($wl_regdomains as $wl_regdomain_key => $wl_regdomain): ?>
-                                <option value="<?= $wl_regdomains_attr[$wl_regdomain_key]['ID']; ?>"
-                                  <?= $pconfig['regdomain'] == $wl_regdomains_attr[$wl_regdomain_key]['ID'] ? "selected=\"selected\" " : ""; ?>>
-                                  <?= $wl_regdomain['name']; ?>
-                                </option>
-                                <?php
-                              endforeach; ?>
-                            </select>
-                            <br />
-                            <div class="hidden" data-for="help_for_regdomain">
-                              <?= gettext("Some cards have a default that is not recognized and require changing the regulatory domain to one in this list for the changes to other regulatory settings to work."); ?>
-                            </div>
-                            <br />
-                            <?= gettext("Country (listed with country code and regulatory domain)"); ?><br />
-                            <select name="regcountry" class="selectpicker" data-size="10" data-style="btn-default"
-                              id="regcountry">
-                              <option <?= empty($pconfig['regcountry']) ? "selected=\"selected\"" : ""; ?> value="">
-                                <?= gettext("Default"); ?>
-                              </option>
-                              <?php
-                              foreach ($wl_countries as $wl_country_key => $wl_country): ?>
-                                <option value="<?= $wl_countries_attr[$wl_country_key]['ID']; ?>"
-                                  <?= $pconfig['regcountry'] == $wl_countries_attr[$wl_country_key]['ID'] ? "selected=\"selected\" " : ""; ?>>
-                                  <?= $wl_country['name']; ?> (<?= $wl_countries_attr[$wl_country_key]['ID']; ?>
-                                  <?= strtoupper($wl_countries_attr[$wl_country_key]['rd'][0]['REF']); ?>)
-                                </option>
-                                <?php
-                              endforeach; ?>
-                            </select>
-                            <br />
-                            <div class="hidden" data-for="help_for_regdomain">
-                              <?= gettext("Any country setting other than \"Default\" will override the regulatory domain setting"); ?>.
-                            </div>
-                            <br />
-                            <?= gettext("Location"); ?><br />
-                            <select name="reglocation" class="selectpicker" data-style="btn-default" id="reglocation">
-                              <option <?= empty($pconfig['reglocation']) ? "selected=\"selected\"" : ""; ?> value="">
-                                <?= gettext("Default"); ?>
-                              </option>
-                              <option <?= $pconfig['reglocation'] == 'indoor' ? "selected=\"selected\"" : ""; ?>
-                                value="indoor"><?= gettext("Indoor"); ?></option>
-                              <option <?= $pconfig['reglocation'] == 'outdoor' ? "selected=\"selected\"" : ""; ?>
-                                value="outdoor"><?= gettext("Outdoor"); ?></option>
-                              <option <?= $pconfig['reglocation'] == 'anywhere' ? "selected=\"selected\"" : ""; ?>
-                                value="anywhere"><?= gettext("Anywhere"); ?></option>
-                            </select>
-                            <div class="hidden" data-for="help_for_regdomain">
-                              <?= gettext("These settings may affect which channels are available and the maximum transmit power allowed on those channels. Using the correct settings to comply with local regulatory requirements is recommended."); ?>
-                              <br />
-                              <?= gettext("All wireless networks on this interface will be temporarily brought down when changing regulatory settings. Some of the regulatory domains or country codes may not be allowed by some cards. These settings may not be able to add additional channels that are not already supported."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div class="tab-content content-box col-xs-12 __mb">
-                  <div class="table-responsive">
-                    <table class="table table-striped opnsense_standard_table_form">
-                      <thead>
-                        <tr>
-                          <th colspan="2"><?= gettext("Network-specific wireless configuration"); ?></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("Mode"); ?></td>
-                          <td>
-                            <select name="mode" class="selectpicker" data-style="btn-default" id="mode">
-                              <option <?= $pconfig['mode'] == 'bss' ? "selected=\"selected\"" : ""; ?> value="bss">
-                                <?= gettext("Infrastructure (BSS)"); ?>
-                              </option>
-                              <?php if (test_wireless_capability(get_real_interface($pconfig['if']), 'adhoc')): ?>
-                                <option <?= $pconfig['mode'] == 'adhoc' ? "selected=\"selected\"" : ""; ?> value="adhoc">
-                                  <?= gettext("Ad-hoc (IBSS)"); ?>
-                                </option>
-                              <?php endif ?>
-                              <?php if (test_wireless_capability(get_real_interface($pconfig['if']), 'hostap')): ?>
-                                <option <?= $pconfig['mode'] == 'hostap' ? "selected=\"selected\"" : ""; ?> value="hostap">
-                                  <?= gettext("Access Point"); ?>
-                                </option>
-                              <?php endif ?>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><a id="help_for_ssid" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("SSID"); ?></td>
-                          <td>
-                            <input name="ssid" type="text" id="ssid" value="<?= $pconfig['ssid']; ?>" />
-                            <div class="hidden" data-for="help_for_ssid">
-                              <?= gettext("Note: Only required in Access Point mode. If left blank in Ad-hoc or Infrastructure mode, this interface will connect to any available SSID"); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <?php if (isset($wl_modes['11ng']) || isset($wl_modes['11na'])): ?>
+                          endif; ?>
                           <tr>
-                            <td><a id="help_for_puremode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                              <?= gettext("Minimum standard"); ?></td>
+                            <td><a id="help_for_regdomain" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Regulatory settings"); ?></td>
                             <td>
-                              <select name="puremode" class="selectpicker" data-style="btn-default" id="puremode">
-                                <option <?= $pconfig['puremode'] == 'any' ? "selected=\"selected\"" : ""; ?> value="any">
-                                  <?= gettext("Any"); ?>
+                              <?= gettext("Regulatory domain"); ?><br />
+                              <select name="regdomain" class="selectpicker" data-style="btn-default" id="regdomain">
+                                <option <?= empty($pconfig['regdomain']) ? "selected=\"selected\"" : ""; ?> value="">
+                                  <?= gettext("Default"); ?>
                                 </option>
-                                <?php if (isset($wl_modes['11g'])): ?>
-                                  <option <?= $pconfig['puremode'] == '11g' ? "selected=\"selected\"" : ""; ?> value="11g">
-                                    <?= gettext("802.11g"); ?>
-                                  </option>
+                                <?php
+                                foreach ($wl_regdomains as $wl_regdomain_key => $wl_regdomain): ?>
+                                    <option value="<?= $wl_regdomains_attr[$wl_regdomain_key]['ID']; ?>"
+                                      <?= $pconfig['regdomain'] == $wl_regdomains_attr[$wl_regdomain_key]['ID'] ? "selected=\"selected\" " : ""; ?>>
+                                      <?= $wl_regdomain['name']; ?>
+                                    </option>
+                                    <?php
+                                endforeach; ?>
+                              </select>
+                              <br />
+                              <div class="hidden" data-for="help_for_regdomain">
+                                <?= gettext("Some cards have a default that is not recognized and require changing the regulatory domain to one in this list for the changes to other regulatory settings to work."); ?>
+                              </div>
+                              <br />
+                              <?= gettext("Country (listed with country code and regulatory domain)"); ?><br />
+                              <select name="regcountry" class="selectpicker" data-size="10" data-style="btn-default"
+                                id="regcountry">
+                                <option <?= empty($pconfig['regcountry']) ? "selected=\"selected\"" : ""; ?> value="">
+                                  <?= gettext("Default"); ?>
+                                </option>
+                                <?php
+                                foreach ($wl_countries as $wl_country_key => $wl_country): ?>
+                                    <option value="<?= $wl_countries_attr[$wl_country_key]['ID']; ?>"
+                                      <?= $pconfig['regcountry'] == $wl_countries_attr[$wl_country_key]['ID'] ? "selected=\"selected\" " : ""; ?>>
+                                      <?= $wl_country['name']; ?> (<?= $wl_countries_attr[$wl_country_key]['ID']; ?>
+                                      <?= strtoupper($wl_countries_attr[$wl_country_key]['rd'][0]['REF']); ?>)
+                                    </option>
+                                    <?php
+                                endforeach; ?>
+                              </select>
+                              <br />
+                              <div class="hidden" data-for="help_for_regdomain">
+                                <?= gettext("Any country setting other than \"Default\" will override the regulatory domain setting"); ?>.
+                              </div>
+                              <br />
+                              <?= gettext("Location"); ?><br />
+                              <select name="reglocation" class="selectpicker" data-style="btn-default" id="reglocation">
+                                <option <?= empty($pconfig['reglocation']) ? "selected=\"selected\"" : ""; ?> value="">
+                                  <?= gettext("Default"); ?>
+                                </option>
+                                <option <?= $pconfig['reglocation'] == 'indoor' ? "selected=\"selected\"" : ""; ?>
+                                  value="indoor"><?= gettext("Indoor"); ?></option>
+                                <option <?= $pconfig['reglocation'] == 'outdoor' ? "selected=\"selected\"" : ""; ?>
+                                  value="outdoor"><?= gettext("Outdoor"); ?></option>
+                                <option <?= $pconfig['reglocation'] == 'anywhere' ? "selected=\"selected\"" : ""; ?>
+                                  value="anywhere"><?= gettext("Anywhere"); ?></option>
+                              </select>
+                              <div class="hidden" data-for="help_for_regdomain">
+                                <?= gettext("These settings may affect which channels are available and the maximum transmit power allowed on those channels. Using the correct settings to comply with local regulatory requirements is recommended."); ?>
+                                <br />
+                                <?= gettext("All wireless networks on this interface will be temporarily brought down when changing regulatory settings. Some of the regulatory domains or country codes may not be allowed by some cards. These settings may not be able to add additional channels that are not already supported."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="tab-content content-box col-xs-12 __mb interfaces-card">
+                    <div class="table-responsive">
+                      <table class="table table-striped opnsense_standard_table_form">
+                        <thead>
+                          <tr>
+                            <th colspan="2"><?= gettext("Network-specific wireless configuration"); ?></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("Mode"); ?></td>
+                            <td>
+                              <select name="mode" class="selectpicker" data-style="btn-default" id="mode">
+                                <option <?= $pconfig['mode'] == 'bss' ? "selected=\"selected\"" : ""; ?> value="bss">
+                                  <?= gettext("Infrastructure (BSS)"); ?>
+                                </option>
+                                <?php if (test_wireless_capability(get_real_interface($pconfig['if']), 'adhoc')): ?>
+                                    <option <?= $pconfig['mode'] == 'adhoc' ? "selected=\"selected\"" : ""; ?> value="adhoc">
+                                      <?= gettext("Ad-hoc (IBSS)"); ?>
+                                    </option>
                                 <?php endif ?>
-                                <option <?= $pconfig['puremode'] == '11n' ? "selected=\"selected\"" : ""; ?> value="11n">
-                                  <?= gettext("802.11n"); ?>
+                                <?php if (test_wireless_capability(get_real_interface($pconfig['if']), 'hostap')): ?>
+                                    <option <?= $pconfig['mode'] == 'hostap' ? "selected=\"selected\"" : ""; ?> value="hostap">
+                                      <?= gettext("Access Point"); ?>
+                                    </option>
+                                <?php endif ?>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><a id="help_for_ssid" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("SSID"); ?></td>
+                            <td>
+                              <input name="ssid" type="text" id="ssid" value="<?= $pconfig['ssid']; ?>" />
+                              <div class="hidden" data-for="help_for_ssid">
+                                <?= gettext("Note: Only required in Access Point mode. If left blank in Ad-hoc or Infrastructure mode, this interface will connect to any available SSID"); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <?php if (isset($wl_modes['11ng']) || isset($wl_modes['11na'])): ?>
+                              <tr>
+                                <td><a id="help_for_puremode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                                  <?= gettext("Minimum standard"); ?></td>
+                                <td>
+                                  <select name="puremode" class="selectpicker" data-style="btn-default" id="puremode">
+                                    <option <?= $pconfig['puremode'] == 'any' ? "selected=\"selected\"" : ""; ?> value="any">
+                                      <?= gettext("Any"); ?>
+                                    </option>
+                                    <?php if (isset($wl_modes['11g'])): ?>
+                                        <option <?= $pconfig['puremode'] == '11g' ? "selected=\"selected\"" : ""; ?> value="11g">
+                                          <?= gettext("802.11g"); ?>
+                                        </option>
+                                    <?php endif ?>
+                                    <option <?= $pconfig['puremode'] == '11n' ? "selected=\"selected\"" : ""; ?> value="11n">
+                                      <?= gettext("802.11n"); ?>
+                                    </option>
+                                  </select>
+                                  <div class="hidden" data-for="help_for_puremode">
+                                    <?= gettext("When operating as an access point, allow only stations capable of the selected wireless standard to associate (stations not capable are not permitted to associate)."); ?>
+                                  </div>
+                                </td>
+                              </tr>
+                          <?php elseif (isset($wl_modes['11g'])): ?>
+                              <tr>
+                                <td><a id="help_for_puremode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                                  <?= gettext("802.11g only"); ?></td>
+                                <td>
+                                  <input name="puremode" type="checkbox" value="11g" id="puremode" <?php if ($pconfig['puremode'] == '11g')
+                                    echo "checked=\"checked\""; ?> />
+                                  <div class="hidden" data-for="help_for_puremode">
+                                    <?= gettext("When operating as an access point in 802.11g mode, allow only 11g-capable stations to associate (11b-only stations are not permitted to associate)."); ?>
+                                  </div>
+                                </td>
+                              </tr>
+                          <?php endif ?>
+                          <tr class="cfg-wireless-ap">
+                            <td><a id="help_for_apbridge_enable" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Allow intra-BSS communication"); ?></td>
+                            <td>
+                              <input name="apbridge_enable" type="checkbox" value="yes" id="apbridge_enable"
+                                <?= !empty($pconfig['apbridge_enable']) ? "checked=\"checked\"" : ""; ?> />
+                              <div class="hidden" data-for="help_for_apbridge_enable">
+                                <?= gettext("When operating as an access point, enable this if you want to pass packets between wireless clients directly."); ?>
+                                <br />
+                                <?= gettext("Disabling the internal bridging is useful when traffic is to be processed with packet filtering."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><a id="help_for_wme_enable" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Enable WME"); ?></td>
+                            <td>
+                              <input name="wme_enable" type="checkbox" id="wme_enable" value="yes"
+                                <?= !empty($pconfig['wme_enable']) ? "checked=\"checked\"" : ""; ?> />
+                              <div class="hidden" data-for="help_for_wme_enable">
+                                <?= gettext("Setting this option will force the card to use WME (wireless QoS)."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ap cfg-wireless-adhoc">
+                            <td><a id="help_for_hidessid_enable" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Enable Hide SSID"); ?></td>
+                            <td>
+                              <input name="hidessid_enable" type="checkbox" id="hidessid_enable" value="yes"
+                                <?= !empty($pconfig['hidessid_enable']) ? "checked=\"checked\"" : ""; ?> />
+                              <div class="hidden" data-for="help_for_hidessid_enable">
+                                <?= gettext("Setting this option will force the card to NOT broadcast its SSID (this might create problems for some clients)."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><a id="help_for_wep" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("WEP"); ?></td>
+                            <td>
+                              <input name="wep_enable" type="checkbox" id="wep_enable" value="yes" <?= $pconfig['wep_enable'] ? "checked=\"checked\"" : ""; ?> />
+                              <label for="wep_enable"><?= gettext("Enable WEP"); ?></label>
+                              <table class="table table-condensed cfg-wireless-wep">
+                                <tr>
+                                  <td></td>
+                                  <td></td>
+                                  <td><?= gettext("TX key"); ?></td>
+                                </tr>
+                                <tr>
+                                  <td><?= gettext("Key 1:"); ?></td>
+                                  <td>
+                                    <input name="key1" type="text" id="key1" value="<?= $pconfig['key1']; ?>" />
+                                  </td>
+                                  <td>
+                                    <input name="txkey" type="radio" value="1" <?= $pconfig['txkey'] == 1 ? "checked=\"checked\"" : ""; ?> />
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td><?= gettext("Key 2:"); ?></td>
+                                  <td>
+                                    <input name="key2" type="text" id="key2" value="<?= $pconfig['key2']; ?>" />
+                                  </td>
+                                  <td>
+                                    <input name="txkey" type="radio" value="2" <?= $pconfig['txkey'] == 2 ? "checked=\"checked\"" : ""; ?> />
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td><?= gettext("Key 3:"); ?></td>
+                                  <td>
+                                    <input name="key3" type="text" id="key3" value="<?= $pconfig['key3']; ?>" />
+                                  </td>
+                                  <td>
+                                    <input name="txkey" type="radio" value="3" <?= $pconfig['txkey'] == 3 ? "checked=\"checked\"" : ""; ?> />
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td><?= gettext("Key 4:"); ?></td>
+                                  <td>
+                                    <input name="key4" type="text" id="key4" value="<?= $pconfig['key4']; ?>" />
+                                  </td>
+                                  <td>
+                                    <input name="txkey" type="radio" value="4" <?= $pconfig['txkey'] == 4 ? "checked=\"checked\"" : ""; ?> />
+                                  </td>
+                                </tr>
+                              </table>
+                              <div class="hidden" data-for="help_for_wep">
+                                <?= gettext("40 (64) bit keys may be entered as 5 ASCII characters or 10 hex digits preceded by '0x'."); ?><br />
+                                <?= gettext("104 (128) bit keys may be entered as 13 ASCII characters or 26 hex digits preceded by '0x'."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA"); ?></td>
+                            <td>
+                              <input name="wpa_enable" type="checkbox" id="wpa_enable" value="yes" <?php if ($pconfig['wpa_enable'])
+                                echo "checked=\"checked\""; ?> />
+                              <label for="wpa_enable"><?= gettext("Enable WPA"); ?></label>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-eap">
+                            <td><a id="help_for_wpa_identity" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("WPA EAP Identity"); ?></td>
+                            <td>
+                              <input name="identity" type="text" id="identity" value="<?= $pconfig['identity']; ?>" />
+                              <div class="hidden" data-for="help_for_wpa_identity">
+                                <?= gettext("Only relevant when Extended Authentication Protocol (EAP) is used."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><a id="help_for_wpa_passphrase" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("WPA Pre-Shared Key/EAP Password"); ?></td>
+                            <td>
+                              <input name="passphrase" type="text" id="passphrase" value="<?= $pconfig['passphrase']; ?>" />
+                              <div class="hidden" data-for="help_for_wpa_passphrase">
+                                <?= gettext("Passphrase must be from 8 to 63 characters."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Mode"); ?></td>
+                            <td>
+                              <select name="wpa_mode" class="selectpicker" data-style="btn-default" id="wpa_mode">
+                                <option <?= $pconfig['wpa_mode'] == '1' ? "selected=\"selected\"" : ""; ?> value="1">
+                                  <?= gettext("WPA"); ?>
+                                </option>
+                                <option <?= $pconfig['wpa_mode'] == '2' ? "selected=\"selected\"" : ""; ?> value="2">
+                                  <?= gettext("WPA2"); ?>
+                                </option>
+                                <option <?= $pconfig['wpa_mode'] == '3' ? "selected=\"selected\"" : ""; ?> value="3">
+                                  <?= gettext("Both"); ?>
                                 </option>
                               </select>
-                              <div class="hidden" data-for="help_for_puremode">
-                                <?= gettext("When operating as an access point, allow only stations capable of the selected wireless standard to associate (stations not capable are not permitted to associate)."); ?>
-                              </div>
                             </td>
                           </tr>
-                        <?php elseif (isset($wl_modes['11g'])): ?>
-                          <tr>
-                            <td><a id="help_for_puremode" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                              <?= gettext("802.11g only"); ?></td>
+                          <tr class="cfg-wireless-wpa">
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Key Management Mode"); ?></td>
                             <td>
-                              <input name="puremode" type="checkbox" value="11g" id="puremode" <?php if ($pconfig['puremode'] == '11g')
-                                echo "checked=\"checked\""; ?> />
-                              <div class="hidden" data-for="help_for_puremode">
-                                <?= gettext("When operating as an access point in 802.11g mode, allow only 11g-capable stations to associate (11b-only stations are not permitted to associate)."); ?>
+                              <select name="wpa_key_mgmt" class="selectpicker" data-style="btn-default" id="wpa_key_mgmt">
+                                <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-PSK' ? "selected=\"selected\"" : ""; ?>
+                                  value="WPA-PSK"><?= gettext("Pre-Shared Key"); ?></option>
+                                <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-EAP' ? "selected=\"selected\"" : ""; ?>
+                                  value="WPA-EAP"><?= gettext("Extensible Authentication Protocol (EAP)"); ?></option>
+                                <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-PSK WPA-EAP' ? "selected=\"selected\"" : ""; ?>
+                                  value="WPA-PSK WPA-EAP"><?= gettext("Both"); ?></option>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-eap">
+                            <td><a id="help_for_eap_method" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("EAP Method"); ?></td>
+                            <td>
+                              <select name="wpa_eap_method" class="selectpicker" data-style="btn-default"
+                                id="wpa_eap_method">
+                                <option <?= $pconfig['wpa_eap_method'] == 'PEAP' ? "selected=\"selected\"" : ""; ?>
+                                  value="PEAP"><?= gettext("Protected Extensible Authentication Protocol (PEAP)"); ?>
+                                </option>
+                                <option <?= $pconfig['wpa_eap_method'] == 'TLS' ? "selected=\"selected\"" : ""; ?> value="TLS">
+                                  <?= gettext("Transport Layer Security (TLS)"); ?>
+                                </option>
+                                <option <?= $pconfig['wpa_eap_method'] == 'TTLS' ? "selected=\"selected\"" : ""; ?>
+                                  value="TTLS"><?= gettext("Tunneled Transport Layer Security (TTLS)"); ?></option>
+                              </select>
+                              <div class="hidden" data-for="help_for_eap_method">
+                                <?= gettext("Note: Only relevant for infrastructure mode (BSS) and if Extensible Authentication Protocol (EAP) is used for key management."); ?>
                               </div>
                             </td>
                           </tr>
-                        <?php endif ?>
-                        <tr class="cfg-wireless-ap">
-                          <td><a id="help_for_apbridge_enable" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Allow intra-BSS communication"); ?></td>
-                          <td>
-                            <input name="apbridge_enable" type="checkbox" value="yes" id="apbridge_enable"
-                              <?= !empty($pconfig['apbridge_enable']) ? "checked=\"checked\"" : ""; ?> />
-                            <div class="hidden" data-for="help_for_apbridge_enable">
-                              <?= gettext("When operating as an access point, enable this if you want to pass packets between wireless clients directly."); ?>
-                              <br />
-                              <?= gettext("Disabling the internal bridging is useful when traffic is to be processed with packet filtering."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><a id="help_for_wme_enable" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Enable WME"); ?></td>
-                          <td>
-                            <input name="wme_enable" type="checkbox" id="wme_enable" value="yes"
-                              <?= !empty($pconfig['wme_enable']) ? "checked=\"checked\"" : ""; ?> />
-                            <div class="hidden" data-for="help_for_wme_enable">
-                              <?= gettext("Setting this option will force the card to use WME (wireless QoS)."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ap cfg-wireless-adhoc">
-                          <td><a id="help_for_hidessid_enable" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Enable Hide SSID"); ?></td>
-                          <td>
-                            <input name="hidessid_enable" type="checkbox" id="hidessid_enable" value="yes"
-                              <?= !empty($pconfig['hidessid_enable']) ? "checked=\"checked\"" : ""; ?> />
-                            <div class="hidden" data-for="help_for_hidessid_enable">
-                              <?= gettext("Setting this option will force the card to NOT broadcast its SSID (this might create problems for some clients)."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><a id="help_for_wep" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("WEP"); ?></td>
-                          <td>
-                            <input name="wep_enable" type="checkbox" id="wep_enable" value="yes" <?= $pconfig['wep_enable'] ? "checked=\"checked\"" : ""; ?> />
-                            <label for="wep_enable"><?= gettext("Enable WEP"); ?></label>
-                            <table class="table table-condensed cfg-wireless-wep">
-                              <tr>
-                                <td></td>
-                                <td></td>
-                                <td><?= gettext("TX key"); ?></td>
-                              </tr>
-                              <tr>
-                                <td><?= gettext("Key 1:"); ?></td>
-                                <td>
-                                  <input name="key1" type="text" id="key1" value="<?= $pconfig['key1']; ?>" />
-                                </td>
-                                <td>
-                                  <input name="txkey" type="radio" value="1" <?= $pconfig['txkey'] == 1 ? "checked=\"checked\"" : ""; ?> />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><?= gettext("Key 2:"); ?></td>
-                                <td>
-                                  <input name="key2" type="text" id="key2" value="<?= $pconfig['key2']; ?>" />
-                                </td>
-                                <td>
-                                  <input name="txkey" type="radio" value="2" <?= $pconfig['txkey'] == 2 ? "checked=\"checked\"" : ""; ?> />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><?= gettext("Key 3:"); ?></td>
-                                <td>
-                                  <input name="key3" type="text" id="key3" value="<?= $pconfig['key3']; ?>" />
-                                </td>
-                                <td>
-                                  <input name="txkey" type="radio" value="3" <?= $pconfig['txkey'] == 3 ? "checked=\"checked\"" : ""; ?> />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td><?= gettext("Key 4:"); ?></td>
-                                <td>
-                                  <input name="key4" type="text" id="key4" value="<?= $pconfig['key4']; ?>" />
-                                </td>
-                                <td>
-                                  <input name="txkey" type="radio" value="4" <?= $pconfig['txkey'] == 4 ? "checked=\"checked\"" : ""; ?> />
-                                </td>
-                              </tr>
-                            </table>
-                            <div class="hidden" data-for="help_for_wep">
-                              <?= gettext("40 (64) bit keys may be entered as 5 ASCII characters or 10 hex digits preceded by '0x'."); ?><br />
-                              <?= gettext("104 (128) bit keys may be entered as 13 ASCII characters or 26 hex digits preceded by '0x'."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA"); ?></td>
-                          <td>
-                            <input name="wpa_enable" type="checkbox" id="wpa_enable" value="yes" <?php if ($pconfig['wpa_enable'])
-                              echo "checked=\"checked\""; ?> />
-                            <label for="wpa_enable"><?= gettext("Enable WPA"); ?></label>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-eap">
-                          <td><a id="help_for_wpa_identity" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("WPA EAP Identity"); ?></td>
-                          <td>
-                            <input name="identity" type="text" id="identity" value="<?= $pconfig['identity']; ?>" />
-                            <div class="hidden" data-for="help_for_wpa_identity">
-                              <?= gettext("Only relevant when Extended Authentication Protocol (EAP) is used."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><a id="help_for_wpa_passphrase" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("WPA Pre-Shared Key/EAP Password"); ?></td>
-                          <td>
-                            <input name="passphrase" type="text" id="passphrase" value="<?= $pconfig['passphrase']; ?>" />
-                            <div class="hidden" data-for="help_for_wpa_passphrase">
-                              <?= gettext("Passphrase must be from 8 to 63 characters."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Mode"); ?></td>
-                          <td>
-                            <select name="wpa_mode" class="selectpicker" data-style="btn-default" id="wpa_mode">
-                              <option <?= $pconfig['wpa_mode'] == '1' ? "selected=\"selected\"" : ""; ?> value="1">
-                                <?= gettext("WPA"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_mode'] == '2' ? "selected=\"selected\"" : ""; ?> value="2">
-                                <?= gettext("WPA2"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_mode'] == '3' ? "selected=\"selected\"" : ""; ?> value="3">
-                                <?= gettext("Both"); ?>
-                              </option>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Key Management Mode"); ?></td>
-                          <td>
-                            <select name="wpa_key_mgmt" class="selectpicker" data-style="btn-default" id="wpa_key_mgmt">
-                              <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-PSK' ? "selected=\"selected\"" : ""; ?>
-                                value="WPA-PSK"><?= gettext("Pre-Shared Key"); ?></option>
-                              <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-EAP' ? "selected=\"selected\"" : ""; ?>
-                                value="WPA-EAP"><?= gettext("Extensible Authentication Protocol (EAP)"); ?></option>
-                              <option <?= $pconfig['wpa_key_mgmt'] == 'WPA-PSK WPA-EAP' ? "selected=\"selected\"" : ""; ?>
-                                value="WPA-PSK WPA-EAP"><?= gettext("Both"); ?></option>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-eap">
-                          <td><a id="help_for_eap_method" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("EAP Method"); ?></td>
-                          <td>
-                            <select name="wpa_eap_method" class="selectpicker" data-style="btn-default"
-                              id="wpa_eap_method">
-                              <option <?= $pconfig['wpa_eap_method'] == 'PEAP' ? "selected=\"selected\"" : ""; ?>
-                                value="PEAP"><?= gettext("Protected Extensible Authentication Protocol (PEAP)"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_eap_method'] == 'TLS' ? "selected=\"selected\"" : ""; ?> value="TLS">
-                                <?= gettext("Transport Layer Security (TLS)"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_eap_method'] == 'TTLS' ? "selected=\"selected\"" : ""; ?>
-                                value="TTLS"><?= gettext("Tunneled Transport Layer Security (TTLS)"); ?></option>
-                            </select>
-                            <div class="hidden" data-for="help_for_eap_method">
-                              <?= gettext("Note: Only relevant for infrastructure mode (BSS) and if Extensible Authentication Protocol (EAP) is used for key management."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-eap">
-                          <td><a id="help_for_p2_auth" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("EAP Phase 2 Authentication"); ?></td>
-                          <td>
-                            <select name="wpa_eap_p2_auth" class="selectpicker" data-style="btn-default" id="eap_p2_auth">
-                              <option <?= $pconfig['wpa_eap_p2_auth'] == 'MD5' ? "selected=\"selected\"" : ""; ?>
-                                value="MD5">
-                                <?= gettext("MD5"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_eap_p2_auth'] == 'MSCHAPv2' ? "selected=\"selected\"" : ""; ?>
-                                value="MSCHAPv2"><?= gettext("MSCHAPv2"); ?></option>
-                            </select>
-                            <div class="hidden" data-for="help_for_p2_auth">
-                              <?= gettext("Note: Only relevant for infrastructure mode (BSS) and if Extensible Authentication Protocol (EAP) is used for key management."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-eap">
-                          <td><a id="help_for_cacertref" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("EAP TLS CA Certificate"); ?></td>
-                          <td>
-                            <select name="wpa_eap_cacertref" class="selectpicker" data-style="btn-default">
-                              <option value="" <?= empty($pconfig['wpa_eap_cacertref']) ? "selected=\"selected\"" : ""; ?>>
-                                <?= gettext("Do not verify server"); ?>
-                              </option>
-                              <?php foreach ($a_ca as $ca): ?>
-                                <option value="<?= $ca['refid']; ?>" <?= $pconfig['wpa_eap_cacertref'] == $ca['refid'] ? "selected=\"selected\"" : ""; ?>>
-                                  <?= $ca['descr']; ?>
+                          <tr class="cfg-wireless-eap">
+                            <td><a id="help_for_p2_auth" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("EAP Phase 2 Authentication"); ?></td>
+                            <td>
+                              <select name="wpa_eap_p2_auth" class="selectpicker" data-style="btn-default" id="eap_p2_auth">
+                                <option <?= $pconfig['wpa_eap_p2_auth'] == 'MD5' ? "selected=\"selected\"" : ""; ?>
+                                  value="MD5">
+                                  <?= gettext("MD5"); ?>
                                 </option>
-                              <?php endforeach ?>
-                            </select>
-                            <div class='hidden' data-for="help_for_cacertref">
-                              <?= gettext('Certificate authority used to verify the access point\'s TLS certificate. Only relevant for infrastructure mode (BSS) if Extensible Authentication Protocol (EAP) is used for key management.'); ?><br />
-                              <?= sprintf(
-                                gettext('The %scertificate authority manager%s can be used to ' .
-                                  'create or import certificat authorities if required.'),
-                                '<a href="/system_camanager.php">',
-                                '</a>'
-                              ); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-eap">
-                          <td><a id="help_for_clientcertref" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("EAP TLS Client Certificate"); ?></td>
-                          <td>
-                            <select name="wpa_eap_cltcertref" class="selectpicker" data-style="btn-default">
-                              <option value="" <?= empty($pconfig['wpa_eap_cltcertref']) ? "selected=\"selected\"" : ""; ?>>
-                                <?= gettext("none"); ?>
-                              </option>
-                              <?php foreach ($a_cert as $cert): ?>
-                                <?php if (isset($cert['prv'])): ?>
-                                  <option value="<?= $cert['refid']; ?>" <?= $pconfig['wpa_eap_cltcertref'] == $cert['refid'] ? "selected=\"selected\"" : ""; ?>>
-                                    <?= $cert['descr']; ?>
-                                  </option>
-                                <?php endif ?>
-                              <?php endforeach ?>
-                            </select>
-                            <div class='hidden' data-for="help_for_clientcertref">
-                              <?= gettext('Certificate used for authentication towards the access point. Only relevant for infrastructure mode (BSS) if EAP with TLS is used for key management.'); ?><br />
-                              <?= sprintf(
-                                gettext('The %scertificate manager%s can be used to ' .
-                                  'create or import certificates if required.'),
-                                '<a href="/system_certmanager.php">',
-                                '</a>'
-                              ); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ap">
-                          <td><a id="help_for_auth_algs" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Access Point Authentication"); ?></td>
-                          <td>
-                            <select name="auth_algs" class="selectpicker" data-style="btn-default" id="auth_algs">
-                              <option <?= $pconfig['auth_algs'] == '1' ? "selected=\"selected\"" : ""; ?> value="1">
-                                <?= gettext("Open System Authentication"); ?>
-                              </option>
-                              <option <?= $pconfig['auth_algs'] == '2' ? "selected=\"selected\"" : ""; ?> value="2">
-                                <?= gettext("Shared Key Authentication"); ?>
-                              </option>
-                              <option <?= $pconfig['auth_algs'] == '3' ? "selected=\"selected\"" : ""; ?> value="3">
-                                <?= gettext("Both"); ?>
-                              </option>
-                            </select>
-                            <div class="hidden" data-for="help_for_auth_algs">
-                              <?= gettext("Note: Shared Key Authentication requires WEP. Only relevant for access point mode."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Pairwise"); ?></td>
-                          <td>
-                            <select name="wpa_pairwise" class="selectpicker" data-style="btn-default" id="wpa_pairwise">
-                              <option <?= $pconfig['wpa_pairwise'] == 'CCMP TKIP' ? "selected=\"selected\"" : ""; ?>
-                                value="CCMP TKIP"><?= gettext("Both"); ?></option>
-                              <option <?= $pconfig['wpa_pairwise'] == 'CCMP' ? "selected=\"selected\"" : ""; ?> value="CCMP">
-                                <?= gettext("AES (recommended)"); ?>
-                              </option>
-                              <option <?= $pconfig['wpa_pairwise'] == 'TKIP' ? "selected=\"selected\"" : ""; ?> value="TKIP">
-                                <?= gettext("TKIP"); ?>
-                              </option>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><a id="help_for_wpa_group_rekey" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Key Rotation"); ?></td>
-                          <td>
-                            <input name="wpa_group_rekey" type="text" id="wpa_group_rekey"
-                              value="<?= !empty($pconfig['wpa_group_rekey']) ? $pconfig['wpa_group_rekey'] : "60"; ?>" />
-                            <div class="hidden" data-for="help_for_wpa_group_rekey">
-                              <?= gettext("Allowed values are 1-9999 but should not be longer than Master Key Regeneration time."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><a id="help_for_wpa_gmk_rekey" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Master Key Regeneration"); ?></td>
-                          <td>
-                            <input name="wpa_gmk_rekey" type="text" id="wpa_gmk_rekey"
-                              value="<?= !empty($pconfig['wpa_gmk_rekey']) ? $pconfig['wpa_gmk_rekey'] : "3600"; ?>" />
-                            <div class="hidden" data-for="help_for_wpa_gmk_rekey">
-                              <?= gettext("Allowed values are 1-9999 but should not be shorter than Key Rotation time."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-wpa">
-                          <td><a id="help_for_wpa_strict_rekey" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("Strict Key Regeneration"); ?></td>
-                          <td>
-                            <input name="wpa_strict_rekey" type="checkbox" value="yes" id="wpa_strict_rekey" <?php if ($pconfig['wpa_strict_rekey'])
-                              echo "checked=\"checked\""; ?> />
-                            <div class="hidden" data-for="help_for_wpa_strict_rekey">
-                              <?= gettext("Setting this option will force the AP to rekey whenever a client disassociates."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ap-wpa">
-                          <td><a id="help_for_ieee8021x" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
-                            <?= gettext("Enable IEEE802.1X Authentication"); ?></td>
-                          <td>
-                            <input name="ieee8021x" type="checkbox" value="yes" id="ieee8021x"
-                              <?= !empty($pconfig['ieee8021x']) ? "checked=\"checked\"" : ""; ?> />
-                            <div class="hidden" data-for="help_for_ieee8021x">
-                              <?= gettext("Setting this option will enable 802.1x authentication."); ?><br />
-                              <span
-                                class="text-danger"><?= gettext("This option requires checking the \"Enable WPA box\"."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><a id="help_for_auth_server_addr" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server IP Address"); ?></td>
-                          <td>
-                            <input name="auth_server_addr" id="auth_server_addr" type="text"
-                              value="<?= $pconfig['auth_server_addr']; ?>" />
-                            <div class="hidden" data-for="help_for_auth_server_addr">
-                              <?= gettext("Enter the IP address of the 802.1X Authentication Server. This is commonly a Radius server (FreeRadius, Internet Authentication Services, etc.)"); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><a id="help_for_auth_server_port" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Port"); ?></td>
-                          <td>
-                            <input name="auth_server_port" id="auth_server_port" type="text"
-                              value="<?= $pconfig['auth_server_port']; ?>" />
-                            <div class="hidden" data-for="help_for_auth_server_port">
-                              <?= gettext("Leave blank for the default 1812 port."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("802.1X Server Shared Secret"); ?>
-                          </td>
-                          <td>
-                            <input name="auth_server_shared_secret" id="auth_server_shared_secret" type="text"
-                              value="<?= $pconfig['auth_server_shared_secret']; ?>" />
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><a id="help_for_auth_server_addr2" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server IP Address (2)"); ?></td>
-                          <td>
-                            <input name="auth_server_addr2" id="auth_server_addr2" type="text"
-                              value="<?= $pconfig['auth_server_addr2']; ?>" />
-                            <div class="hidden" data-for="help_for_auth_server_addr2">
-                              <?= gettext("Secondary 802.1X Authentication Server IP Address"); ?><br>
-                              <?= gettext("Enter the IP address of the 802.1X Authentication Server. This is commonly a Radius server (FreeRadius, Internet Authentication Services, etc.)"); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><a id="help_for_auth_server_port2" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Port (2)"); ?></td>
-                          <td>
-                            <input name="auth_server_port2" id="auth_server_port2" type="text"
-                              value="<?= $pconfig['auth_server_port2']; ?>" />
-                            <div class="hidden" data-for="help_for_auth_server_port2">
-                              <?= gettext("Secondary 802.1X Authentication Server Port"); ?><br />
-                              <?= gettext("Leave blank for the default 1812 port."); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><a id="help_for_auth_server_shared_secret2" href="#" class="showhelp"><i
-                                class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Shared Secret (2)"); ?></td>
-                          <td>
-                            <input name="auth_server_shared_secret2" id="auth_server_shared_secret2" type="text"
-                              value="<?= $pconfig['auth_server_shared_secret2']; ?>" />
-                            <div class="hidden" data-for="help_for_auth_server_shared_secret2">
-                              <?= gettext("Secondary 802.1X Authentication Server Shared Secret"); ?>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr class="cfg-wireless-ieee8021x">
-                          <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("802.1X Roaming Preauth"); ?></td>
-                          <td>
-                            <input name="rsn_preauth" id="rsn_preauth" type="checkbox" value="yes"
-                              <?= !empty($pconfig['rsn_preauth']) ? "checked=\"checked\"" : ""; ?> />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                                <option <?= $pconfig['wpa_eap_p2_auth'] == 'MSCHAPv2' ? "selected=\"selected\"" : ""; ?>
+                                  value="MSCHAPv2"><?= gettext("MSCHAPv2"); ?></option>
+                              </select>
+                              <div class="hidden" data-for="help_for_p2_auth">
+                                <?= gettext("Note: Only relevant for infrastructure mode (BSS) and if Extensible Authentication Protocol (EAP) is used for key management."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-eap">
+                            <td><a id="help_for_cacertref" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("EAP TLS CA Certificate"); ?></td>
+                            <td>
+                              <select name="wpa_eap_cacertref" class="selectpicker" data-style="btn-default">
+                                <option value="" <?= empty($pconfig['wpa_eap_cacertref']) ? "selected=\"selected\"" : ""; ?>>
+                                  <?= gettext("Do not verify server"); ?>
+                                </option>
+                                <?php foreach ($a_ca as $ca): ?>
+                                    <option value="<?= $ca['refid']; ?>" <?= $pconfig['wpa_eap_cacertref'] == $ca['refid'] ? "selected=\"selected\"" : ""; ?>>
+                                      <?= $ca['descr']; ?>
+                                    </option>
+                                <?php endforeach ?>
+                              </select>
+                              <div class='hidden' data-for="help_for_cacertref">
+                                <?= gettext('Certificate authority used to verify the access point\'s TLS certificate. Only relevant for infrastructure mode (BSS) if Extensible Authentication Protocol (EAP) is used for key management.'); ?><br />
+                                <?= sprintf(
+                                  gettext('The %scertificate authority manager%s can be used to ' .
+                                    'create or import certificat authorities if required.'),
+                                  '<a href="/system_camanager.php">',
+                                  '</a>'
+                                ); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-eap">
+                            <td><a id="help_for_clientcertref" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("EAP TLS Client Certificate"); ?></td>
+                            <td>
+                              <select name="wpa_eap_cltcertref" class="selectpicker" data-style="btn-default">
+                                <option value="" <?= empty($pconfig['wpa_eap_cltcertref']) ? "selected=\"selected\"" : ""; ?>>
+                                  <?= gettext("none"); ?>
+                                </option>
+                                <?php foreach ($a_cert as $cert): ?>
+                                    <?php if (isset($cert['prv'])): ?>
+                                        <option value="<?= $cert['refid']; ?>" <?= $pconfig['wpa_eap_cltcertref'] == $cert['refid'] ? "selected=\"selected\"" : ""; ?>>
+                                          <?= $cert['descr']; ?>
+                                        </option>
+                                    <?php endif ?>
+                                <?php endforeach ?>
+                              </select>
+                              <div class='hidden' data-for="help_for_clientcertref">
+                                <?= gettext('Certificate used for authentication towards the access point. Only relevant for infrastructure mode (BSS) if EAP with TLS is used for key management.'); ?><br />
+                                <?= sprintf(
+                                  gettext('The %scertificate manager%s can be used to ' .
+                                    'create or import certificates if required.'),
+                                  '<a href="/system_certmanager.php">',
+                                  '</a>'
+                                ); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ap">
+                            <td><a id="help_for_auth_algs" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Access Point Authentication"); ?></td>
+                            <td>
+                              <select name="auth_algs" class="selectpicker" data-style="btn-default" id="auth_algs">
+                                <option <?= $pconfig['auth_algs'] == '1' ? "selected=\"selected\"" : ""; ?> value="1">
+                                  <?= gettext("Open System Authentication"); ?>
+                                </option>
+                                <option <?= $pconfig['auth_algs'] == '2' ? "selected=\"selected\"" : ""; ?> value="2">
+                                  <?= gettext("Shared Key Authentication"); ?>
+                                </option>
+                                <option <?= $pconfig['auth_algs'] == '3' ? "selected=\"selected\"" : ""; ?> value="3">
+                                  <?= gettext("Both"); ?>
+                                </option>
+                              </select>
+                              <div class="hidden" data-for="help_for_auth_algs">
+                                <?= gettext("Note: Shared Key Authentication requires WEP. Only relevant for access point mode."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("WPA Pairwise"); ?></td>
+                            <td>
+                              <select name="wpa_pairwise" class="selectpicker" data-style="btn-default" id="wpa_pairwise">
+                                <option <?= $pconfig['wpa_pairwise'] == 'CCMP TKIP' ? "selected=\"selected\"" : ""; ?>
+                                  value="CCMP TKIP"><?= gettext("Both"); ?></option>
+                                <option <?= $pconfig['wpa_pairwise'] == 'CCMP' ? "selected=\"selected\"" : ""; ?> value="CCMP">
+                                  <?= gettext("AES (recommended)"); ?>
+                                </option>
+                                <option <?= $pconfig['wpa_pairwise'] == 'TKIP' ? "selected=\"selected\"" : ""; ?> value="TKIP">
+                                  <?= gettext("TKIP"); ?>
+                                </option>
+                              </select>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><a id="help_for_wpa_group_rekey" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Key Rotation"); ?></td>
+                            <td>
+                              <input name="wpa_group_rekey" type="text" id="wpa_group_rekey"
+                                value="<?= !empty($pconfig['wpa_group_rekey']) ? $pconfig['wpa_group_rekey'] : "60"; ?>" />
+                              <div class="hidden" data-for="help_for_wpa_group_rekey">
+                                <?= gettext("Allowed values are 1-9999 but should not be longer than Master Key Regeneration time."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><a id="help_for_wpa_gmk_rekey" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Master Key Regeneration"); ?></td>
+                            <td>
+                              <input name="wpa_gmk_rekey" type="text" id="wpa_gmk_rekey"
+                                value="<?= !empty($pconfig['wpa_gmk_rekey']) ? $pconfig['wpa_gmk_rekey'] : "3600"; ?>" />
+                              <div class="hidden" data-for="help_for_wpa_gmk_rekey">
+                                <?= gettext("Allowed values are 1-9999 but should not be shorter than Key Rotation time."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-wpa">
+                            <td><a id="help_for_wpa_strict_rekey" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("Strict Key Regeneration"); ?></td>
+                            <td>
+                              <input name="wpa_strict_rekey" type="checkbox" value="yes" id="wpa_strict_rekey" <?php if ($pconfig['wpa_strict_rekey'])
+                                echo "checked=\"checked\""; ?> />
+                              <div class="hidden" data-for="help_for_wpa_strict_rekey">
+                                <?= gettext("Setting this option will force the AP to rekey whenever a client disassociates."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ap-wpa">
+                            <td><a id="help_for_ieee8021x" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a>
+                              <?= gettext("Enable IEEE802.1X Authentication"); ?></td>
+                            <td>
+                              <input name="ieee8021x" type="checkbox" value="yes" id="ieee8021x"
+                                <?= !empty($pconfig['ieee8021x']) ? "checked=\"checked\"" : ""; ?> />
+                              <div class="hidden" data-for="help_for_ieee8021x">
+                                <?= gettext("Setting this option will enable 802.1x authentication."); ?><br />
+                                <span
+                                  class="text-danger"><?= gettext("This option requires checking the \"Enable WPA box\"."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><a id="help_for_auth_server_addr" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server IP Address"); ?></td>
+                            <td>
+                              <input name="auth_server_addr" id="auth_server_addr" type="text"
+                                value="<?= $pconfig['auth_server_addr']; ?>" />
+                              <div class="hidden" data-for="help_for_auth_server_addr">
+                                <?= gettext("Enter the IP address of the 802.1X Authentication Server. This is commonly a Radius server (FreeRadius, Internet Authentication Services, etc.)"); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><a id="help_for_auth_server_port" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Port"); ?></td>
+                            <td>
+                              <input name="auth_server_port" id="auth_server_port" type="text"
+                                value="<?= $pconfig['auth_server_port']; ?>" />
+                              <div class="hidden" data-for="help_for_auth_server_port">
+                                <?= gettext("Leave blank for the default 1812 port."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("802.1X Server Shared Secret"); ?>
+                            </td>
+                            <td>
+                              <input name="auth_server_shared_secret" id="auth_server_shared_secret" type="text"
+                                value="<?= $pconfig['auth_server_shared_secret']; ?>" />
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><a id="help_for_auth_server_addr2" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server IP Address (2)"); ?></td>
+                            <td>
+                              <input name="auth_server_addr2" id="auth_server_addr2" type="text"
+                                value="<?= $pconfig['auth_server_addr2']; ?>" />
+                              <div class="hidden" data-for="help_for_auth_server_addr2">
+                                <?= gettext("Secondary 802.1X Authentication Server IP Address"); ?><br>
+                                <?= gettext("Enter the IP address of the 802.1X Authentication Server. This is commonly a Radius server (FreeRadius, Internet Authentication Services, etc.)"); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><a id="help_for_auth_server_port2" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Port (2)"); ?></td>
+                            <td>
+                              <input name="auth_server_port2" id="auth_server_port2" type="text"
+                                value="<?= $pconfig['auth_server_port2']; ?>" />
+                              <div class="hidden" data-for="help_for_auth_server_port2">
+                                <?= gettext("Secondary 802.1X Authentication Server Port"); ?><br />
+                                <?= gettext("Leave blank for the default 1812 port."); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><a id="help_for_auth_server_shared_secret2" href="#" class="showhelp"><i
+                                  class="fa fa-info-circle"></i></a> <?= gettext("802.1X Server Shared Secret (2)"); ?></td>
+                            <td>
+                              <input name="auth_server_shared_secret2" id="auth_server_shared_secret2" type="text"
+                                value="<?= $pconfig['auth_server_shared_secret2']; ?>" />
+                              <div class="hidden" data-for="help_for_auth_server_shared_secret2">
+                                <?= gettext("Secondary 802.1X Authentication Server Shared Secret"); ?>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr class="cfg-wireless-ieee8021x">
+                            <td><i class="fa fa-info-circle text-muted"></i> <?= gettext("802.1X Roaming Preauth"); ?></td>
+                            <td>
+                              <input name="rsn_preauth" id="rsn_preauth" type="checkbox" value="yes"
+                                <?= !empty($pconfig['rsn_preauth']) ? "checked=\"checked\"" : ""; ?> />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-                <?php
+                  <?php
               endif; ?>
               <!-- End "allcfg" div -->
             </div>
-            <div class="tab-content content-box col-xs-12 __mb">
+            <div class="tab-content content-box col-xs-12 __mb interfaces-card">
               <div class="table-responsive">
                 <table class="table table-striped opnsense_standard_table_form">
                   <tr>
