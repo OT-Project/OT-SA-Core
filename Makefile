@@ -37,7 +37,7 @@ all:
 
 .for REPLACEMENT in ABI PHP PYTHON
 . if empty(CORE_${REPLACEMENT})
-.  warning Cannot build without CORE_${REPLACEMENT} set
+.  error Cannot build without CORE_${REPLACEMENT} set
 . endif
 CORE_MAKE+=	CORE_${REPLACEMENT}=${CORE_${REPLACEMENT}}
 .endfor
@@ -57,7 +57,9 @@ CORE_NEXT:=	${CORE_NEXT}.7
 CORE_NEXT=	${_CORE_NEXT:[1]}
 CORE_NEXT:=	${CORE_NEXT}.10
 .else
-.error Unsupported minor version for CORE_ABI=${CORE_ABI}
+.warning Unsupported minor version for CORE_ABI=${CORE_ABI}, defaulting CORE_NEXT to ${_CORE_NEXT:[1]}.7
+CORE_NEXT=	${_CORE_NEXT:[1]}
+CORE_NEXT:=	${CORE_NEXT}.7
 .endif
 
 .if exists(${GIT}) && exists(${GITVERSION}) && exists(${.CURDIR}/.git)
@@ -84,13 +86,15 @@ _NEXTSTABLE!=	${GIT} tag -l ${CORE_ABI}\*
 _NEXTMATCH=	--match=${CORE_ABI}\*
 .  endif
 . endif
-. if empty(_NEXTMATCH)
-. error Did not find appropriate tag for CORE_ABI=${CORE_ABI}
-. endif
+. if !empty(_NEXTMATCH)
 CORE_COMMIT!=	${GITVERSION} ${_NEXTMATCH}
+. else
+.  warning No matching git tag found for CORE_ABI=${CORE_ABI}, using fallback version
+CORE_COMMIT?=	${CORE_ABI}.0 0 nogit
+. endif
 .endif
 
-CORE_COMMIT?=	unknown 0 undefined
+CORE_COMMIT?=	${CORE_ABI}.0 0 undefined
 CORE_VERSION?=	${CORE_COMMIT:[1]}
 CORE_REVISION?=	${CORE_COMMIT:[2]}
 CORE_HASH?=	${CORE_COMMIT:[3]}
@@ -205,6 +209,7 @@ CORE_CONFLICTS:=	${CORE_CONFLICTS:S/^/os-/g:O}
 
 mount:
 	@if [ ! -f ${WRKDIR}/.mount_done ]; then \
+	    mkdir -p ${WRKDIR}; \
 	    echo -n "Enabling core live mount..."; \
 	    sed ${SED_REPLACE} ${.CURDIR}/src/${VERSIONFILE}.in > \
 	        ${.CURDIR}/src/${VERSIONFILE}; \
@@ -343,7 +348,12 @@ upgrade-check:
 
 upgrade: upgrade-check clean-pkgdir package
 	@${PKG} delete -fy ${CORE_NAME} || true
-	@${PKG} add ${PKGDIR}/*.pkg
+	@if ls ${PKGDIR}/*.pkg 1>/dev/null 2>&1; then \
+	    ${PKG} add ${PKGDIR}/*.pkg; \
+	else \
+	    echo ">>> No package files found in ${PKGDIR}" >&2; \
+	    exit 1; \
+	fi
 	${.CURDIR}/src/etc/rc.restart_webgui
 
 glint: sweep plist-fix lint
