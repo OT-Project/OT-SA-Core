@@ -313,9 +313,8 @@
       <!-- page footer -->
       <footer class="page-foot">
         <div class="container-fluid">
-          <!-- TODO: unhide this when copyright information is finalized -->
-          <!-- <a target="_blank" href="{{ product_website }}">{{ product_name }}</a> (c) {{ product_copyright_years }} -->
-          <!-- <a target="_blank" href="{{ product_copyright_url }}">{{ product_copyright_owner }}</a> -->
+          <a target="_blank" href="{{ product_website }}">{{ product_name }}</a> (c) {{ product_copyright_years }}
+          <a target="_blank" href="{{ product_copyright_url }}">{{ product_copyright_owner }}</a>
         </div>
       </footer>
     </div>
