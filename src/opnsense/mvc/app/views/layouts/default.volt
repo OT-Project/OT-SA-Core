@@ -218,17 +218,33 @@
       <div class="container-fluid">
         <div class="navbar-header">
           <a class="navbar-brand" href="/">
-            <!-- TODO: Hide logo -->
-            <!-- {% if file_exists(["/usr/local/opnsense/www/themes/",theme_name,"/build/images/default-logo.svg"]|join("")) %}
-                <img class="brand-logo" src="{{ cache_safe('/ui/themes/%s/build/images/default-logo.svg' | format(theme_name)) }}" height="30" alt="logo"/>
+            <!-- Logo -->
+            {% if theme_name == 'otsa-dark' and
+            file_exists(["/usr/local/opnsense/www/themes/",theme_name,"/build/images/default-logo-dark.svg"]|join(""))
+            %}
+            <img class="brand-logo"
+              src="{{ cache_safe('/ui/themes/%s/build/images/default-logo-dark.svg' | format(theme_name)) }}"
+              height="30" alt="logo" />
+            {% elseif
+            file_exists(["/usr/local/opnsense/www/themes/",theme_name,"/build/images/default-logo.svg"]|join("")) %}
+            <img class="brand-logo"
+              src="{{ cache_safe('/ui/themes/%s/build/images/default-logo.svg' | format(theme_name)) }}" height="30"
+              alt="logo" />
             {% else %}
-                <img class="brand-logo" src="{{ cache_safe('/ui/themes/%s/build/images/default-logo.png' | format(theme_name)) }}" height="30" alt="logo"/>
+            <img class="brand-logo"
+              src="{{ cache_safe('/ui/themes/%s/build/images/default-logo.png' | format(theme_name)) }}" height="30"
+              alt="logo" />
             {% endif %}
+
             {% if file_exists(["/usr/local/opnsense/www/themes/",theme_name,"/build/images/icon-logo.svg"]|join("")) %}
-                <img class="brand-icon" src="{{ cache_safe('/ui/themes/%s/build/images/icon-logo.svg' | format(theme_name)) }}" height="30" alt="icon"/>
+            <img class="brand-icon"
+              src="{{ cache_safe('/ui/themes/%s/build/images/icon-logo.svg' | format(theme_name)) }}" height="30"
+              alt="icon" />
             {% else %}
-                <img class="brand-icon" src="{{ cache_safe('/ui/themes/%s/build/images/icon-logo.png' | format(theme_name)) }}" height="30" alt="icon"/>
-            {% endif %} -->
+            <img class="brand-icon"
+              src="{{ cache_safe('/ui/themes/%s/build/images/icon-logo.png' | format(theme_name)) }}" height="30"
+              alt="icon" />
+            {% endif %}
           </a>
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
             <span class="sr-only">{{ lang._('Toggle navigation') }}</span>

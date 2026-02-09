@@ -315,37 +315,40 @@ function display_error_form($text)
     $product = product::getInstance();
 
     ?><!doctype html>
-<html lang="<?= get_current_lang() ?>" class="no-js">
-  <head>
+    <html lang="<?= get_current_lang() ?>" class="no-js">
 
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <head>
 
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta name="copyright" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title><?= gettext('Error') ?> | <?= $product->name() ?></title>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="keywords" content="" />
+        <meta name="description" content="" />
+        <meta name="copyright" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
-    <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
+        <title><?= gettext('Error') ?> | <?= $product->name() ?></title>
 
-    <script src="/ui/js/jquery-3.5.1.min.js"></script>
+        <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
+        <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
 
-  </head>
-  <body class="page-login">
-    <div id=container">
-      <p>&nbsp;</p>
-      <p style="text-align: center;">
-        <a href="/index.php?logout"><?= $text ?></a>
-      </p>
-    </div>
-  </body>
-</html>
+        <script src="/ui/js/jquery-3.5.1.min.js"></script>
+
+    </head>
+
+    <body class="page-login">
+        <div id=container">
+            <p>&nbsp;</p>
+            <p style="text-align: center;">
+                <a href="/index.php?logout"><?= $text ?></a>
+            </p>
+        </div>
+    </body>
+
+    </html>
 <?php }
 
 function display_login_form($Login_Error)
@@ -356,142 +359,170 @@ function display_login_form($Login_Error)
 
     setcookie("cookie_test", bin2hex(random_bytes(16)), time() + 3600, '/', '', $config['system']['webgui']['protocol'] == 'https', true);
     $have_cookies = isset($_COOKIE["cookie_test"]);
-    ?><!doctype html>
-<html lang="<?= get_current_lang() ?>" class="no-js">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    ?>
+    <!doctype html>
+    <html lang="<?= get_current_lang() ?>" class="no-js">
 
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta name="copyright" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title><?= gettext('Login') ?> | <?= $product->name() ?></title>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="keywords" content="" />
+        <meta name="description" content="" />
+        <meta name="copyright" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
-    <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
+        <title><?= gettext('Login') ?> | <?= $product->name() ?></title>
 
-    <script src="/ui/js/jquery-3.5.1.min.js"></script>
+        <link href="<?= cache_safe(get_themed_filename('/css/main.css')) ?>" rel="stylesheet">
+        <link href="<?= cache_safe(get_themed_filename('/images/favicon.png')) ?>" rel="shortcut icon">
 
-    <?php if (get_themed_filename('/js/theme.js', true)) : ?>
-    <script src="<?= cache_safe(get_themed_filename('/js/theme.js')) ?>"></script>
-    <?php endif ?>
+        <script src="/ui/js/jquery-3.5.1.min.js"></script>
 
-    <script>
-    $(document).ready(function() {
-      $('#passwordToggle').on('click', function() {
-        var passwordField = $('#passwordfld');
-        var toggleIcon = $(this).find('.password-toggle-icon');
-        var slashPath = toggleIcon.find('path').last();
-        
-        if (passwordField.attr('type') === 'password') {
-          passwordField.attr('type', 'text');
-          slashPath.css('display', 'none');
-        } else {
-          passwordField.attr('type', 'password');
-          slashPath.css('display', 'block');
-        }
-      });
-    });
-    </script>
+        <?php if (get_themed_filename('/js/theme.js', true)): ?>
+            <script src="<?= cache_safe(get_themed_filename('/js/theme.js')) ?>"></script>
+        <?php endif ?>
 
-  </head>
-  <body class="page-login">
+        <script>
+            $(document).ready(function () {
+                $('#passwordToggle').on('click', function () {
+                    var passwordField = $('#passwordfld');
+                    var toggleIcon = $(this).find('.password-toggle-icon');
+                    var slashPath = toggleIcon.find('path').last();
 
-  <div class="container">
-    <main class="login-modal-container">
-      <div class="login-modal-content">
-        <div class="login-logo">
-          <div class="login-logo-icon">
-    <?php
-    $theme = 'otsa';
-    if (isset($config['theme']) && is_dir('/usr/local/opnsense/www/themes/' . $config['theme'])) {
-        $theme = $config['theme'];
-    }
-    
-    if ($theme === 'otsa-dark' && get_themed_filename('/images/default-logo-dark.svg', true)) : ?>
-            <img src="<?= cache_safe(get_themed_filename('/images/default-logo-dark.svg')) ?>" alt="logo" class="login-logo-img" />
-    <?php elseif (get_themed_filename('/images/default-logo.svg', true)) : ?>
-            <img src="<?= cache_safe(get_themed_filename('/images/default-logo.svg')) ?>" alt="logo" class="login-logo-img" />
-    <?php else : ?>
-            <img src="<?= cache_safe(get_themed_filename('/images/default-logo.png')) ?>" alt="logo" class="login-logo-img" />
-    <?php endif ?>
-        </div>
-        </div>
+                    if (passwordField.attr('type') === 'password') {
+                        passwordField.attr('type', 'text');
+                        slashPath.css('display', 'none');
+                    } else {
+                        passwordField.attr('type', 'password');
+                        slashPath.css('display', 'block');
+                    }
+                });
+            });
+        </script>
 
-        <div class="login-welcome">
-          <h2 class="login-welcome-title"><?=gettext("Welcome back!"); ?></h2>
-          <p class="login-welcome-subtitle"><?=gettext("Login to your account"); ?></p>
-        </div>
+    </head>
 
-        <div id="inputerrors" class="login-error text-danger"><?= !empty($Login_Error) ? $Login_Error : '&nbsp;' ?></div>
+    <body class="page-login">
 
-        <form class="login-form" id="iform" name="iform" method="post" autocomplete="off">
+        <div class="container">
+            <main class="login-modal-container">
+                <div class="login-modal-content">
+                    <div class="login-logo">
+                        <div class="login-logo-icon">
+                            <?php
+                            $theme = 'otsa';
+                            if (isset($config['theme']) && is_dir('/usr/local/opnsense/www/themes/' . $config['theme'])) {
+                                $theme = $config['theme'];
+                            }
 
-          <div class="form-group login-input-group">
-            <div class="input-icon-wrapper">
-              <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.5 6.66667L10 11.6667L17.5 6.66667M2.5 15H17.5V8.33333H2.5V15Z" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <input id="usernamefld" type="text" name="usernamefld" class="form-control login-input" placeholder="<?=gettext("Email Address"); ?>" tabindex="1" autofocus="autofocus" autocapitalize="off" autocorrect="off" />
+                            if ($theme === 'otsa-dark' && get_themed_filename('/images/default-logo-dark.svg', true)): ?>
+                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo-dark.svg')) ?>" alt="logo"
+                                    class="login-logo-img" />
+                            <?php elseif (get_themed_filename('/images/default-logo.svg', true)): ?>
+                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo.svg')) ?>" alt="logo"
+                                    class="login-logo-img" />
+                            <?php else: ?>
+                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo.png')) ?>" alt="logo"
+                                    class="login-logo-img" />
+                            <?php endif ?>
+                        </div>
+                    </div>
+
+                    <div class="login-welcome">
+                        <h2 class="login-welcome-title"><?= gettext("Welcome back!"); ?></h2>
+                        <p class="login-welcome-subtitle"><?= gettext("Login to your account"); ?></p>
+                    </div>
+
+                    <div id="inputerrors" class="login-error text-danger">
+                        <?= !empty($Login_Error) ? $Login_Error : '&nbsp;' ?>
+                    </div>
+
+                    <form class="login-form" id="iform" name="iform" method="post" autocomplete="off">
+
+                        <div class="form-group login-input-group">
+                            <div class="input-icon-wrapper">
+                                <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.5 6.66667L10 11.6667L17.5 6.66667M2.5 15H17.5V8.33333H2.5V15Z" stroke="#999"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <input id="usernamefld" type="text" name="usernamefld" class="form-control login-input"
+                                    placeholder="<?= gettext("Email Address"); ?>" tabindex="1" autofocus="autofocus"
+                                    autocapitalize="off" autocorrect="off" />
+                            </div>
+                        </div>
+
+                        <div class="form-group login-input-group">
+                            <div class="input-icon-wrapper">
+                                <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M15.8333 9.16667V5.83333C15.8333 3.16667 13.6667 1 10.8333 1H9.16667C6.33333 1 4.16667 3.16667 4.16667 5.83333V9.16667M15.8333 9.16667H4.16667M15.8333 9.16667V15.8333C15.8333 17.5 14.5 18.8333 12.8333 18.8333H7.16667C5.5 18.8333 4.16667 17.5 4.16667 15.8333V9.16667"
+                                        stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <input id="passwordfld" type="password" name="passwordfld" class="form-control login-input"
+                                    placeholder="<?= gettext("Password"); ?>" tabindex="2" />
+                                <button type="button" class="password-toggle" id="passwordToggle"
+                                    aria-label="Toggle password visibility">
+                                    <svg class="password-toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M1.66667 10C1.66667 10 4.16667 4.16667 10 4.16667C15.8333 4.16667 18.3333 10 18.3333 10C18.3333 10 15.8333 15.8333 10 15.8333C4.16667 15.8333 1.66667 10 1.66667 10Z"
+                                            stroke="#999" stroke-width="1.5" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <circle cx="10" cy="10" r="2.5" stroke="#999" stroke-width="1.5" />
+                                        <path d="M1.66667 1.66667L18.3333 18.3333" stroke="#999" stroke-width="1.5"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TODO: Add Recover Password -->
+                        <!-- <div class="login-actions">
+            <a href="#" class="login-recover-link"><?= gettext("Recover Password"); ?></a>
+          </div> -->
+
+                        <button type="submit" name="login" value="1"
+                            class="btn btn-primary login-submit-btn"><?= gettext("Login"); ?></button>
+
+
+                        <!-- TODO: Add Sign Up -->
+                        <!-- <div class="login-signup">
+                            <span><?= gettext("Don't have an account?"); ?> </span>
+                            <a href="#" class="login-signup-link"><?= gettext("Sign Up"); ?></a>
+                        </div> -->
+
+                    </form>
+
+                    <?php if (!$have_cookies && isset($_POST['login'])): ?>
+                        <div class="login-cookie-warning text-danger">
+                            <?= gettext("Your browser must support cookies to login."); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php foreach ((new \OPNsense\Auth\AuthenticationFactory())->listSSOproviders('WebGui') as $provider): ?>
+                        <div class="login-sso-link-container">
+                            <?= $provider->renderLink(); ?>
+                        </div>
+                    <?php endforeach; ?>
+
+                </div>
+
+            </main>
+            <div class="login-foot text-center">
+                <a target="_blank" href="<?= $product->website() ?>"><?= $product->name() ?></a> (c)
+                <?= $product->copyright_years() ?>
+                <a target="_blank" href="<?= $product->copyright_url() ?>"><?= $product->copyright_owner() ?></a>
             </div>
-          </div>
 
-          <div class="form-group login-input-group">
-            <div class="input-icon-wrapper">
-              <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15.8333 9.16667V5.83333C15.8333 3.16667 13.6667 1 10.8333 1H9.16667C6.33333 1 4.16667 3.16667 4.16667 5.83333V9.16667M15.8333 9.16667H4.16667M15.8333 9.16667V15.8333C15.8333 17.5 14.5 18.8333 12.8333 18.8333H7.16667C5.5 18.8333 4.16667 17.5 4.16667 15.8333V9.16667" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <input id="passwordfld" type="password" name="passwordfld" class="form-control login-input" placeholder="<?=gettext("Password"); ?>" tabindex="2" />
-              <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
-                <svg class="password-toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1.66667 10C1.66667 10 4.16667 4.16667 10 4.16667C15.8333 4.16667 18.3333 10 18.3333 10C18.3333 10 15.8333 15.8333 10 15.8333C4.16667 15.8333 1.66667 10 1.66667 10Z" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="10" cy="10" r="2.5" stroke="#999" stroke-width="1.5"/>
-                  <path d="M1.66667 1.66667L18.3333 18.3333" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="login-actions">
-            <a href="#" class="login-recover-link"><?=gettext("Recover Password"); ?></a>
-          </div>
-
-          <button type="submit" name="login" value="1" class="btn btn-primary login-submit-btn"><?=gettext("Login"); ?></button>
-
-          <div class="login-signup">
-            <span><?=gettext("Don't have an account?"); ?> </span>
-            <a href="#" class="login-signup-link"><?=gettext("Sign Up"); ?></a>
-          </div>
-
-      </form>
-
-      <?php if (!$have_cookies && isset($_POST['login'])) : ?>
-          <div class="login-cookie-warning text-danger">
-            <?= gettext("Your browser must support cookies to login."); ?>
-          </div>
-      <?php endif; ?>
-
-        <?php foreach ((new \OPNsense\Auth\AuthenticationFactory())->listSSOproviders('WebGui') as $provider):?>
-          <div class="login-sso-link-container">
-            <?=$provider->renderLink();?>
-          </div>
-        <?php endforeach;?>
-
-          </div>
-
-      </main>
-      <div class="login-foot text-center">
-        <a target="_blank" href="<?= $product->website() ?>"><?= $product->name() ?></a> (c) <?= $product->copyright_years() ?>
-        <a target="_blank" href="<?= $product->copyright_url() ?>"><?= $product->copyright_owner() ?></a>
-      </div>
-
-    </div>
+        </div>
 
     </body>
-  </html>
+
+    </html>
 <?php }
