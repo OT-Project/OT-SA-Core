@@ -1,0 +1,2 @@
+FreeBSD: { enabled: no }
+FreeBSD-kmods: { enabled: no }
