@@ -26,13 +26,13 @@
 CORE_ABIS?=	26.1
 CORE_ADDITIONS?=#empty
 CORE_MESSAGE?=	One step ahead, one step behind it, now you gotta run to get even
-CORE_NAME?=	opnsense
+CORE_NAME?=	otsa
 # adjust src/root/boot/lua/logo-hourglass.lua.in accordingly:
 CORE_NICKNAME?=	Witty Woodpecker
 CORE_TYPE?=	community
 # plugins that were migrated to core are here
 CORE_CONFLICTS?=firewall wireguard wireguard-go
 
-CORE_COPYRIGHT_HOLDER?=	Deciso B.V.
-CORE_COPYRIGHT_WWW?=	https://www.deciso.com/
-CORE_COPYRIGHT_YEARS?=	2014-2026
+CORE_COPYRIGHT_HOLDER?=	BKCS
+CORE_COPYRIGHT_WWW?=	https://bkcs.vn/
+CORE_COPYRIGHT_YEARS?=	2026
