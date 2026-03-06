@@ -37,7 +37,7 @@ all:
 
 .for REPLACEMENT in ABI PHP PYTHON
 . if empty(CORE_${REPLACEMENT})
-.  error Cannot build without CORE_${REPLACEMENT} set
+.  warning Cannot build without CORE_${REPLACEMENT} set
 . endif
 CORE_MAKE+=	CORE_${REPLACEMENT}=${CORE_${REPLACEMENT}}
 .endfor
@@ -57,9 +57,7 @@ CORE_NEXT:=	${CORE_NEXT}.7
 CORE_NEXT=	${_CORE_NEXT:[1]}
 CORE_NEXT:=	${CORE_NEXT}.10
 .else
-.warning Unsupported minor version for CORE_ABI=${CORE_ABI}, defaulting CORE_NEXT to ${_CORE_NEXT:[1]}.7
-CORE_NEXT=	${_CORE_NEXT:[1]}
-CORE_NEXT:=	${CORE_NEXT}.7
+.error Unsupported minor version for CORE_ABI=${CORE_ABI}
 .endif
 
 .if exists(${GIT}) && exists(${GITVERSION}) && exists(${.CURDIR}/.git)
@@ -86,15 +84,13 @@ _NEXTSTABLE!=	${GIT} tag -l ${CORE_ABI}\*
 _NEXTMATCH=	--match=${CORE_ABI}\*
 .  endif
 . endif
-. if !empty(_NEXTMATCH)
-CORE_COMMIT!=	${GITVERSION} ${_NEXTMATCH}
-. else
-.  warning No matching git tag found for CORE_ABI=${CORE_ABI}, using fallback version
-CORE_COMMIT?=	${CORE_ABI}.0 0 nogit
+. if empty(_NEXTMATCH)
+. error Did not find appropriate tag for CORE_ABI=${CORE_ABI}
 . endif
+CORE_COMMIT!=	${GITVERSION} ${_NEXTMATCH}
 .endif
 
-CORE_COMMIT?=	${CORE_ABI}.0 0 undefined
+CORE_COMMIT?=	unknown 0 undefined
 CORE_VERSION?=	${CORE_COMMIT:[1]}
 CORE_REVISION?=	${CORE_COMMIT:[2]}
 CORE_HASH?=	${CORE_COMMIT:[3]}
@@ -116,12 +112,12 @@ CORE_PKGVERSION=	${CORE_VERSION}
 CORE_PYTHON_DOT=	${CORE_PYTHON:C/./&./1}
 
 CORE_COMMENT?=		${CORE_PRODUCT} ${CORE_TYPE} release
-CORE_MAINTAINER?=	project@bkcs.vn
+CORE_MAINTAINER?=	project@opnsense.org
 CORE_ORIGIN?=		opnsense/${CORE_NAME}
-CORE_PACKAGESITE?=	https://pkg.opnsense.org
-CORE_PRODUCT?=		OTSA
+CORE_PACKAGESITE?=	https://repo.kamiyuri.dev/main
+CORE_PRODUCT?=		OPNsense
 CORE_REPOSITORY?=	${CORE_ABI}/latest
-CORE_WWW?=		https://bkcs.vn/
+CORE_WWW?=		https://opnsense.org/
 CORE_USER?=		wwwonly
 CORE_UID?=		789
 CORE_GROUP?=		${CORE_USER}
@@ -209,7 +205,6 @@ CORE_CONFLICTS:=	${CORE_CONFLICTS:S/^/os-/g:O}
 
 mount:
 	@if [ ! -f ${WRKDIR}/.mount_done ]; then \
-	    mkdir -p ${WRKDIR}; \
 	    echo -n "Enabling core live mount..."; \
 	    sed ${SED_REPLACE} ${.CURDIR}/src/${VERSIONFILE}.in > \
 	        ${.CURDIR}/src/${VERSIONFILE}; \
@@ -348,12 +343,7 @@ upgrade-check:
 
 upgrade: upgrade-check clean-pkgdir package
 	@${PKG} delete -fy ${CORE_NAME} || true
-	@if ls ${PKGDIR}/*.pkg 1>/dev/null 2>&1; then \
-	    ${PKG} add ${PKGDIR}/*.pkg; \
-	else \
-	    echo ">>> No package files found in ${PKGDIR}" >&2; \
-	    exit 1; \
-	fi
+	@${PKG} add ${PKGDIR}/*.pkg
 	${.CURDIR}/src/etc/rc.restart_webgui
 
 glint: sweep plist-fix lint
