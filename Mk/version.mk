@@ -26,7 +26,7 @@
 CORE_ABIS?=	26.1
 CORE_ADDITIONS?=#empty
 CORE_MESSAGE?=	One step ahead, one step behind it, now you gotta run to get even
-CORE_NAME?=	otsa
+CORE_NAME?=	opnsense
 # adjust src/root/boot/lua/logo-hourglass.lua.in accordingly:
 CORE_NICKNAME?=	Witty Woodpecker
 CORE_TYPE?=	community
