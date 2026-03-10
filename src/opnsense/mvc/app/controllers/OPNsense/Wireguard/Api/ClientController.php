@@ -313,7 +313,8 @@ class ClientController extends ApiMutableModelControllerBase
         $result = ['status' => 'failed'];
         if ($this->request->isGet()) {
             $peers = [];
-            $subnets = [];
+            $preferredSubnetV4 = null;
+            $fallbackSubnet = null;
             $used_addresses = []; /* We cleanse addresses before storing here, to allow string matching */
 
             foreach ((new Server())->servers->server->iterateItems() as $key => $node) {
@@ -324,9 +325,11 @@ class ClientController extends ApiMutableModelControllerBase
                     $result['mtu'] = (string)$node->mtu;
                     $result['pubkey'] = (string)$node->pubkey;
                     foreach (array_filter(explode(',', (string)$node->tunneladdress)) as $addr) {
-                        $proto = str_contains($addr, ':') ? 'inet6' : 'inet';
-                        if (!isset($subnets[$proto])) {
-                            $subnets[$proto] = $addr;
+                        if (!str_contains($addr, ':') && $preferredSubnetV4 === null) {
+                            $preferredSubnetV4 = $addr;
+                        }
+                        if ($fallbackSubnet === null) {
+                            $fallbackSubnet = $addr;
                         }
                         $used_addresses[] = inet_ntop(inet_pton(explode('/', $addr)[0]));
                     }
@@ -338,17 +341,18 @@ class ClientController extends ApiMutableModelControllerBase
                             }
                         }
                     }
-                    $tunneladdress = [];
-                    foreach ($subnets as $cidr) {
-                        foreach (Util::cidrRangeIterator($cidr) as $addr) {
+                    $selectedSubnet = $preferredSubnetV4 ?? $fallbackSubnet;
+                    $tunneladdress = '';
+                    if (!empty($selectedSubnet)) {
+                        foreach (Util::cidrRangeIterator($selectedSubnet) as $addr) {
                             if (!in_array($addr, $used_addresses)) {
                                 $netmask = str_contains($addr, ':') ? '128' : '32';
-                                $tunneladdress[] = $addr . '/' . $netmask;
+                                $tunneladdress = $addr . '/' . $netmask;
                                 break;
                             }
                         }
                     }
-                    $result['address'] = implode(',', $tunneladdress);
+                    $result['address'] = $tunneladdress;
                     $result['status'] = 'ok';
                     break;
                 }

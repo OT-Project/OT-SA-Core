@@ -634,9 +634,33 @@
             const routing = getC2sRoutingValue($dialog);
             const dnsServers = String($dialog.find('#c2s_dns_servers').val() || '').trim();
             const privateKey = String($dialog.find('#c2s_client_private_key').val() || '').trim();
+            const $serverAddressField = $dialog.find('#client\\.serveraddress');
+            const $serverPortField = $dialog.find('#client\\.serverport');
             const $assignedField = $dialog.find('#client\\.tunneladdress');
             let assignedList = [];
             const assignedRaw = $assignedField.val();
+
+            // Keep persisted endpoint fields in sync with the C2S helper input.
+            let endpointHost = '';
+            let endpointPort = '51820';
+            if (endpoint.length > 0) {
+                const bracketMatch = endpoint.match(/^\[([^\]]+)\](?::([0-9]{1,5}))?$/);
+                if (bracketMatch) {
+                    endpointHost = String(bracketMatch[1] || '').trim();
+                    endpointPort = String(bracketMatch[2] || endpointPort).trim();
+                } else {
+                    const firstColon = endpoint.indexOf(':');
+                    const lastColon = endpoint.lastIndexOf(':');
+                    if (firstColon !== -1 && firstColon === lastColon) {
+                        endpointHost = String(endpoint.substring(0, lastColon) || '').trim();
+                        endpointPort = String(endpoint.substring(lastColon + 1) || endpointPort).trim();
+                    } else {
+                        endpointHost = endpoint;
+                    }
+                }
+            }
+            $serverAddressField.val(endpointHost);
+            $serverPortField.val(endpointHost.length > 0 ? endpointPort : '');
 
             if (Array.isArray(assignedRaw)) {
                 assignedList = assignedRaw;
@@ -674,10 +698,10 @@
                 assignedList = [assignedList[0]];
             }
             assignedList = assignedList.map(function (item) {
-                if (item.indexOf('/') !== -1) {
-                    return item;
-                }
-                return item.indexOf(':') !== -1 ? (item + '/128') : (item + '/32');
+                const baseIp = String(item || '').split('/')[0].trim();
+                return baseIp.length > 0 ? (baseIp + '/32') : '';
+            }).filter(function (item) {
+                return item.length > 0;
             });
 
             if (assignedList.length > 0) {
@@ -728,6 +752,27 @@
             $dialog.find('#c2s_config_qrcode').empty().qrcode(config).show();
         };
 
+        const setC2sAssignedClientIp = function ($dialog, rawValue) {
+            const $assignedField = $dialog.find('#client\\.tunneladdress');
+            const baseIp = String(rawValue || '').split('/')[0].trim();
+            if (!baseIp) {
+                return;
+            }
+            const normalized = baseIp + '/32';
+            $assignedField.find('option').prop('selected', false);
+            let $opt = $assignedField.find('option').filter(function () {
+                return String($(this).val() || '') === normalized;
+            });
+            if ($opt.length === 0) {
+                $assignedField.append($('<option/>').val(normalized).text(normalized));
+                $opt = $assignedField.find('option').filter(function () {
+                    return String($(this).val() || '') === normalized;
+                });
+            }
+            $opt.prop('selected', true);
+            $assignedField.val([normalized]).attr('data-value', normalized).trigger('change');
+        };
+
         const setDialogMode = function (isC2S, $dialog) {
             $dialog.find('#client\\.type').val(isC2S ? 'c2s' : 's2s');
             $dialog.find('.modal-title').text(isC2S ? '{{ lang._("Edit client") }}' : '{{ lang._("Edit peer") }}');
@@ -742,6 +787,11 @@
             // Show tunneladdress field for C2S mode with updated label
             const $tunnelRow = $dialog.find("tr[id='row_client\\.tunneladdress']");
             $tunnelRow.css('display', '');
+            // Keep Assigned Client IP ahead of instance/endpoint specific rows.
+            const $serversRow = $dialog.find("tr[id='row_client\\.servers']");
+            if ($serversRow.length > 0) {
+                $tunnelRow.insertBefore($serversRow);
+            }
             const $tunnelLabelCell = $tunnelRow.find('td:first');
             
             // Update label for C2S mode
@@ -817,9 +867,6 @@
             }
 
             const exportHtml = '' +
-                '<tr id="c2s_cfg_header_row" class="c2s-config-row">' +
-                    '<td colspan="3"><hr style="margin:10px 0 12px 0; border-color:#5a5a5a;"><strong>{{ lang._("Client Config") }}</strong></td>' +
-                '</tr>' +
                 '<tr id="c2s_cfg_endpoint_row" class="c2s-config-row">' +
                     '<td><a href="#" class="showhelp c2s-toggle-help" data-target="#c2s_help_server_endpoint" title="{{ lang._("Show details") }}"><i class="fa fa-info-circle"></i></a> {{ lang._("Server Endpoint") }}</td>' +
                     '<td><input id="c2s_server_endpoint" type="text" class="form-control" placeholder="vpn.company.com:51820" required="required" /><div id="c2s_help_server_endpoint" class="help-block c2s-help-text" style="display:none;">{{ lang._("Connection address (e.g., vpn.company.com:51820).") }}</div></td>' +
@@ -894,7 +941,7 @@
                 ajaxGet('/api/wireguard/client/get_server_info/' + selectedServers[0], {}, function(data) {
                     if (data.status === 'ok') {
                         if (data.address) {
-                            $dialog.find('#client\\.tunneladdress').val(data.address).change();
+                            setC2sAssignedClientIp($dialog, data.address);
                         }
                         if (data.endpoint) {
                             $dialog.find('#c2s_server_endpoint').val(data.endpoint);
@@ -931,7 +978,11 @@
                 });
                 if (assigned.length > 0) {
                     const first = assigned[0];
-                    const normalized = first.indexOf('/') !== -1 ? first : (first.indexOf(':') !== -1 ? (first + '/128') : (first + '/32'));
+                    const firstBaseIp = String(first || '').split('/')[0].trim();
+                    const normalized = firstBaseIp.length > 0 ? (firstBaseIp + '/32') : '';
+                    if (!normalized) {
+                        return;
+                    }
                     const $assignedField = $dialog.find('#client\\.tunneladdress');
                     $assignedField.find('option').prop('selected', false);
                     let $opt = $assignedField.find('option').filter(function () {
@@ -997,13 +1048,14 @@
                     if (currentTunnelAddress.length === 0 && selectedServers.length > 0) {
                         ajaxGet('/api/wireguard/client/get_server_info/' + selectedServers[0], {}, function(data) {
                             if (data.status === 'ok' && data.address) {
-                                $dialog.find('#client\\.tunneladdress').val(data.address).change();
+                                setC2sAssignedClientIp($dialog, data.address);
                                 if (data.endpoint) {
                                     $dialog.find('#c2s_server_endpoint').val(data.endpoint);
                                 }
                                 if (data.peer_dns) {
                                     $dialog.find('#c2s_dns_servers').val(data.peer_dns);
                                 }
+                                syncC2sConfigPreview($dialog);
                             }
                         });
                     }
