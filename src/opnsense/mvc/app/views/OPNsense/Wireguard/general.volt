@@ -771,6 +771,57 @@
             }
             $opt.prop('selected', true);
             $assignedField.val([normalized]).attr('data-value', normalized).trigger('change');
+            if (typeof formatTokenizersUI === 'function') {
+                formatTokenizersUI();
+            }
+        };
+
+        const getC2sSelectedServers = function ($dialog) {
+            const $serversField = $dialog.find('#client\\.servers');
+            let raw = $serversField.val();
+            if (Array.isArray(raw)) {
+                return raw.map(function (item) {
+                    return String(item || '').trim();
+                }).filter(function (item) {
+                    return item.length > 0;
+                });
+            }
+            const value = String(raw || '').trim();
+            if (value.length > 0) {
+                return value.split(',').map(function (item) {
+                    return String(item || '').trim();
+                }).filter(function (item) {
+                    return item.length > 0;
+                });
+            }
+            const dataValue = String($serversField.attr('data-value') || '').trim();
+            if (dataValue.length > 0) {
+                return dataValue.split(',').map(function (item) {
+                    return String(item || '').trim();
+                }).filter(function (item) {
+                    return item.length > 0;
+                });
+            }
+            return [];
+        };
+
+        const hasC2sAssignedClientIp = function ($dialog) {
+            const $assignedField = $dialog.find('#client\\.tunneladdress');
+            const raw = $assignedField.val();
+            if (Array.isArray(raw) && raw.length > 0) {
+                return raw.some(function (item) {
+                    return String(item || '').trim().length > 0;
+                });
+            }
+            if (String(raw || '').trim().length > 0) {
+                return true;
+            }
+            const dataValue = String($assignedField.attr('data-value') || '').trim();
+            if (dataValue.length > 0) {
+                return true;
+            }
+            const tokenCount = $assignedField.closest('td').find('.tokenize .tokens-container .token:not(.token-search)').length;
+            return tokenCount > 0;
         };
 
         const setDialogMode = function (isC2S, $dialog) {
@@ -934,7 +985,7 @@
 
             // Function to auto-suggest IP from selected instance
             const autoSuggestIp = function () {
-                const selectedServers = String($dialog.find('#client\\.servers').val() || '').split(',').filter(Boolean);
+                const selectedServers = getC2sSelectedServers($dialog);
                 if (selectedServers.length === 0) {
                     return;
                 }
@@ -960,6 +1011,12 @@
             $dialog.find('#client\\.servers').off('change.c2sAutoIp').on('change.c2sAutoIp', function () {
                 autoSuggestIp();
             });
+
+            if (!hasC2sAssignedClientIp($dialog) && getC2sSelectedServers($dialog).length > 0) {
+                setTimeout(function () {
+                    autoSuggestIp();
+                }, 50);
+            }
 
             $dialog.find('#c2s_server_endpoint, #c2s_tunnel_mode, #c2s_split_network, #c2s_dns_servers, #c2s_client_private_key, #client\\.tunneladdress, #client\\.pubkey')
                 .off('input.c2sPreview change.c2sPreview')
@@ -1041,11 +1098,10 @@
             // Auto-suggest IP for new C2S clients or when tunneladdress is empty
             if (currentClientDialogMode === 'c2s') {
                 setTimeout(function () {
-                    const currentTunnelAddress = String($dialog.find('#client\\.tunneladdress').val() || '').trim();
-                    const selectedServers = String($dialog.find('#client\\.servers').val() || '').split(',').filter(Boolean);
+                    const selectedServers = getC2sSelectedServers($dialog);
                     
                     // Auto-fill if no address is set and an instance is selected
-                    if (currentTunnelAddress.length === 0 && selectedServers.length > 0) {
+                    if (!hasC2sAssignedClientIp($dialog) && selectedServers.length > 0) {
                         ajaxGet('/api/wireguard/client/get_server_info/' + selectedServers[0], {}, function(data) {
                             if (data.status === 'ok' && data.address) {
                                 setC2sAssignedClientIp($dialog, data.address);
