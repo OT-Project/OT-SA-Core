@@ -14,6 +14,11 @@
                     <Mask>/^([0-9a-zA-Z._\-]){1,64}$/u</Mask>
                     <ValidationMessage>Should be a string between 1 and 64 characters. Allowed characters are alphanumeric characters, dash and underscores.</ValidationMessage>
                 </name>
+                <type type="TextField">
+                    <Default>s2s</Default>
+                    <Mask>/^(s2s|c2s)$/</Mask>
+                    <ValidationMessage>Type must be either s2s or c2s.</ValidationMessage>
+                </type>
                 <pubkey type="Base64Field">
                     <Required>Y</Required>
                     <Constraints>

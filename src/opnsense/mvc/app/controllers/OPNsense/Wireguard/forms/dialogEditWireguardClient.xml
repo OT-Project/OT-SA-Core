@@ -17,6 +17,10 @@
         <help>Set the name for this peer.</help>
     </field>
     <field>
+        <id>client.type</id>
+        <type>hidden</type>
+    </field>
+    <field>
         <id>client.pubkey</id>
         <label>Public key</label>
         <type>text</type>

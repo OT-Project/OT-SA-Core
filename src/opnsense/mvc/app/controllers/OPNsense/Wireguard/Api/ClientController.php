@@ -63,8 +63,23 @@ class ClientController extends ApiMutableModelControllerBase
     public function searchClientAction()
     {
         $servers = $this->request->get('servers');
-        $filter_funct = function ($record) use ($servers) {
-            return empty($servers) || array_intersect(explode(',', $record->servers), $servers);
+        $type = (string)$this->request->get('type');
+        $filter_funct = function ($record) use ($servers, $type) {
+            $matchServers = empty($servers) || array_intersect(explode(',', $record->servers), $servers);
+            if (!$matchServers) {
+                return false;
+            }
+
+            if ($type === 'c2s') {
+                return (string)$record->type === 'c2s';
+            }
+
+            if ($type === 's2s') {
+                $recordType = (string)$record->type;
+                return $recordType === '' || $recordType === 's2s';
+            }
+
+            return true;
         };
 
         return $this->searchBase('clients.client', null, null, $filter_funct);
@@ -100,6 +115,9 @@ class ClientController extends ApiMutableModelControllerBase
     {
         $add_uuid = null;
         if (!empty($this->request->getPost(static::$internalModelName)) && $this->request->isPost()) {
+            if (empty($this->request->getPost(static::$internalModelName)['type'])) {
+                $_POST[static::$internalModelName]['type'] = 's2s';
+            }
             $servers = [];
             if (!empty($this->request->getPost(static::$internalModelName)['servers'])) {
                 $servers = explode(',', $this->request->getPost(static::$internalModelName)['servers']);
@@ -148,6 +166,9 @@ class ClientController extends ApiMutableModelControllerBase
         $uuid = null;
         $server = null;
         if ($this->request->isPost() && !empty($this->request->getPost('configbuilder'))) {
+            if (empty($this->request->getPost('configbuilder')['type'])) {
+                $_POST['configbuilder']['type'] = 'c2s';
+            }
             Config::getInstance()->lock();
             $mdl = new Server();
             $uuid = $this->getModel()->clients->generateUUID();

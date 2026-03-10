@@ -45,6 +45,97 @@ class GeneralController extends \OPNsense\Base\IndexController
         $this->view->formDialogEditWireguardClient = $this->getForm("dialogEditWireguardClient");
         $this->view->formGridWireguardClient = $this->getFormGrid("dialogEditWireguardClient");
 
+        $gridList = $this->getFormGrid("dialogEditWireguardClient", "dialogEditWireguardClientList");
+        $visibleFields = ['uuid', 'enabled', 'name', 'servers', 'tunneladdress', 'pubkey'];
+        foreach ($gridList['fields'] as &$field) {
+            $fieldId = $field['column-id'];
+            $field['visible'] = in_array($fieldId, $visibleFields) ? 'true' : 'false';
+            switch ($field['column-id']) {
+                case 'uuid':
+                    $field['label'] = gettext('ID');
+                    $field['visible'] = 'true';
+                    break;
+                case 'servers':
+                    $field['label'] = gettext('Instance');
+                    break;
+                case 'tunneladdress':
+                    $field['label'] = gettext('Assigned IP');
+                    break;
+                case 'pubkey':
+                    $field['label'] = gettext('Client Public Key');
+                    $field['formatter'] = 'clientpubkey';
+                    break;
+            }
+        }
+        unset($field);
+
+        $gridList['fields'][] = [
+            'column-id' => 'serverendpoint',
+            'label' => gettext('Server Endpoint'),
+            'visible' => 'true',
+            'sortable' => 'false',
+            'identifier' => 'false',
+            'type' => 'string',
+            'formatter' => 'serverendpoint'
+        ];
+
+        $gridList['fields'][] = [
+            'column-id' => 'tunnelrouting',
+            'label' => gettext('Tunnel Routing'),
+            'visible' => 'true',
+            'sortable' => 'false',
+            'identifier' => 'false',
+            'type' => 'string',
+            'formatter' => 'tunnelrouting'
+        ];
+
+        $gridList['fields'][] = [
+            'column-id' => 'peerdns',
+            'label' => gettext('DNS Servers'),
+            'visible' => 'true',
+            'sortable' => 'false',
+            'identifier' => 'false',
+            'type' => 'string',
+            'formatter' => 'peerdns'
+        ];
+
+        $gridList['fields'][] = [
+            'column-id' => 'configqr',
+            'label' => gettext('Config / QR Code'),
+            'visible' => 'true',
+            'sortable' => 'false',
+            'identifier' => 'false',
+            'type' => 'string',
+            'formatter' => 'configqr'
+        ];
+
+        $order = [
+            'uuid',
+            'enabled',
+            'name',
+            'servers',
+            'tunneladdress',
+            'pubkey',
+            'serverendpoint',
+            'tunnelrouting',
+            'peerdns',
+            'configqr'
+        ];
+        usort($gridList['fields'], function ($a, $b) use ($order) {
+            $ia = array_search($a['column-id'], $order);
+            $ib = array_search($b['column-id'], $order);
+            if ($ia === false) {
+                $ia = count($order);
+            }
+            if ($ib === false) {
+                $ib = count($order);
+            }
+            return $ia <=> $ib;
+        });
+
+        $gridList['edit_dialog_id'] = $this->view->formGridWireguardClient['edit_dialog_id'];
+        $this->view->formGridWireguardClientList = $gridList;
+
         $this->view->formDialogEditWireguardServer = $this->getForm("dialogEditWireguardServer");
         $this->view->formGridWireguardServer = $this->getFormGrid("dialogEditWireguardServer");
 
