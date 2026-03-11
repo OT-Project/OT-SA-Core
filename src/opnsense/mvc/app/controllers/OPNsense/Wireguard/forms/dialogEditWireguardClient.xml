@@ -75,4 +75,10 @@
             <visible>false</visible>
         </grid_view>
     </field>
+    <field>
+        <id>client.type</id>
+        <label>Type</label>
+        <type>hidden</type>
+        <hint>client</hint>
+    </field>
 </form>

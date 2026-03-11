@@ -56,6 +56,14 @@
                     <MaximumValue>65535</MaximumValue>
                     <ValidationMessage>Please specify a value between 1 and 65535.</ValidationMessage>
                 </keepalive>
+                <type type="OptionField">
+                    <Default>client</Default>
+                    <Required>Y</Required>
+                    <OptionValues>
+                        <client>client</client>
+                        <s2s>s2s</s2s>
+                    </OptionValues>
+                </type>
                 <servers type="ModelRelationField" volatile="true">
                     <Model>
                         <template>

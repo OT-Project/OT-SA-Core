@@ -4,6 +4,7 @@
           <Instances order="10" url="/ui/wireguard/general#instances"/>
           <Peers order="20" url="/ui/wireguard/general#peers"/>
           <PeerGenerator order="30" VisibleName="Peer generator" url="/ui/wireguard/general#configbuilder"/>
+          <SiteToSite order="35" VisibleName="Site-to-Site" url="/ui/wireguard/general#s2s"/>
           <Status order="40" url="/ui/wireguard/diagnostics/"/>
           <LogFile order="50" VisibleName="Log File" url="/ui/diagnostics/log/core/wireguard"/>
       </WireGuard>

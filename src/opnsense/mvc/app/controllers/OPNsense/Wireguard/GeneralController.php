@@ -49,6 +49,9 @@ class GeneralController extends \OPNsense\Base\IndexController
         $this->view->formGridWireguardServer = $this->getFormGrid("dialogEditWireguardServer");
 
         $this->view->formDialogConfigBuilder = $this->getForm("dialogConfigBuilder");
+
+        $this->view->formDialogEditS2SPeer = $this->getForm("dialogEditS2SPeer");
+        $this->view->formGridS2SPeer = $this->getFormGrid("dialogEditS2SPeer");
         $this->view->pick('OPNsense/Wireguard/general');
     }
 }

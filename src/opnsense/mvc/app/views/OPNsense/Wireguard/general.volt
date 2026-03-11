@@ -25,6 +25,14 @@
  # POSSIBILITY OF SUCH DAMAGE.
  #}
 
+<style>
+/* Hide the internal type discriminator row in WireGuard peer dialogs */
+tr:has(> td > input[id="client.type"]),
+tr:has(> td > [id="client.type"]) {
+    display: none !important;
+}
+</style>
+
 <script>
     $(document).ready(function() {
         const data_get_map = {'frm_general_settings':"/api/wireguard/general/get"};
@@ -43,6 +51,7 @@
             options:{
                 initialSearchPhrase: getUrlHash('search'),
                 requestHandler: function(request){
+                    request['type'] = 'client';
                     if ($('#server_filter').val().length > 0) {
                         request['servers'] = $('#server_filter').val();
                     }
@@ -73,6 +82,43 @@
             add: '/api/wireguard/server/add_server/',
             del: '/api/wireguard/server/del_server/',
             toggle: '/api/wireguard/server/toggle_server/'
+        });
+
+        const grid_s2s = $("#{{formGridS2SPeer['table_id']}}").UIBootgrid({
+            search: '/api/wireguard/client/search_client',
+            get: '/api/wireguard/client/get_client/',
+            set: '/api/wireguard/client/set_client/',
+            add: '/api/wireguard/client/add_client/',
+            del: '/api/wireguard/client/del_client/',
+            toggle: '/api/wireguard/client/toggle_client/',
+            options:{
+                requestHandler: function(request){
+                    request['type'] = 's2s';
+                    return request;
+                }
+            }
+        });
+
+        /**
+         * S2S dialog: force type=s2s after mapDataToFormUI, hide type row
+         */
+        $('#{{formGridS2SPeer["edit_dialog_id"]}}').on('shown.bs.modal.s2s_type', function() {
+            const dlg = $(this);
+            dlg.find('[id="client.type"]').closest('tr').hide();
+            setTimeout(function() {
+                dlg.find('[id="client.type"]').val('s2s');
+            }, 200);
+        });
+
+        /**
+         * Peers dialog: force type=client after mapDataToFormUI, hide type row
+         */
+        $('#{{formGridWireguardClient["edit_dialog_id"]}}').on('shown.bs.modal.peers_type', function() {
+            const dlg = $(this);
+            dlg.find('[id="client.type"]').closest('tr').hide();
+            setTimeout(function() {
+                dlg.find('[id="client.type"]').val('client');
+            }, 200);
         });
 
         // ... (phần code trước vẫn giữ nguyên)
@@ -794,6 +840,8 @@
                 $('#{{formGridWireguardClient['table_id']}}').bootgrid('reload');
             } else if (e.target.id == 'tab_instances') {
                 $('#{{formGridWireguardServer['table_id']}}').bootgrid('reload');
+            } else if (e.target.id == 'tab_s2s') {
+                $('#{{formGridS2SPeer['table_id']}}').bootgrid('reload');
             }
         });
 
@@ -814,7 +862,8 @@
 <ul class="nav nav-tabs" data-tabs="tabs" id="maintabs">
     <li class="active"><a data-toggle="tab" id="tab_instances" href="#instances">{{ lang._('Instances') }}</a></li>
     <li><a data-toggle="tab" id="tab_peers" href="#peers">{{ lang._('Peers') }}</a></li>
-    <li><a data-toggle="tab" id="tab_configbuilder" href="#configbuilder">{{ lang._('Peer generator') }}</a></li>
+    <li style="display:none"><a data-toggle="tab" id="tab_configbuilder" href="#configbuilder">{{ lang._('Peer generator') }}</a></li>
+    <li><a data-toggle="tab" id="tab_s2s" href="#s2s">{{ lang._('Site-to-Site') }}</a></li>
 </ul>
 
 <div class="tab-content content-box tab-content">
@@ -854,8 +903,12 @@
         </span>
         {{ partial("layout_partials/base_form",['fields':formDialogConfigBuilder,'id':'frm_config_builder'])}}
     </div>
+    <div id="s2s" class="tab-pane fade in">
+        {{ partial('layout_partials/base_bootgrid_table', formGridS2SPeer)}}
+    </div>
     {{ partial("layout_partials/base_form",['fields':generalForm,'id':'frm_general_settings'])}}
 </div>
 {{ partial('layout_partials/base_apply_button', {'data_endpoint': '/api/wireguard/service/reconfigure'}) }}
 {{ partial("layout_partials/base_dialog",['fields':formDialogEditWireguardClient,'id':formGridWireguardClient['edit_dialog_id'],'label':lang._('Edit peer')])}}
 {{ partial("layout_partials/base_dialog",['fields':formDialogEditWireguardServer,'id':formGridWireguardServer['edit_dialog_id'],'label':lang._('Edit instance')])}}
+{{ partial("layout_partials/base_dialog",['fields':formDialogEditS2SPeer,'id':formGridS2SPeer['edit_dialog_id'],'label':lang._('Edit site-to-site connection')])}}

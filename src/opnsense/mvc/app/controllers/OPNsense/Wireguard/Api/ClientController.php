@@ -63,8 +63,11 @@ class ClientController extends ApiMutableModelControllerBase
     public function searchClientAction()
     {
         $servers = $this->request->get('servers');
-        $filter_funct = function ($record) use ($servers) {
-            return empty($servers) || array_intersect(explode(',', $record->servers), $servers);
+        $type = $this->request->get('type');
+        $filter_funct = function ($record) use ($servers, $type) {
+            $typeMatch = empty($type) || (string)$record->type === $type;
+            $serverMatch = empty($servers) || array_intersect(explode(',', $record->servers), $servers);
+            return $typeMatch && $serverMatch;
         };
 
         return $this->searchBase('clients.client', null, null, $filter_funct);
