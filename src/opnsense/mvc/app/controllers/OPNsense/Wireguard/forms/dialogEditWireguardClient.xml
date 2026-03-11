@@ -12,7 +12,7 @@
     </field>
     <field>
         <id>client.name</id>
-        <label>Name</label>
+        <label>Client Name</label>
         <type>text</type>
         <help>Set the name for this peer.</help>
     </field>
@@ -22,20 +22,11 @@
     </field>
     <field>
         <id>client.pubkey</id>
-        <label>Public key</label>
+        <label>Client Public Key</label>
         <type>text</type>
         <help>Public key of this peer. You can generate the key using the private key piped to "wg pubkey".</help>
         <grid_view>
             <visible>false</visible>
-        </grid_view>
-    </field>
-    <field>
-        <id>client.privkey</id>
-        <label>Private key</label>
-        <type>text</type>
-        <help>Private key for exported client config and QR code.</help>
-        <grid_view>
-            <ignore>true</ignore>
         </grid_view>
     </field>
     <field>
@@ -49,7 +40,7 @@
     </field>
     <field>
         <id>client.tunneladdress</id>
-        <label>Allowed IPs</label>
+        <label>Assigned Client IP</label>
         <style>tokenize</style>
         <type>select_multiple</type>
         <allownew>true</allownew>
@@ -75,7 +66,7 @@
     </field>
     <field>
         <id>client.servers</id>
-        <label>Instances</label>
+        <label>Instance</label>
         <type>select_multiple</type>
         <help>List of instances this peer belongs to.</help>
     </field>

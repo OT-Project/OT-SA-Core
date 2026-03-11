@@ -55,11 +55,14 @@ class GeneralController extends \OPNsense\Base\IndexController
                     $field['label'] = gettext('ID');
                     $field['visible'] = 'false';
                     break;
+                case 'name':
+                    $field['label'] = gettext('Client Name');
+                    break;
                 case 'servers':
                     $field['label'] = gettext('Instance');
                     break;
                 case 'tunneladdress':
-                    $field['label'] = gettext('Assigned IP');
+                    $field['label'] = gettext('Assigned Client IP');
                     break;
                 case 'pubkey':
                     $field['label'] = gettext('Client Public Key');
