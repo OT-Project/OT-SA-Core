@@ -46,7 +46,7 @@ class GeneralController extends \OPNsense\Base\IndexController
         $this->view->formGridWireguardClient = $this->getFormGrid("dialogEditWireguardClient");
 
         $gridList = $this->getFormGrid("dialogEditWireguardClient", "dialogEditWireguardClientList");
-        $visibleFields = ['enabled', 'name', 'servers', 'tunneladdress', 'pubkey'];
+        $visibleFields = ['enabled', 'name', 'servers', 'tunneladdress', 'pubkey', 'peer_dns'];
         foreach ($gridList['fields'] as &$field) {
             $fieldId = $field['column-id'];
             $field['visible'] = in_array($fieldId, $visibleFields) ? 'true' : 'false';
@@ -64,6 +64,10 @@ class GeneralController extends \OPNsense\Base\IndexController
                 case 'pubkey':
                     $field['label'] = gettext('Client Public Key');
                     $field['formatter'] = 'clientpubkey';
+                    break;
+                case 'peer_dns':
+                    $field['label'] = gettext('DNS Servers');
+                    $field['formatter'] = 'peerdns';
                     break;
             }
         }
@@ -89,16 +93,6 @@ class GeneralController extends \OPNsense\Base\IndexController
             'formatter' => 'tunnelrouting'
         ];
 
-        $gridList['fields'][] = [
-            'column-id' => 'peerdns',
-            'label' => gettext('DNS Servers'),
-            'visible' => 'true',
-            'sortable' => 'false',
-            'identifier' => 'false',
-            'type' => 'string',
-            'formatter' => 'peerdns'
-        ];
-
         $order = [
             'uuid',
             'enabled',
@@ -108,7 +102,7 @@ class GeneralController extends \OPNsense\Base\IndexController
             'pubkey',
             'serverendpoint',
             'tunnelrouting',
-            'peerdns'
+            'peer_dns'
         ];
         usort($gridList['fields'], function ($a, $b) use ($order) {
             $ia = array_search($a['column-id'], $order);
