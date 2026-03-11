@@ -30,6 +30,15 @@
         </grid_view>
     </field>
     <field>
+        <id>client.privkey</id>
+        <label>Private key</label>
+        <type>text</type>
+        <help>Private key for exported client config and QR code.</help>
+        <grid_view>
+            <ignore>true</ignore>
+        </grid_view>
+    </field>
+    <field>
         <id>client.psk</id>
         <label>Pre-shared key</label>
         <type>text</type>
@@ -78,5 +87,16 @@
         <grid_view>
             <visible>false</visible>
         </grid_view>
+    </field>
+    <field>
+        <id>client.peer_dns</id>
+        <label>DNS servers</label>
+        <type>text</type>
+        <help>Optional list of DNS servers, separated by comma.</help>
+    </field>
+    <field>
+        <id>client.tunnelrouting</id>
+        <label>Tunnel routing</label>
+        <type>hidden</type>
     </field>
 </form>

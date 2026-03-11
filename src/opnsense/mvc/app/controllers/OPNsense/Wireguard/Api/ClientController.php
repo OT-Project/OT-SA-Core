@@ -40,6 +40,34 @@ class ClientController extends ApiMutableModelControllerBase
     protected static $internalModelName = 'client';
     protected static $internalModelClass = '\OPNsense\Wireguard\Client';
 
+    private function splitEndpoint(string $endpoint): array
+    {
+        $endpoint = trim($endpoint);
+        $host = '';
+        $port = '51820';
+
+        if ($endpoint === '') {
+            return [$host, $port];
+        }
+
+        if (preg_match('/^\[([^\]]+)\](?::([0-9]{1,5}))?$/', $endpoint, $matches)) {
+            $host = trim($matches[1]);
+            $port = isset($matches[2]) && $matches[2] !== '' ? trim($matches[2]) : $port;
+            return [$host, $port];
+        }
+
+        $firstColon = strpos($endpoint, ':');
+        $lastColon = strrpos($endpoint, ':');
+        if ($firstColon !== false && $firstColon === $lastColon) {
+            $host = trim(substr($endpoint, 0, $lastColon));
+            $port = trim(substr($endpoint, $lastColon + 1)) ?: $port;
+            return [$host, $port];
+        }
+
+        $host = $endpoint;
+        return [$host, $port];
+    }
+
     public function pskAction()
     {
         return ['psk' => trim((new Backend())->configdRun('wireguard gen_psk')), 'status' => 'ok' ];
@@ -82,7 +110,54 @@ class ClientController extends ApiMutableModelControllerBase
             return true;
         };
 
-        return $this->searchBase('clients.client', null, null, $filter_funct);
+        $result = $this->searchBase('clients.client', null, null, $filter_funct);
+
+        if ($type === 'c2s' && !empty($result['rows']) && is_array($result['rows'])) {
+            $serverModel = new Server();
+            foreach ($result['rows'] as $idx => $rowData) {
+                $row = (array)$rowData;
+
+                $serverRefs = array_filter(explode(',', (string)($row['servers'] ?? '')));
+                if (empty($serverRefs)) {
+                    $result['rows'][$idx] = $row;
+                    continue;
+                }
+
+                $serverNode = $serverModel->getNodeByReference('servers.server.' . reset($serverRefs));
+                if ($serverNode === null) {
+                    $result['rows'][$idx] = $row;
+                    continue;
+                }
+
+                if (empty((string)($row['serveraddress'] ?? ''))) {
+                    [$host, $port] = $this->splitEndpoint((string)$serverNode->endpoint);
+                    if ($host !== '') {
+                        $row['serveraddress'] = $host;
+                    }
+                    if (!empty($port) && empty((string)($row['serverport'] ?? ''))) {
+                        $row['serverport'] = $port;
+                    }
+                }
+
+                if (empty((string)($row['peer_dns'] ?? ''))) {
+                    $fallbackDns = (string)$serverNode->peer_dns;
+                    if (empty($fallbackDns)) {
+                        $fallbackDns = (string)$serverNode->dns;
+                    }
+                    if (!empty($fallbackDns)) {
+                        $row['peer_dns'] = $fallbackDns;
+                    }
+                }
+
+                if (empty((string)($row['tunnelrouting'] ?? ''))) {
+                    $row['tunnelrouting'] = '0.0.0.0/0';
+                }
+
+                $result['rows'][$idx] = $row;
+            }
+        }
+
+        return $result;
     }
 
     public function getClientAction($uuid = null)
@@ -122,6 +197,41 @@ class ClientController extends ApiMutableModelControllerBase
             if (!empty($this->request->getPost(static::$internalModelName)['servers'])) {
                 $servers = explode(',', $this->request->getPost(static::$internalModelName)['servers']);
             }
+
+            if ($_POST[static::$internalModelName]['type'] === 'c2s') {
+                if (empty($_POST[static::$internalModelName]['tunnelrouting'])) {
+                    $_POST[static::$internalModelName]['tunnelrouting'] = '0.0.0.0/0';
+                }
+
+                if (!empty($servers)) {
+                    $serverNode = (new Server())->getNodeByReference('servers.server.' . reset($servers));
+                    if ($serverNode !== null) {
+                        if (
+                            empty($_POST[static::$internalModelName]['serveraddress']) ||
+                            empty($_POST[static::$internalModelName]['serverport'])
+                        ) {
+                            [$host, $port] = $this->splitEndpoint((string)$serverNode->endpoint);
+                            if (!empty($host) && empty($_POST[static::$internalModelName]['serveraddress'])) {
+                                $_POST[static::$internalModelName]['serveraddress'] = $host;
+                            }
+                            if (!empty($port) && empty($_POST[static::$internalModelName]['serverport'])) {
+                                $_POST[static::$internalModelName]['serverport'] = $port;
+                            }
+                        }
+
+                        if (empty($_POST[static::$internalModelName]['peer_dns'])) {
+                            $fallbackDns = (string)$serverNode->peer_dns;
+                            if (empty($fallbackDns)) {
+                                $fallbackDns = (string)$serverNode->dns;
+                            }
+                            if (!empty($fallbackDns)) {
+                                $_POST[static::$internalModelName]['peer_dns'] = $fallbackDns;
+                            }
+                        }
+                    }
+                }
+            }
+
             Config::getInstance()->lock();
             $mdl = new Server();
             if (empty($uuid)) {
@@ -321,7 +431,7 @@ class ClientController extends ApiMutableModelControllerBase
                 if ($key == $uuid) {
                     $peers = array_filter(explode(',', (string)$node->peers));
                     $result['endpoint'] = (string)$node->endpoint;
-                    $result['peer_dns'] = (string)$node->peer_dns;
+                    $result['peer_dns'] = !empty((string)$node->peer_dns) ? (string)$node->peer_dns : (string)$node->dns;
                     $result['mtu'] = (string)$node->mtu;
                     $result['pubkey'] = (string)$node->pubkey;
                     foreach (array_filter(explode(',', (string)$node->tunneladdress)) as $addr) {

@@ -99,16 +99,6 @@ class GeneralController extends \OPNsense\Base\IndexController
             'formatter' => 'peerdns'
         ];
 
-        $gridList['fields'][] = [
-            'column-id' => 'configqr',
-            'label' => gettext('Config / QR Code'),
-            'visible' => 'true',
-            'sortable' => 'false',
-            'identifier' => 'false',
-            'type' => 'string',
-            'formatter' => 'configqr'
-        ];
-
         $order = [
             'uuid',
             'enabled',
@@ -118,8 +108,7 @@ class GeneralController extends \OPNsense\Base\IndexController
             'pubkey',
             'serverendpoint',
             'tunnelrouting',
-            'peerdns',
-            'configqr'
+            'peerdns'
         ];
         usort($gridList['fields'], function ($a, $b) use ($order) {
             $ia = array_search($a['column-id'], $order);

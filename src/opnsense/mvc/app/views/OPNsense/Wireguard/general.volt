@@ -95,19 +95,27 @@
                             '<i class="fa fa-copy"></i></button>';
                     },
                     "serverendpoint": function (column, row) {
-                        const endpoint = row.serveraddress ? (row.serveraddress + ':' + (row.serverport || '51820')) : '-';
+                        const endpoint = row.serveraddress ? (row.serveraddress + ':' + (row.serverport || '51820')) : '';
+                        if (!endpoint) {
+                            return '<span class="text-muted">-</span>';
+                        }
                         return endpoint;
                     },
                     "tunnelrouting": function (column, row) {
-                        const routes = row.tunneladdress || '';
-                        const isFullTunnel = routes.indexOf('0.0.0.0/0') >= 0 || routes.indexOf('::/0') >= 0;
-                        if (isFullTunnel) {
-                            return '<span class="label label-primary">Full Tunnel</span>';
+                        const routes = String(row.tunnelrouting || '').trim();
+                        if (!routes) {
+                            return '<span class="label label-primary">Full Tunnel</span> <span class="text-muted">0.0.0.0/0</span>';
                         }
-                        return '<span class="label label-success">Split Tunnel</span>';
+                        const isFullTunnel = routes.indexOf('0.0.0.0/0') >= 0 || routes.indexOf('::/0') >= 0;
+                        const routeLabel = $('<div/>').text(routes).html();
+                        if (isFullTunnel) {
+                            return '<span class="label label-primary">Full Tunnel</span> ' + routeLabel;
+                        }
+                        return '<span class="label label-success">Split Tunnel</span> ' + routeLabel;
                     },
                     "peerdns": function (column, row) {
-                        return row.peer_dns || '-';
+                        const dnsValue = row.peer_dns || row.peerDns || row.dns || '';
+                        return dnsValue || '-';
                     },
                     "configqr": function (column, row) {
                         return '<button type="button" class="btn btn-sm btn-primary command-recoverqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR/Config again") }}"><i class="fa fa-qrcode"></i> {{ lang._("View QR/Config") }}</button> ' +
@@ -145,15 +153,15 @@
                             '<div class="row">' +
                                 '<div class="col-md-4">' +
                                     '<label>{{ lang._("Server Endpoint") }}</label>' +
-                                    '<input type="text" class="form-control" id="' + endpointId + '" value="' + $('<div/>').text((data.client.serveraddress || '') + ':' + (data.client.serverport || '51820')).html() + '" placeholder="vpn.company.com:51820">' +
+                                    '<input type="text" class="form-control" id="' + endpointId + '" value="' + $('<div/>').text((data.client.serveraddress ? (data.client.serveraddress + ':' + (data.client.serverport || '51820')) : '')).html() + '" placeholder="vpn.company.com:51820">' +
                                 '</div>' +
                                 '<div class="col-md-4">' +
                                     '<label>{{ lang._("Tunnel Routing") }}</label>' +
-                                    '<input type="text" class="form-control" id="' + routingId + '" value="0.0.0.0/0, ::/0" placeholder="192.168.1.0/24">' +
+                                    '<input type="text" class="form-control" id="' + routingId + '" value="' + $('<div/>').text(data.client.tunnelrouting || '0.0.0.0/0').html() + '" placeholder="192.168.1.0/24">' +
                                 '</div>' +
                                 '<div class="col-md-4">' +
                                     '<label>Private key</label>' +
-                                    '<input type="text" class="form-control" id="' + privkeyId + '" value="' + $('<div/>').text(c2sPrivateKeyCache || '').html() + '" placeholder="{{ lang._("Required for .conf/QR") }}">' +
+                                    '<input type="text" class="form-control" id="' + privkeyId + '" value="' + $('<div/>').text(data.client.privkey || c2sPrivateKeyCache || '').html() + '" placeholder="{{ lang._("Required for .conf/QR") }}">' +
                                 '</div>' +
                             '</div>' +
                             '<hr/>' +
@@ -600,6 +608,7 @@
                 if (data.pubkey && data.privkey) {
                     c2sPrivateKeyCache = data.privkey;
                     $("#client\\.pubkey").val(data.pubkey).change();
+                    $("#client\\.privkey").val(data.privkey).change();
                     const $privateField = $(peersDialogSelector + " #c2s_client_private_key");
                     if ($privateField.length > 0) {
                         $privateField.val(data.privkey).trigger('input');
@@ -670,6 +679,9 @@
             const routing = getC2sRoutingValue($dialog);
             const dnsServers = String($dialog.find('#c2s_dns_servers').val() || '').trim();
             const privateKey = String($dialog.find('#c2s_client_private_key').val() || '').trim();
+            $dialog.find('#client\\.privkey').val(privateKey);
+            $dialog.find('#client\\.peer_dns').val(dnsServers);
+            $dialog.find('#client\\.tunnelrouting').val(routing);
             const $serverAddressField = $dialog.find('#client\\.serveraddress');
             const $serverPortField = $dialog.find('#client\\.serverport');
             const $assignedField = $dialog.find('#client\\.tunneladdress');
@@ -899,6 +911,9 @@
             $dialog.find("tr[id='row_client\\.type']").hide();
             $dialog.find("tr[id='row_client\\.serveraddress']").hide();
             $dialog.find("tr[id='row_client\\.serverport']").hide();
+            $dialog.find("tr[id='row_client\\.privkey']").hide();
+            $dialog.find("tr[id='row_client\\.tunnelrouting']").hide();
+            $dialog.find("tr[id='row_client\\.peer_dns']").css('display', isC2S ? 'none' : '');
             $dialog.find("tr[id='row_client\\.keepalive']").css('display', isC2S ? 'none' : '');
             $dialog.find("tr[id='row_client\\.psk']").css('display', isC2S ? 'none' : '');
             
@@ -1057,6 +1072,7 @@
                     '<td>' +
                         '<textarea id="c2s_config_output" class="form-control" rows="10" readonly></textarea>' +
                         '<button id="c2s_download_config" type="button" class="btn btn-primary" style="margin-top:10px"><i class="fa fa-fw fa-download"></i> {{ lang._("Download .conf") }}</button>' +
+                        '<button id="c2s_download_qr" type="button" class="btn btn-primary" style="margin-top:10px; margin-left:8px"><i class="fa fa-fw fa-qrcode"></i> {{ lang._("Download QR") }}</button>' +
                     '</td>' +
                     '<td class="vtable"><div id="c2s_config_qrcode" style="display:none;"></div></td>' +
                 '</tr>';
@@ -1067,7 +1083,25 @@
             if (endpointDefault.length > 0) {
                 $dialog.find('#c2s_server_endpoint').val(endpointDefault + ':' + (portDefault || '51820'));
             }
-            if (c2sPrivateKeyCache.length > 0) {
+            const persistedDnsServers = String($dialog.find('#client\\.peer_dns').val() || '').trim();
+            if (persistedDnsServers.length > 0) {
+                $dialog.find('#c2s_dns_servers').val(persistedDnsServers);
+            }
+            const persistedRouting = String($dialog.find('#client\\.tunnelrouting').val() || '').trim();
+            if (persistedRouting.length > 0) {
+                const isFull = persistedRouting.indexOf('0.0.0.0/0') >= 0 || persistedRouting.indexOf('::/0') >= 0;
+                if (isFull) {
+                    $dialog.find('#c2s_tunnel_mode').val('full');
+                } else {
+                    $dialog.find('#c2s_tunnel_mode').val('split');
+                    $dialog.find('#c2s_split_network').val(persistedRouting);
+                }
+            }
+            const persistedPrivateKey = String($dialog.find('#client\\.privkey').val() || '').trim();
+            if (persistedPrivateKey.length > 0) {
+                c2sPrivateKeyCache = persistedPrivateKey;
+                $dialog.find('#c2s_client_private_key').val(persistedPrivateKey);
+            } else if (c2sPrivateKeyCache.length > 0) {
                 $dialog.find('#c2s_client_private_key').val(c2sPrivateKeyCache);
             }
 
@@ -1139,6 +1173,8 @@
             // Ensure tokenized Allowed IPs are synchronized right before Save validation.
             $dialog.find('button[id^="btn_"][id$="_save"]').off('click.c2sSync').on('click.c2sSync', function () {
                 syncC2sConfigPreview($dialog);
+                const privateKey = String($dialog.find('#c2s_client_private_key').val() || '').trim();
+                $dialog.find('#client\\.privkey').val(privateKey);
                 // Hard overwrite value persisted to DB: Assigned Client IP -> Allowed IPs field.
                 const assigned = String($dialog.find('#client\\.tunneladdress').attr('data-value') || '').split(',').map(function (s) {
                     return String(s || '').trim();
@@ -1198,6 +1234,36 @@
                 setTimeout(function () {
                     (window.URL || window.webkitURL).revokeObjectURL(url);
                 }, 1000);
+            });
+
+            $dialog.find('#c2s_download_qr').off('click').on('click', function () {
+                syncC2sConfigPreview($dialog);
+
+                const $qrContainer = $dialog.find('#c2s_config_qrcode');
+                const canvas = $qrContainer.find('canvas').get(0);
+                const img = $qrContainer.find('img').get(0);
+                let dataUrl = '';
+
+                if (canvas && typeof canvas.toDataURL === 'function') {
+                    dataUrl = canvas.toDataURL('image/png');
+                } else if (img && img.src) {
+                    dataUrl = img.src;
+                }
+
+                if (!dataUrl) {
+                    alert('{{ lang._("QR code is empty. Please verify config fields first.") }}');
+                    return;
+                }
+
+                const safeName = String($dialog.find('#client\\.name').val() || 'wireguard-client').trim() || 'wireguard-client';
+                const fileName = safeName + '-qr.png';
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = fileName;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             });
 
             syncC2sConfigPreview($dialog);
