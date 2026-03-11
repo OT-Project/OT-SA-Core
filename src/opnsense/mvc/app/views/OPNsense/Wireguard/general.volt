@@ -110,7 +110,8 @@
                         return row.peer_dns || '-';
                     },
                     "configqr": function (column, row) {
-                        return '<button type="button" class="btn btn-xs btn-default command-viewqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR") }}"><i class="fa fa-qrcode"></i></button> ' +
+                        return '<button type="button" class="btn btn-sm btn-primary command-recoverqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR/Config again") }}"><i class="fa fa-qrcode"></i> {{ lang._("View QR/Config") }}</button> ' +
+                            '<button type="button" class="btn btn-xs btn-default command-viewqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR") }}"><i class="fa fa-qrcode"></i></button> ' +
                             '<button type="button" class="btn btn-xs btn-default command-downloadconf" data-row-id="' + row.uuid + '" title="{{ lang._("Download Config") }}"><i class="fa fa-download"></i></button>';
                     }
                 }
@@ -125,7 +126,7 @@
                 }
             });
 
-            table.find(".command-viewqr").off("click").on("click", function () {
+            table.find(".command-viewqr, .command-recoverqr").off("click").on("click", function () {
                 const uuid = $(this).data("row-id");
                 ajaxGet('/api/wireguard/client/get_client/' + uuid, {}, function (data) {
                     if (!data.client) {
@@ -629,6 +630,41 @@
             return '0.0.0.0/0';
         };
 
+        const applyEndpointFromInstance = function ($dialog, endpoint) {
+            const endpointValue = String(endpoint || '').trim();
+            let endpointHost = '';
+            let endpointPort = '51820';
+
+            if (endpointValue.length > 0) {
+                const bracketMatch = endpointValue.match(/^\[([^\]]+)\](?::([0-9]{1,5}))?$/);
+                if (bracketMatch) {
+                    endpointHost = String(bracketMatch[1] || '').trim();
+                    endpointPort = String(bracketMatch[2] || endpointPort).trim();
+                } else {
+                    const firstColon = endpointValue.indexOf(':');
+                    const lastColon = endpointValue.lastIndexOf(':');
+                    if (firstColon !== -1 && firstColon === lastColon) {
+                        endpointHost = String(endpointValue.substring(0, lastColon) || '').trim();
+                        endpointPort = String(endpointValue.substring(lastColon + 1) || endpointPort).trim();
+                    } else {
+                        endpointHost = endpointValue;
+                    }
+                }
+            }
+
+            $dialog.find('#client\\.serveraddress').val(endpointHost);
+            $dialog.find('#client\\.serverport').val(endpointHost.length > 0 ? endpointPort : '');
+
+            const $c2sEndpointField = $dialog.find('#c2s_server_endpoint');
+            if ($c2sEndpointField.length > 0) {
+                if (endpointHost.length > 0) {
+                    $c2sEndpointField.val(endpointHost + ':' + endpointPort);
+                } else {
+                    $c2sEndpointField.val('');
+                }
+            }
+        };
+
         const syncC2sConfigPreview = function ($dialog) {
             const endpoint = String($dialog.find('#c2s_server_endpoint').val() || '').trim();
             const routing = getC2sRoutingValue($dialog);
@@ -727,7 +763,8 @@
 
             updateC2sRoutingBadge($dialog);
 
-            const canRender = endpoint.length > 0 && assignedIp.length > 0 && routing.length > 0;
+            const hasRequiredKeys = privateKey.length > 0 && publicKey.length > 0;
+            const canRender = hasRequiredKeys && endpoint.length > 0 && assignedIp.length > 0;
             if (!canRender) {
                 $dialog.find('#c2s_config_output').val('');
                 $dialog.find('#c2s_config_qrcode').empty().hide();
@@ -736,14 +773,14 @@
 
             const rows = [];
             rows.push('[Interface]');
-            rows.push('PrivateKey = ' + (privateKey || '[REPLACE_WITH_CLIENT_PRIVATE_KEY]'));
+            rows.push('PrivateKey = ' + privateKey);
             rows.push('Address = ' + assignedIp);
             if (dnsServers.length > 0) {
                 rows.push('DNS = ' + dnsServers);
             }
             rows.push('');
             rows.push('[Peer]');
-            rows.push('PublicKey = ' + (publicKey || '[SERVER_PUBLIC_KEY]'));
+            rows.push('PublicKey = ' + publicKey);
             rows.push('Endpoint = ' + endpoint);
             rows.push('AllowedIPs = ' + routing);
 
@@ -805,6 +842,36 @@
             return [];
         };
 
+        const enforceSingleC2sServerSelection = function ($dialog) {
+            const $serversField = $dialog.find('#client\\.servers');
+            const selectedServers = getC2sSelectedServers($dialog);
+            if (selectedServers.length <= 1) {
+                return selectedServers;
+            }
+
+            const firstServer = selectedServers[selectedServers.length - 1];
+            $serversField.find('option').prop('selected', false);
+            let $opt = $serversField.find('option').filter(function () {
+                return String($(this).val() || '') === firstServer;
+            });
+            if ($opt.length === 0) {
+                $serversField.append($('<option/>').val(firstServer).text(firstServer));
+                $opt = $serversField.find('option').filter(function () {
+                    return String($(this).val() || '') === firstServer;
+                });
+            }
+            $opt.prop('selected', true);
+            $serversField.val([firstServer]).attr('data-value', firstServer).trigger('change');
+            if (typeof formatTokenizersUI === 'function') {
+                formatTokenizersUI();
+            }
+            if ($serversField.hasClass('selectpicker')) {
+                $serversField.selectpicker('refresh');
+            }
+
+            return [firstServer];
+        };
+
         const hasC2sAssignedClientIp = function ($dialog) {
             const $assignedField = $dialog.find('#client\\.tunneladdress');
             const raw = $assignedField.val();
@@ -830,8 +897,8 @@
 
             // Keep hidden/internal fields out of sight.
             $dialog.find("tr[id='row_client\\.type']").hide();
-            $dialog.find("tr[id='row_client\\.serveraddress']").css('display', isC2S ? 'none' : '');
-            $dialog.find("tr[id='row_client\\.serverport']").css('display', isC2S ? 'none' : '');
+            $dialog.find("tr[id='row_client\\.serveraddress']").hide();
+            $dialog.find("tr[id='row_client\\.serverport']").hide();
             $dialog.find("tr[id='row_client\\.keepalive']").css('display', isC2S ? 'none' : '');
             $dialog.find("tr[id='row_client\\.psk']").css('display', isC2S ? 'none' : '');
             
@@ -847,6 +914,20 @@
             
             // Update label for C2S mode
             if (isC2S) {
+                const $nameLabel = $dialog.find("tr[id='row_client\\.name'] label:first");
+                const originalNameLabel = $nameLabel.data('original-label') || $nameLabel.html();
+                if (!$nameLabel.data('original-label')) {
+                    $nameLabel.data('original-label', originalNameLabel);
+                }
+                $nameLabel.html('{{ lang._("Client Name") }}');
+
+                const $serversLabel = $dialog.find("tr[id='row_client\\.servers'] label:first");
+                const originalServersLabel = $serversLabel.data('original-label') || $serversLabel.html();
+                if (!$serversLabel.data('original-label')) {
+                    $serversLabel.data('original-label', originalServersLabel);
+                }
+                $serversLabel.html('{{ lang._("Instance") }}');
+
                 const originalLabelCellHtml = $tunnelLabelCell.data('original-label-cell') || $tunnelLabelCell.html();
                 if (!$tunnelLabelCell.data('original-label-cell')) {
                     $tunnelLabelCell.data('original-label-cell', originalLabelCellHtml);
@@ -874,7 +955,7 @@
                 if ($dialog.find('#c2s_privatekey_row').length === 0) {
                     const privateRowHtml = '' +
                         '<tr id="c2s_privatekey_row">' +
-                            '<td><a id="help_for_c2s_privatekey" href="#" class="showhelp" data-toggle="tooltip" data-placement="auto right" title="Private key for this client. You can specify your own one, or generate one with the gear button. Please keep this key safe."><i class="fa fa-info-circle"></i></a> <strong>Private key</strong></td>' +
+                            '<td><a id="help_for_c2s_privatekey" href="#" class="showhelp" data-toggle="tooltip" data-placement="auto right" title="Private key for this client. You can specify your own one, or generate one with the gear button. Please keep this key safe."><i class="fa fa-info-circle"></i></a> <strong>{{ lang._("Client Private Key") }}</strong></td>' +
                             '<td><input id="c2s_client_private_key" type="text" class="form-control" /></td>' +
                             '<td class="vtable"></td>' +
                         '</tr>';
@@ -906,6 +987,16 @@
                 if (originalPubLabel) {
                     $pubLabel.html(originalPubLabel);
                 }
+                const $nameLabel = $dialog.find("tr[id='row_client\\.name'] label:first");
+                const originalNameLabel = $nameLabel.data('original-label');
+                if (originalNameLabel) {
+                    $nameLabel.html(originalNameLabel);
+                }
+                const $serversLabel = $dialog.find("tr[id='row_client\\.servers'] label:first");
+                const originalServersLabel = $serversLabel.data('original-label');
+                if (originalServersLabel) {
+                    $serversLabel.html(originalServersLabel);
+                }
                 $dialog.find('#c2s_privatekey_row').remove();
 
                 $dialog.find('#client\\.servers').removeAttr('required');
@@ -913,14 +1004,35 @@
 
             $dialog.find('.c2s-config-row').remove();
             if (!isC2S) {
+                const syncS2sEndpointFromServer = function () {
+                    const selectedServers = getC2sSelectedServers($dialog);
+                    if (selectedServers.length === 0) {
+                        return;
+                    }
+                    ajaxGet('/api/wireguard/client/get_server_info/' + selectedServers[0], {}, function(data) {
+                        if (data.status === 'ok' && data.endpoint) {
+                            applyEndpointFromInstance($dialog, data.endpoint);
+                        }
+                    });
+                };
+                $dialog.find('#client\\.servers')
+                    .off('change.s2sEndpointSync changed.bs.select.s2sEndpointSync')
+                    .on('change.s2sEndpointSync changed.bs.select.s2sEndpointSync', function () {
+                        syncS2sEndpointFromServer();
+                    });
+
+                if (getC2sSelectedServers($dialog).length > 0) {
+                    syncS2sEndpointFromServer();
+                }
+
                 $dialog.find('#client\\.servers').off('change.c2sAutoIp');
                 return;
             }
 
             const exportHtml = '' +
-                '<tr id="c2s_cfg_endpoint_row" class="c2s-config-row">' +
+                '<tr id="c2s_cfg_endpoint_row" class="c2s-config-row" style="display:none;">' +
                     '<td><a href="#" class="showhelp c2s-toggle-help" data-target="#c2s_help_server_endpoint" title="{{ lang._("Show details") }}"><i class="fa fa-info-circle"></i></a> {{ lang._("Server Endpoint") }}</td>' +
-                    '<td><input id="c2s_server_endpoint" type="text" class="form-control" placeholder="vpn.company.com:51820" required="required" /><div id="c2s_help_server_endpoint" class="help-block c2s-help-text" style="display:none;">{{ lang._("Connection address (e.g., vpn.company.com:51820).") }}</div></td>' +
+                    '<td><input id="c2s_server_endpoint" type="hidden" /></td>' +
                     '<td class="vtable"></td>' +
                 '</tr>' +
                 '<tr id="c2s_cfg_routing_row" class="c2s-config-row">' +
@@ -985,7 +1097,7 @@
 
             // Function to auto-suggest IP from selected instance
             const autoSuggestIp = function () {
-                const selectedServers = getC2sSelectedServers($dialog);
+                const selectedServers = enforceSingleC2sServerSelection($dialog);
                 if (selectedServers.length === 0) {
                     return;
                 }
@@ -995,7 +1107,7 @@
                             setC2sAssignedClientIp($dialog, data.address);
                         }
                         if (data.endpoint) {
-                            $dialog.find('#c2s_server_endpoint').val(data.endpoint);
+                            applyEndpointFromInstance($dialog, data.endpoint);
                         }
                         if (data.peer_dns) {
                             $dialog.find('#c2s_dns_servers').val(data.peer_dns);
@@ -1008,11 +1120,11 @@
             };
 
             // Auto-suggest when instance changes
-            $dialog.find('#client\\.servers').off('change.c2sAutoIp').on('change.c2sAutoIp', function () {
+            $dialog.find('#client\\.servers').off('change.c2sAutoIp changed.bs.select.c2sAutoIp').on('change.c2sAutoIp changed.bs.select.c2sAutoIp', function () {
                 autoSuggestIp();
             });
 
-            if (!hasC2sAssignedClientIp($dialog) && getC2sSelectedServers($dialog).length > 0) {
+            if (!hasC2sAssignedClientIp($dialog) && enforceSingleC2sServerSelection($dialog).length > 0) {
                 setTimeout(function () {
                     autoSuggestIp();
                 }, 50);
@@ -1098,16 +1210,14 @@
             // Auto-suggest IP for new C2S clients or when tunneladdress is empty
             if (currentClientDialogMode === 'c2s') {
                 setTimeout(function () {
-                    const selectedServers = getC2sSelectedServers($dialog);
+                    const selectedServers = enforceSingleC2sServerSelection($dialog);
                     
                     // Auto-fill if no address is set and an instance is selected
                     if (!hasC2sAssignedClientIp($dialog) && selectedServers.length > 0) {
                         ajaxGet('/api/wireguard/client/get_server_info/' + selectedServers[0], {}, function(data) {
                             if (data.status === 'ok' && data.address) {
                                 setC2sAssignedClientIp($dialog, data.address);
-                                if (data.endpoint) {
-                                    $dialog.find('#c2s_server_endpoint').val(data.endpoint);
-                                }
+                                applyEndpointFromInstance($dialog, data.endpoint || '');
                                 if (data.peer_dns) {
                                     $dialog.find('#c2s_dns_servers').val(data.peer_dns);
                                 }

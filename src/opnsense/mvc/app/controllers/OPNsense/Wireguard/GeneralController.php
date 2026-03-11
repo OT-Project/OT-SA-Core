@@ -46,14 +46,14 @@ class GeneralController extends \OPNsense\Base\IndexController
         $this->view->formGridWireguardClient = $this->getFormGrid("dialogEditWireguardClient");
 
         $gridList = $this->getFormGrid("dialogEditWireguardClient", "dialogEditWireguardClientList");
-        $visibleFields = ['uuid', 'enabled', 'name', 'servers', 'tunneladdress', 'pubkey'];
+        $visibleFields = ['enabled', 'name', 'servers', 'tunneladdress', 'pubkey'];
         foreach ($gridList['fields'] as &$field) {
             $fieldId = $field['column-id'];
             $field['visible'] = in_array($fieldId, $visibleFields) ? 'true' : 'false';
             switch ($field['column-id']) {
                 case 'uuid':
                     $field['label'] = gettext('ID');
-                    $field['visible'] = 'true';
+                    $field['visible'] = 'false';
                     break;
                 case 'servers':
                     $field['label'] = gettext('Instance');
