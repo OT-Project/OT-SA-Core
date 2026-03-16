@@ -39,7 +39,7 @@ class OpensshOverrideStatus extends AbstractStatus
         $this->internalPersistent = true;
         $this->internalTitle = gettext('OpenSSH config override');
         $this->internalIsBanner = true;
-        $this->internalScope[] = '/system_advanced_admin.php';
+        $this->internalScope[] = '/services_ssh.php';
     }
 
     public function collectStatus()

@@ -80,8 +80,7 @@ function openssh_xmlrpc_sync()
 
 function openssh_stop()
 {
-    /* if run from a shell session, `-af' and the full path is needed */
-    mwexecfm('/bin/pkill -af %s', '/usr/local/sbin/sshd');
+    mwexecf('service sshd stop');
 }
 
 function openssh_configure_do($verbose = false, $interface_map = null)
@@ -121,7 +120,7 @@ function openssh_configure_do($verbose = false, $interface_map = null)
     /* lock the config generation and service start/stop, also secures key generation */
     $fobj = new \OPNsense\Core\FileObject('/usr/local/etc/ssh/sshd_config', 'a+', null, LOCK_EX);
 
-    openssh_stop();
+    mwexecf('service sshd stop');
 
     /* make sshd key store */
     @mkdir('/conf/sshd', 0777, true);
@@ -183,6 +182,9 @@ function openssh_configure_do($verbose = false, $interface_map = null)
     }
     if (!empty($sshcfg['rekeylimit'])) {
         $sshconf .= sprintf("RekeyLimit %s\n", $sshcfg['rekeylimit']);
+    }
+    if (!empty($sshcfg['loglevel'])) {
+        $sshconf .= sprintf("LogLevel %s\n", $sshcfg['loglevel']);
     }
 
     foreach ($keys as $name) {
@@ -252,7 +254,9 @@ function openssh_configure_do($verbose = false, $interface_map = null)
 
     service_log('Configuring OpenSSH...', $verbose);
 
-    if ((count($interfaces) && !count($listeners)) || mwexecf('/usr/bin/protect -i /usr/local/sbin/sshd')) {
+    if (count($interfaces) && !count($listeners)) {
+        service_log("failed.\n", $verbose);
+    } elseif (mwexecf('service sshd restart')) {
         service_log("failed.\n", $verbose);
     } else {
         service_log("done.\n", $verbose);

@@ -68,6 +68,9 @@ class LogController extends IndexController
             case 'system':
                 $this->view->default_log_severity = 'Notice';
                 break;
+            case 'sshd':
+                $this->view->default_log_severity = 'Informational';
+                break;
             default:
                 /* no service API at the moment */
                 break;
