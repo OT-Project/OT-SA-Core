@@ -3,6 +3,10 @@
 *.mo
 *.pyc
 *.sass-cache
+*.png
+*.txt
+*.md
+*.docx
 *.volt.php
 /src/etc/php.ini
 /src/etc/php/**
