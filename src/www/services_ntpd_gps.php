@@ -369,7 +369,7 @@ SureGPS =    #Sure Electronics SKG16B
                     </tr>
 <?php
                     endif;?>
-                    <tr>
+                    <tr style="display:none">
                       <!-- 1 = RMC, 2 = GGA, 4 = GLL, 8 = ZDA or ZDG -->
                       <td><a id="help_for_nmea" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('NMEA sentences') ?></td>
                       <td>
@@ -386,7 +386,7 @@ SureGPS =    #Sure Electronics SKG16B
                         </div>
                       </td>
                     </tr>
-                    <tr>
+                    <tr style="display:none">
                       <td><a id="help_for_fudge1" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Fudge time 1 (seconds)') ?></td>
                       <td>
                         <input name="fudge1" type="text" id="gpsfudge1" min="-1" max="1" size="20" value="<?=$pconfig['fudge1'];?>" />
@@ -394,7 +394,7 @@ SureGPS =    #Sure Electronics SKG16B
                           <?= gettext("Fudge time 1 is used to specify the GPS PPS signal offset (default: 0.0).") ?>
                         </div>
                     </tr>
-                    <tr>
+                    <tr style="display:none">
                       <td><a id="help_for_fudge2" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Fudge time 2 (seconds)');?></td>
                       <td>
                         <input name="fudge2" type="text" id="gpsfudge2" min="-1" max="1" size="20" value="<?=$pconfig['fudge2'];?>" />
@@ -403,7 +403,7 @@ SureGPS =    #Sure Electronics SKG16B
                         </div>
                       </td>
                     </tr>
-                    <tr>
+                    <tr style="display:none">
                       <td><a id="help_for_stratum" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Stratum') ?></td>
                       <td>
                         <input name="stratum" type="text" id="gpsstratum"  value="<?=$pconfig['stratum'];?>" />
@@ -481,7 +481,7 @@ SureGPS =    #Sure Electronics SKG16B
                         </table>
                       </td>
                     </tr>
-                    <tr>
+                    <tr style="display:none">
                       <td><a id="help_for_refid" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Clock ID') ?></td>
                       <td>
                         <input name="refid" type="text" id="gpsrefid" value="<?=$pconfig['refid'];?>" />

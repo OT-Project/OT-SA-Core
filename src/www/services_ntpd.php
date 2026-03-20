@@ -311,7 +311,7 @@ include("head.inc");
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr style="display:none">
                     <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Client mode') ?></td>
                     <td>
                       <input name="clientmode" type="checkbox" id="clientmode" <?=!empty($pconfig['clientmode']) ? ' checked="checked"' : '' ?> />
@@ -373,7 +373,7 @@ include("head.inc");
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr style="display:none">
                     <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Statistics logging') ?></td>
                     <td>
                       <div>
@@ -425,7 +425,7 @@ include("head.inc");
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr style="display:none">
                     <td><i class="fa fa-info-circle text-muted"></i> <?=gettext('Leap seconds') ?></td>
                     <td>
                       <div>
@@ -442,7 +442,7 @@ include("head.inc");
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr style="display:none">
                     <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("Advanced");?></td>
                     <td>
                       <div id="showadvbox" <?=!empty($pconfig['custom_options']) ? "style='display:none'" : ""; ?>>
