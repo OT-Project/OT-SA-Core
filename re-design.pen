@@ -7,20 +7,19 @@
       "x": -1669,
       "y": 101,
       "name": "Group",
-      "layout": "vertical",
-      "gap": 50,
-      "padding": 50,
       "children": [
         {
           "type": "frame",
           "id": "zl6kx",
+          "x": 0,
+          "y": 0,
           "name": "Logn",
           "theme": {
             "mode": "dark"
           },
           "clip": true,
-          "width": 1446.3360762862064,
-          "height": 917.8231895045469,
+          "width": "fit_content(880)",
+          "height": "fit_content(0)",
           "fill": "$bg-page",
           "layout": "none",
           "children": [
@@ -151,8 +150,8 @@
             {
               "type": "frame",
               "id": "siuCc",
-              "x": 560,
-              "y": 0,
+              "x": 0,
+              "y": 1000,
               "name": "rightPanel",
               "width": 880,
               "height": 900,
@@ -472,20 +471,20 @@
         {
           "type": "group",
           "id": "TLTVu",
+          "x": 0,
+          "y": 1500,
           "name": "Lobby",
-          "layout": "horizontal",
-          "gap": 50,
           "children": [
             {
               "type": "frame",
               "id": "ev8CM",
+              "x": 0,
+              "y": 0,
               "name": "P3-02-Dashboard-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1584.2017832387196,
-              "height": 1044.1247941733477,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -493,7 +492,6 @@
                   "id": "VxGVo",
                   "name": "sidebar",
                   "width": 260,
-                  "height": 900,
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -1237,8 +1235,7 @@
                   "id": "ltaFp",
                   "name": "mainContent",
                   "clip": true,
-                  "width": 1180,
-                  "height": 900,
+                  "width": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -1373,7 +1370,6 @@
                       "id": "oBbgU",
                       "name": "dashBody",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 20,
                       "padding": 24,
@@ -3531,13 +3527,13 @@
             {
               "type": "frame",
               "id": "tdKOq",
+              "x": 0,
+              "y": 1500,
               "name": "P3-21-Password-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2274.891125534191,
-              "height": 1516.6481843837996,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -3545,7 +3541,6 @@
                   "id": "lCTB1",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -4292,7 +4287,6 @@
                   "name": "mainContent",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -4390,7 +4384,6 @@
                       "id": "e0Hes",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 24,
                       "padding": 24,
@@ -4822,13 +4815,13 @@
         {
           "type": "frame",
           "id": "ZmtHH",
+          "x": 0,
+          "y": 3000,
           "name": "P3-20-Reporting-Traffic-Dark",
           "theme": {
             "mode": "dark"
           },
-          "clip": true,
-          "width": 2504.8952826122636,
-          "height": 1524.065199386731,
+          "width": 1440,
           "fill": "$bg-page",
           "children": [
             {
@@ -4836,7 +4829,6 @@
               "id": "TRb3H",
               "name": "sb",
               "width": 260,
-              "height": "fill_container",
               "fill": "$bg-sidebar",
               "layout": "vertical",
               "padding": [
@@ -5485,7 +5477,6 @@
               "name": "mainA",
               "clip": true,
               "width": "fill_container",
-              "height": "fill_container",
               "layout": "vertical",
               "children": [
                 {
@@ -5600,7 +5591,6 @@
                   "id": "PIIjV",
                   "name": "body",
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "gap": 16,
                   "padding": 24,
@@ -5731,7 +5721,6 @@
                       "id": "D2Nwo",
                       "name": "chartsRow1",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "gap": 16,
                       "children": [
                         {
@@ -5739,7 +5728,7 @@
                           "id": "J7yHA",
                           "name": "c1",
                           "width": "fill_container",
-                          "height": "fill_container",
+                          "height": 200,
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -5897,7 +5886,7 @@
                           "id": "m1WkI",
                           "name": "c2",
                           "width": "fill_container",
-                          "height": "fill_container",
+                          "height": 200,
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -6005,34 +5994,34 @@
         {
           "type": "group",
           "id": "XhV0k",
+          "x": 0,
+          "y": 4500,
           "name": "System",
-          "layout": "horizontal",
-          "gap": 50,
           "children": [
             {
               "type": "group",
               "id": "95Vwb",
+              "x": 0,
+              "y": 0,
               "name": "Access",
-              "layout": "vertical",
-              "gap": 50,
               "children": [
                 {
                   "type": "group",
                   "id": "Up5CS",
+                  "x": 0,
+                  "y": 0,
                   "name": "Users",
-                  "layout": "horizontal",
-                  "gap": 50,
                   "children": [
                     {
                       "type": "frame",
                       "id": "hy4eD",
+                      "x": 0,
+                      "y": 0,
                       "name": "P3-19-Users-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "clip": true,
-                      "width": 1353.6301845586333,
-                      "height": 1432.2301958539065,
+                      "width": 1440,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -6040,7 +6029,6 @@
                           "id": "d5kiO",
                           "name": "sb2",
                           "width": 260,
-                          "height": "fill_container",
                           "fill": "$bg-sidebar",
                           "layout": "vertical",
                           "padding": [
@@ -6947,7 +6935,6 @@
                           "name": "mainA2",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "children": [
                             {
@@ -7194,7 +7181,6 @@
                                   "name": "tCard",
                                   "clip": true,
                                   "width": "fill_container",
-                                  "height": "fill_container",
                                   "fill": "$bg-surface",
                                   "cornerRadius": 8,
                                   "stroke": {
@@ -7453,13 +7439,13 @@
                     {
                       "type": "frame",
                       "id": "138X7",
+                      "x": 0,
+                      "y": 1500,
                       "name": "P4-01b-Access-Users-SSH-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "clip": true,
-                      "width": 2137.105576614253,
-                      "height": 1453.1903292271259,
+                      "width": 1440,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -7467,7 +7453,6 @@
                           "id": "57qQ4",
                           "name": "sb1",
                           "width": 260,
-                          "height": "fill_container",
                           "fill": "$bg-sidebar",
                           "layout": "vertical",
                           "padding": [
@@ -8374,7 +8359,6 @@
                           "name": "mainContent",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "children": [
                             {
@@ -8472,7 +8456,6 @@
                               "id": "sHgdi",
                               "name": "body",
                               "width": "fill_container",
-                              "height": "fill_container",
                               "layout": "vertical",
                               "gap": 16,
                               "padding": 24,
@@ -8492,7 +8475,6 @@
                                   "id": "jfxkP",
                                   "name": "mainCard",
                                   "width": "fill_container",
-                                  "height": "fill_container",
                                   "fill": "$bg-surface",
                                   "cornerRadius": 8,
                                   "stroke": {
@@ -9312,13 +9294,13 @@
                     {
                       "type": "frame",
                       "id": "CadgI",
+                      "x": 0,
+                      "y": 3000,
                       "name": "P4-01-Access-Users-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "clip": true,
-                      "width": 2333.2923145861932,
-                      "height": 1443.242458453008,
+                      "width": 1440,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -9326,7 +9308,6 @@
                           "id": "r0ekc",
                           "name": "sb1",
                           "width": 260,
-                          "height": "fill_container",
                           "fill": "$bg-sidebar",
                           "layout": "vertical",
                           "padding": [
@@ -10233,7 +10214,6 @@
                           "name": "mainContent",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "children": [
                             {
@@ -10331,7 +10311,6 @@
                               "id": "i33YI",
                               "name": "body",
                               "width": "fill_container",
-                              "height": "fill_container",
                               "layout": "vertical",
                               "gap": 16,
                               "padding": 24,
@@ -10351,7 +10330,6 @@
                                   "id": "D8GNN",
                                   "name": "mainCard",
                                   "width": "fill_container",
-                                  "height": "fill_container",
                                   "fill": "$bg-surface",
                                   "cornerRadius": 8,
                                   "stroke": {
@@ -10453,7 +10431,6 @@
                                       "id": "wxzfR",
                                       "name": "tableArea",
                                       "width": "fill_container",
-                                      "height": "fill_container",
                                       "layout": "vertical",
                                       "children": [
                                         {
@@ -11021,13 +10998,13 @@
                 {
                   "type": "frame",
                   "id": "MiAWV",
+                  "x": 0,
+                  "y": 4500,
                   "name": "P4-05-Access-Tester-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2205.172264793707,
-                  "height": 1429.9212059684173,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -11035,7 +11012,6 @@
                       "id": "SwiZz",
                       "name": "sb1",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -11942,7 +11918,6 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -12040,7 +12015,6 @@
                           "id": "QPGaw",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -12060,7 +12034,6 @@
                               "id": "FMbnk",
                               "name": "mainCard",
                               "width": "fill_container",
-                              "height": "fill_container",
                               "fill": "$bg-surface",
                               "cornerRadius": 8,
                               "stroke": {
@@ -12288,13 +12261,13 @@
                 {
                   "type": "frame",
                   "id": "45sRR",
+                  "x": 0,
+                  "y": 6000,
                   "name": "P4-04-Access-Servers-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2187.215321421564,
-                  "height": 1385.5151324569356,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -12302,7 +12275,6 @@
                       "id": "LQZBr",
                       "name": "sb1",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -13209,7 +13181,6 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -13307,7 +13278,6 @@
                           "id": "0WsqP",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -13327,7 +13297,7 @@
                               "id": "PpdwZ",
                               "name": "mainCard",
                               "width": "fill_container",
-                              "height": "fill_container",
+                              "height": "fit_content(0)",
                               "fill": "$bg-surface",
                               "cornerRadius": 8,
                               "stroke": {
@@ -13904,13 +13874,13 @@
                 {
                   "type": "frame",
                   "id": "pUum7",
+                  "x": 0,
+                  "y": 7500,
                   "name": "P4-03-Access-Privileges-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2168.6073856054963,
-                  "height": 1321.2517327174214,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -13918,7 +13888,6 @@
                       "id": "V6Vr6",
                       "name": "sb1",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -14825,7 +14794,6 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -14923,7 +14891,6 @@
                           "id": "x94Sp",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -14943,7 +14910,7 @@
                               "id": "DhTpq",
                               "name": "mainCard",
                               "width": "fill_container",
-                              "height": "fill_container",
+                              "height": "fit_content(0)",
                               "fill": "$bg-surface",
                               "cornerRadius": 8,
                               "stroke": {
@@ -15523,13 +15490,13 @@
                 {
                   "type": "frame",
                   "id": "4qUfr",
+                  "x": 0,
+                  "y": 9000,
                   "name": "P4-02-Access-Groups-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2150.3148816765497,
-                  "height": 1258.176013830953,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -15537,7 +15504,6 @@
                       "id": "we03F",
                       "name": "sb1",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -16444,7 +16410,6 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -16542,7 +16507,6 @@
                           "id": "gPfTq",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -16562,7 +16526,7 @@
                               "id": "2OEab",
                               "name": "mainCard",
                               "width": "fill_container",
-                              "height": "fill_container",
+                              "height": "fit_content(0)",
                               "fill": "$bg-surface",
                               "cornerRadius": 8,
                               "stroke": {
@@ -17142,13 +17106,13 @@
             {
               "type": "frame",
               "id": "9Fhl2",
+              "x": 0,
+              "y": 10500,
               "name": "P3-08-Firmware-Status-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1674.8936229306064,
-              "height": 1529.1770820448187,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -17156,7 +17120,6 @@
                   "id": "qyRNE",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -17955,7 +17918,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -18090,7 +18052,6 @@
                       "id": "GiOXV",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -18714,7 +18675,6 @@
                           "name": "logCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -18797,13 +18757,13 @@
             {
               "type": "frame",
               "id": "FCeK3",
+              "x": 0,
+              "y": 12000,
               "name": "P3-11-Tunables-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1773.3173365630535,
-              "height": 1515.3094082637165,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -18811,7 +18771,6 @@
                   "id": "UC1i8",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -19609,7 +19568,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -19744,7 +19702,6 @@
                       "id": "jLyer",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -19856,7 +19813,6 @@
                           "name": "tCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -20310,13 +20266,13 @@
             {
               "type": "frame",
               "id": "kLet7",
+              "x": 0,
+              "y": 13500,
               "name": "P3-16-Backup-History-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1846.6890804950747,
-              "height": 1501.916135707483,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -20324,7 +20280,6 @@
                   "id": "49oPS",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -21231,7 +21186,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -21366,7 +21320,6 @@
                       "id": "fvTTI",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -21478,7 +21431,6 @@
                           "name": "tCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -21986,13 +21938,13 @@
             {
               "type": "frame",
               "id": "Xa4qd",
+              "x": 0,
+              "y": 15000,
               "name": "P3-12-HA-Settings-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1902.7001782812788,
-              "height": 1488.7454814681034,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -22000,7 +21952,6 @@
                   "id": "Y2AMe",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -22907,7 +22858,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -23022,7 +22972,6 @@
                       "id": "HZAp4",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -23432,13 +23381,13 @@
             {
               "type": "frame",
               "id": "s5N2Q",
+              "x": 0,
+              "y": 16500,
               "name": "P3-05-System-Settings-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1945.8702462136362,
-              "height": 1475.7963558655229,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -23446,7 +23395,6 @@
                   "id": "zzMRI",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -24353,7 +24301,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -24508,7 +24455,6 @@
                       "id": "VOKOu",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 20,
                       "padding": 24,
@@ -25287,13 +25233,13 @@
             {
               "type": "frame",
               "id": "jkr7E",
+              "x": 0,
+              "y": 18000,
               "name": "P3-06-Log-Viewer-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 1979.9352570846072,
-              "height": 1463.0632615724908,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -25301,7 +25247,6 @@
                   "id": "crVIW",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -26208,7 +26153,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -26363,7 +26307,6 @@
                       "id": "vdsnq",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -26609,7 +26552,6 @@
                           "name": "tCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -27509,13 +27451,13 @@
         {
           "type": "frame",
           "id": "nQwAb",
+          "x": 0,
+          "y": 24000,
           "name": "P3-04-Interfaces-Overview-Dark",
           "theme": {
             "mode": "dark"
           },
-          "clip": true,
-          "width": 2493.7888726898655,
-          "height": 1530.208404779837,
+          "width": 1440,
           "fill": "$bg-page",
           "children": [
             {
@@ -27523,7 +27465,6 @@
               "id": "u99En",
               "name": "sidebar",
               "width": 260,
-              "height": "fill_container",
               "fill": "$bg-sidebar",
               "layout": "vertical",
               "padding": [
@@ -28413,7 +28354,6 @@
               "name": "mainArea",
               "clip": true,
               "width": "fill_container",
-              "height": "fill_container",
               "layout": "vertical",
               "children": [
                 {
@@ -28548,7 +28488,6 @@
                   "id": "EGsam",
                   "name": "body",
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "gap": 16,
                   "padding": 24,
@@ -28626,7 +28565,6 @@
                       "name": "tCard",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "fill": "$bg-surface",
                       "cornerRadius": 8,
                       "stroke": {
@@ -29765,20 +29703,20 @@
         {
           "type": "group",
           "id": "QxAcb",
+          "x": 0,
+          "y": 25500,
           "name": "Firewall",
-          "layout": "horizontal",
-          "gap": 50,
           "children": [
             {
               "type": "frame",
               "id": "66uJQ",
+              "x": 0,
+              "y": 0,
               "name": "P3-17-Firewall-Aliases-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2170.111107218649,
-              "height": 1450.5409567153945,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -29786,7 +29724,6 @@
                   "id": "0Z6z4",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -30625,7 +30562,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -30740,7 +30676,6 @@
                       "id": "BOBNd",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -30814,7 +30749,6 @@
                           "name": "tCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -31635,13 +31569,13 @@
             {
               "type": "frame",
               "id": "8TTAL",
+              "x": 0,
+              "y": 1500,
               "name": "P3-03-Firewall-Rules-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2285.7220733440904,
-              "height": 1442.4408921869765,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -31649,7 +31583,6 @@
                   "id": "ASozr",
                   "name": "sidebar",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -32487,8 +32420,7 @@
                   "id": "FMTqY",
                   "name": "mainContent",
                   "clip": true,
-                  "width": "fill_container",
-                  "height": "fill_container",
+                  "width": 1180,
                   "layout": "vertical",
                   "children": [
                     {
@@ -32623,7 +32555,6 @@
                       "id": "SXcdF",
                       "name": "contentBody",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -32987,7 +32918,6 @@
                           "name": "tableCard",
                           "clip": true,
                           "width": "fill_container",
-                          "height": "fill_container",
                           "fill": "$bg-surface",
                           "cornerRadius": 8,
                           "stroke": {
@@ -34443,13 +34373,13 @@
             {
               "type": "frame",
               "id": "jRyOv",
+              "x": 0,
+              "y": 3000,
               "name": "P3-18-NAT-PortForward-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2369.3264936974747,
-              "height": 1430.8080593258128,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -34457,7 +34387,6 @@
                   "id": "97yEl",
                   "name": "sb1",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -35296,7 +35225,6 @@
                   "name": "mainA1",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -35431,7 +35359,6 @@
                       "id": "3tvfs",
                       "name": "body1",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -35561,13 +35488,15 @@
         {
           "type": "group",
           "id": "sVxny",
+          "x": 0,
+          "y": 30000,
           "name": "VPN",
-          "layout": "vertical",
-          "gap": 50,
           "children": [
             {
               "type": "group",
               "id": "Edygc",
+              "x": 0,
+              "y": 0,
               "name": "Wireguard",
               "children": [
                 {
@@ -35579,9 +35508,7 @@
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2296.5398633990253,
-                  "height": 1375.4316958458912,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -35589,7 +35516,6 @@
                       "id": "kjkHG",
                       "name": "sb",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -36313,7 +36239,6 @@
                       "name": "mainA",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -36428,7 +36353,6 @@
                           "id": "XEI0T",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -36962,14 +36886,12 @@
                   "type": "frame",
                   "id": "EW28N",
                   "x": 0,
-                  "y": 818.8919246933366,
+                  "y": 1500,
                   "name": "P3-07-VPN-WireGuard-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "clip": true,
-                  "width": 2282.5078597597344,
-                  "height": 1364.214913233113,
+                  "width": 1440,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -36977,7 +36899,6 @@
                       "id": "W154G",
                       "name": "sb",
                       "width": 260,
-                      "height": "fill_container",
                       "fill": "$bg-sidebar",
                       "layout": "vertical",
                       "padding": [
@@ -37701,7 +37622,6 @@
                       "name": "mainA",
                       "clip": true,
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "children": [
                         {
@@ -37856,7 +37776,6 @@
                           "id": "rXXip",
                           "name": "body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 16,
                           "padding": 24,
@@ -38847,20 +38766,20 @@
         {
           "type": "group",
           "id": "NsqHA",
+          "x": 0,
+          "y": 34500,
           "name": "Services",
-          "layout": "horizontal",
-          "gap": 50,
           "children": [
             {
               "type": "frame",
               "id": "ZBBfv",
+              "x": 0,
+              "y": 0,
               "name": "P3-10-Service-Status-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2141.52467314757,
-              "height": 1422.1131471580275,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -38868,7 +38787,6 @@
                   "id": "WRlNB",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -39661,7 +39579,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -39816,7 +39733,6 @@
                       "id": "9lZ8L",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -40934,13 +40850,13 @@
             {
               "type": "frame",
               "id": "NXnS8",
+              "x": 0,
+              "y": 1500,
               "name": "P3-14-DNS-General-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2217.013951886989,
-              "height": 1410.1264192012661,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -40948,7 +40864,6 @@
                   "id": "Yjt89",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -41741,7 +41656,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -41876,7 +41790,6 @@
                       "id": "z4xVW",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -42321,13 +42234,13 @@
             {
               "type": "frame",
               "id": "TXRTo",
+              "x": 0,
+              "y": 3000,
               "name": "P3-15-DNSBL-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2263.986399598556,
-              "height": 1398.3869016953229,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -42335,7 +42248,6 @@
                   "id": "8ak6b",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -43128,7 +43040,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -43263,7 +43174,6 @@
                       "id": "SloFY",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -43831,13 +43741,13 @@
             {
               "type": "frame",
               "id": "I4WTA",
+              "x": 0,
+              "y": 4500,
               "name": "P3-09-DNS-Unbound-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "clip": true,
-              "width": 2310.742754906657,
-              "height": 1386.8289412039765,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -43845,7 +43755,6 @@
                   "id": "h4U3n",
                   "name": "sb",
                   "width": 260,
-                  "height": "fill_container",
                   "fill": "$bg-sidebar",
                   "layout": "vertical",
                   "padding": [
@@ -44638,7 +44547,6 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
-                  "height": "fill_container",
                   "layout": "vertical",
                   "children": [
                     {
@@ -44793,7 +44701,6 @@
                       "id": "X6kvv",
                       "name": "body",
                       "width": "fill_container",
-                      "height": "fill_container",
                       "layout": "vertical",
                       "gap": 16,
                       "padding": 24,
@@ -45562,7 +45469,7 @@
       "type": "frame",
       "id": "c44tf",
       "x": -5860,
-      "y": 309,
+      "y": 0,
       "name": "P1-01-DesignSystem-Colors",
       "theme": {
         "mode": "dark"

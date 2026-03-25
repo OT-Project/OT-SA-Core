@@ -408,94 +408,101 @@ function display_login_form($Login_Error)
 
     <body class="page-login">
 
-        <div class="container">
-            <main class="login-modal-container">
-                <div class="login-modal-content">
-                    <div class="login-logo">
-                        <div class="login-logo-icon">
-                            <?php
-                            $theme = 'otsa';
-                            if (isset($config['theme']) && is_dir('/usr/local/opnsense/www/themes/' . $config['theme'])) {
-                                $theme = $config['theme'];
-                            }
-
-                            if ($theme === 'otsa-dark' && get_themed_filename('/images/default-logo-dark.svg', true)): ?>
-                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo-dark.svg')) ?>" alt="logo"
-                                    class="login-logo-img" />
-                            <?php elseif (get_themed_filename('/images/default-logo.svg', true)): ?>
-                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo.svg')) ?>" alt="logo"
-                                    class="login-logo-img" />
-                            <?php else: ?>
-                                <img src="<?= cache_safe(get_themed_filename('/images/default-logo.png')) ?>" alt="logo"
-                                    class="login-logo-img" />
-                            <?php endif ?>
+        <div class="login-split-layout">
+            <!-- Left Branding Panel -->
+            <div class="login-left-panel">
+                <div class="login-left-top">
+                    <div class="login-brand-logo">
+                        <div class="login-brand-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
+                        <span class="login-brand-text">OT-SA</span>
                     </div>
+                </div>
 
-                    <div class="login-welcome">
-                        <h2 class="login-welcome-title"><?= gettext("Welcome back!"); ?></h2>
-                        <p class="login-welcome-subtitle"><?= gettext("Login to your account"); ?></p>
-                    </div>
+                <div class="login-left-mid">
+                    <h1 class="login-brand-title">OT Security<br>Appliance</h1>
+                    <p class="login-brand-desc">
+                        <?= gettext("Industrial network protection for critical infrastructure. Monitor, detect, and respond to threats across your operational technology network."); ?>
+                    </p>
+                </div>
 
+                <div class="login-left-bottom">
+                    <span class="login-version-text">OT-SA v24.7.1 (based on <?= $product->name() ?>)</span>
+                    <span class="login-copyright-text">© <?= $product->copyright_years() ?> <?= $product->copyright_owner() ?>. All rights reserved.</span>
+                </div>
+            </div>
+
+            <!-- Right Form Panel -->
+            <div class="login-right-panel">
+                <div class="login-form-wrapper">
+                    <h2 class="login-form-title"><?= gettext("Sign In"); ?></h2>
+                    <p class="login-form-subtitle"><?= gettext("Enter your credentials to access the management console"); ?></p>
+
+                    <?php if (!empty($Login_Error)): ?>
                     <div id="inputerrors" class="login-error text-danger">
-                        <?= !empty($Login_Error) ? $Login_Error : '&nbsp;' ?>
+                        <?= $Login_Error ?>
                     </div>
+                    <?php endif; ?>
 
                     <form class="login-form" id="iform" name="iform" method="post" autocomplete="off">
 
-                        <div class="form-group login-input-group">
+                        <div class="login-field-group">
+                            <label class="login-field-label" for="usernamefld"><?= gettext("Username"); ?></label>
                             <div class="input-icon-wrapper">
-                                <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2.5 6.66667L10 11.6667L17.5 6.66667M2.5 15H17.5V8.33333H2.5V15Z" stroke="#999"
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="#64748B"
                                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                                 <input id="usernamefld" type="text" name="usernamefld" class="form-control login-input"
-                                    placeholder="<?= gettext("Email Address"); ?>" tabindex="1" autofocus="autofocus"
+                                    placeholder="<?= gettext("admin"); ?>" tabindex="1" autofocus="autofocus"
                                     autocapitalize="off" autocorrect="off" />
                             </div>
                         </div>
 
-                        <div class="form-group login-input-group">
+                        <div class="login-field-group">
+                            <label class="login-field-label" for="passwordfld"><?= gettext("Password"); ?></label>
                             <div class="input-icon-wrapper">
-                                <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M15.8333 9.16667V5.83333C15.8333 3.16667 13.6667 1 10.8333 1H9.16667C6.33333 1 4.16667 3.16667 4.16667 5.83333V9.16667M15.8333 9.16667H4.16667M15.8333 9.16667V15.8333C15.8333 17.5 14.5 18.8333 12.8333 18.8333H7.16667C5.5 18.8333 4.16667 17.5 4.16667 15.8333V9.16667"
-                                        stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <input id="passwordfld" type="password" name="passwordfld" class="form-control login-input"
-                                    placeholder="<?= gettext("Password"); ?>" tabindex="2" />
+                                    placeholder="<?= gettext("••••••••"); ?>" tabindex="2" />
                                 <button type="button" class="password-toggle" id="passwordToggle"
                                     aria-label="Toggle password visibility">
-                                    <svg class="password-toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                    <svg class="password-toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path
-                                            d="M1.66667 10C1.66667 10 4.16667 4.16667 10 4.16667C15.8333 4.16667 18.3333 10 18.3333 10C18.3333 10 15.8333 15.8333 10 15.8333C4.16667 15.8333 1.66667 10 1.66667 10Z"
-                                            stroke="#999" stroke-width="1.5" stroke-linecap="round"
+                                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"
+                                            stroke="#64748B" stroke-width="1.5" stroke-linecap="round"
                                             stroke-linejoin="round" />
-                                        <circle cx="10" cy="10" r="2.5" stroke="#999" stroke-width="1.5" />
-                                        <path d="M1.66667 1.66667L18.3333 18.3333" stroke="#999" stroke-width="1.5"
+                                        <circle cx="12" cy="12" r="3" stroke="#64748B" stroke-width="1.5" />
+                                        <path d="M1 1l22 22" stroke="#64748B" stroke-width="1.5"
                                             stroke-linecap="round" />
                                     </svg>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- TODO: Add Recover Password -->
-                        <!-- <div class="login-actions">
-            <a href="#" class="login-recover-link"><?= gettext("Recover Password"); ?></a>
-          </div> -->
+                        <div class="login-remember-row">
+                            <label class="login-remember-label">
+                                <input type="checkbox" class="login-remember-check"> <?= gettext("Remember me"); ?>
+                            </label>
+                            <!-- <a href="#" class="login-forgot-link"><?= gettext("Forgot password?"); ?></a> -->
+                        </div>
 
                         <button type="submit" name="login" value="1"
-                            class="btn btn-primary login-submit-btn"><?= gettext("Login"); ?></button>
-
-
-                        <!-- TODO: Add Sign Up -->
-                        <!-- <div class="login-signup">
-                            <span><?= gettext("Don't have an account?"); ?> </span>
-                            <a href="#" class="login-signup-link"><?= gettext("Sign Up"); ?></a>
-                        </div> -->
+                            class="btn btn-primary login-submit-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <?= gettext("Sign In"); ?>
+                        </button>
 
                     </form>
 
@@ -511,15 +518,13 @@ function display_login_form($Login_Error)
                         </div>
                     <?php endforeach; ?>
 
+                    <div class="login-status-bar">
+                        <span class="login-status-dot"></span>
+                        <span class="login-status-text"><?= $config['system']['hostname'] ?>.<?= $config['system']['domain'] ?> • v24.7.1</span>
+                    </div>
+
                 </div>
-
-            </main>
-            <div class="login-foot text-center">
-                <a target="_blank" href="<?= $product->website() ?>"><?= $product->name() ?></a> (c)
-                <?= $product->copyright_years() ?>
-                <a target="_blank" href="<?= $product->copyright_url() ?>"><?= $product->copyright_owner() ?></a>
             </div>
-
         </div>
 
     </body>
