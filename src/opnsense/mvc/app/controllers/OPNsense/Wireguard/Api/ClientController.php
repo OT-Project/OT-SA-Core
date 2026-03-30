@@ -91,77 +91,11 @@ class ClientController extends ApiMutableModelControllerBase
     public function searchClientAction()
     {
         $servers = $this->request->get('servers');
-        $type = (string)$this->request->get('type');
-        $filter_funct = function ($record) use ($servers, $type) {
-            $matchServers = empty($servers) || array_intersect(explode(',', $record->servers), $servers);
-            if (!$matchServers) {
-                return false;
-            }
-
-            if ($type === 'c2s') {
-                return (string)$record->type === 'c2s';
-            }
-
-            if ($type === 's2s') {
-                $recordType = (string)$record->type;
-                return $recordType === '' || $recordType === 's2s';
-            }
-
-            if ($type === 'client') {
-                return (string)$record->type === 'client';
-            }
-
-            return true;
+        $filter_funct = function ($record) use ($servers) {
+            return empty($servers) || array_intersect(explode(',', $record->servers), $servers);
         };
 
-        $result = $this->searchBase('clients.client', null, null, $filter_funct);
-
-        if ($type === 'c2s' && !empty($result['rows']) && is_array($result['rows'])) {
-            $serverModel = new Server();
-            foreach ($result['rows'] as $idx => $rowData) {
-                $row = (array)$rowData;
-
-                $serverRefs = array_filter(explode(',', (string)($row['servers'] ?? '')));
-                if (empty($serverRefs)) {
-                    $result['rows'][$idx] = $row;
-                    continue;
-                }
-
-                $serverNode = $serverModel->getNodeByReference('servers.server.' . reset($serverRefs));
-                if ($serverNode === null) {
-                    $result['rows'][$idx] = $row;
-                    continue;
-                }
-
-                if (empty((string)($row['serveraddress'] ?? ''))) {
-                    [$host, $port] = $this->splitEndpoint((string)$serverNode->endpoint);
-                    if ($host !== '') {
-                        $row['serveraddress'] = $host;
-                    }
-                    if (!empty($port) && empty((string)($row['serverport'] ?? ''))) {
-                        $row['serverport'] = $port;
-                    }
-                }
-
-                if (empty((string)($row['peer_dns'] ?? ''))) {
-                    $fallbackDns = (string)$serverNode->peer_dns;
-                    if (empty($fallbackDns)) {
-                        $fallbackDns = (string)$serverNode->dns;
-                    }
-                    if (!empty($fallbackDns)) {
-                        $row['peer_dns'] = $fallbackDns;
-                    }
-                }
-
-                if (empty((string)($row['tunnelrouting'] ?? ''))) {
-                    $row['tunnelrouting'] = '0.0.0.0/0';
-                }
-
-                $result['rows'][$idx] = $row;
-            }
-        }
-
-        return $result;
+        return $this->searchBase('clients.client', null, null, $filter_funct);
     }
 
     public function getClientAction($uuid = null)

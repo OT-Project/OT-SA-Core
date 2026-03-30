@@ -61,8 +61,6 @@
                     <MaximumValue>65535</MaximumValue>
                     <ValidationMessage>Please specify a value between 1 and 65535.</ValidationMessage>
                 </keepalive>
-                <peer_dns type="TextField"/>
-                <tunnelrouting type="TextField"/>
                 <servers type="ModelRelationField" volatile="true">
                     <Model>
                         <template>

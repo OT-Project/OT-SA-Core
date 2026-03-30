@@ -83,20 +83,9 @@
         </grid_view>
     </field>
     <field>
-        <id>client.peer_dns</id>
-        <label>DNS servers</label>
-        <type>text</type>
-        <help>Optional list of DNS servers, separated by comma.</help>
-        <grid_view>
-            <visible>false</visible>
-        </grid_view>
-    </field>
-    <field>
-        <id>client.tunnelrouting</id>
-        <label>Tunnel routing</label>
+        <id>client.type</id>
+        <label>Type</label>
         <type>hidden</type>
-        <grid_view>
-            <visible>false</visible>
-        </grid_view>
+        <hint>client</hint>
     </field>
 </form>

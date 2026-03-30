@@ -25,14 +25,6 @@
  # POSSIBILITY OF SUCH DAMAGE.
  #}
 
-<style>
-/* Hide the internal type discriminator row in WireGuard peer dialogs */
-tr:has(> td > input[id="client.type"]),
-tr:has(> td > [id="client.type"]) {
-    display: none !important;
-}
-</style>
-
 <script>
     $(document).ready(function() {
         const data_get_map = {'frm_general_settings':"/api/wireguard/general/get"};
@@ -51,10 +43,8 @@ tr:has(> td > [id="client.type"]) {
             options:{
                 initialSearchPhrase: getUrlHash('search'),
                 requestHandler: function(request){
-                    request['type'] = 'client';
-                    const selectedServers = $('#server_filter').val() || [];
-                    if (selectedServers.length > 0) {
-                        request['servers'] = selectedServers;
+                    if ($('#server_filter').val().length > 0) {
+                        request['servers'] = $('#server_filter').val();
                     }
                     return request;
                 }
@@ -76,196 +66,6 @@ tr:has(> td > [id="client.type"]) {
             }
         });
 
-        const grid_c2s = $("#{{formGridWireguardClientList['table_id']}}")
-            .UIBootgrid({
-                search: '/api/wireguard/client/search_client',
-                get: '/api/wireguard/client/get_client/',
-                set: '/api/wireguard/client/set_client/',
-                add: '/api/wireguard/client/add_client/',
-                del: '/api/wireguard/client/del_client/',
-                toggle: '/api/wireguard/client/toggle_client/',
-                options: {
-                    requestHandler: function(request){
-                        request['type'] = 'c2s';
-                        const selectedServers = $('#server_filter').val() || [];
-                        if (selectedServers.length > 0) {
-                            request['servers'] = selectedServers;
-                        }
-                        return request;
-                    }
-                },
-                formatters: {
-                    "clientpubkey": function (column, row) {
-                        const key = row.pubkey || '';
-                        const shortKey = key.length > 20 ? (key.substring(0, 10) + '...' + key.substring(key.length - 8)) : key;
-                        return '<span class="text-monospace">' + shortKey + '</span> ' +
-                            '<button type="button" class="btn btn-xs btn-default command-copykey" data-key="' + key + '" title="{{ lang._("Copy") }}">' +
-                            '<i class="fa fa-copy"></i></button>';
-                    },
-                    "serverendpoint": function (column, row) {
-                        const endpoint = row.serveraddress ? (row.serveraddress + ':' + (row.serverport || '51820')) : '';
-                        if (!endpoint) {
-                            return '<span class="text-muted">-</span>';
-                        }
-                        return endpoint;
-                    },
-                    "tunnelrouting": function (column, row) {
-                        const routes = String(row.tunnelrouting || '').trim();
-                        if (!routes) {
-                            return '<span class="label label-primary">Full Tunnel</span> <span class="text-muted">0.0.0.0/0</span>';
-                        }
-                        const isFullTunnel = routes.indexOf('0.0.0.0/0') >= 0 || routes.indexOf('::/0') >= 0;
-                        const routeLabel = $('<div/>').text(routes).html();
-                        if (isFullTunnel) {
-                            return '<span class="label label-primary">Full Tunnel</span> ' + routeLabel;
-                        }
-                        return '<span class="label label-success">Split Tunnel</span> ' + routeLabel;
-                    },
-                    "peerdns": function (column, row) {
-                        const dnsValue = row.peer_dns || row.peerDns || row.dns || '';
-                        return dnsValue || '-';
-                    },
-                    "configqr": function (column, row) {
-                        return '<button type="button" class="btn btn-sm btn-primary command-recoverqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR/Config again") }}"><i class="fa fa-qrcode"></i> {{ lang._("View QR/Config") }}</button> ' +
-                            '<button type="button" class="btn btn-xs btn-default command-viewqr" data-row-id="' + row.uuid + '" title="{{ lang._("View QR") }}"><i class="fa fa-qrcode"></i></button> ' +
-                            '<button type="button" class="btn btn-xs btn-default command-downloadconf" data-row-id="' + row.uuid + '" title="{{ lang._("Download Config") }}"><i class="fa fa-download"></i></button>';
-                    }
-                }
-            });
-
-        grid_c2s.on("loaded.rs.jquery.bootgrid", function () {
-            const table = $("#{{formGridWireguardClientList['table_id']}}");
-            table.find(".command-copykey").off("click").on("click", function () {
-                const key = $(this).data("key") || '';
-                if (navigator.clipboard && key) {
-                    navigator.clipboard.writeText(key);
-                }
-            });
-
-            table.find(".command-viewqr, .command-recoverqr").off("click").on("click", function () {
-                const uuid = $(this).data("row-id");
-                ajaxGet('/api/wireguard/client/get_client/' + uuid, {}, function (data) {
-                    if (!data.client) {
-                        return;
-                    }
-                    const containerId = 'wg-client-qrcode-' + uuid;
-                    const previewId = 'wg-client-config-' + uuid;
-                    const endpointId = 'wg-client-endpoint-' + uuid;
-                    const routingId = 'wg-client-routing-' + uuid;
-                    const privkeyId = 'wg-client-privkey-' + uuid;
-                    const downloadId = 'wg-client-download-' + uuid;
-                    BootstrapDialog.show({
-                        title: '{{ lang._("WireGuard config") }}',
-                        size: BootstrapDialog.SIZE_WIDE,
-                        message:
-                            '<div class="row">' +
-                                '<div class="col-md-4">' +
-                                    '<label>{{ lang._("Server Endpoint") }}</label>' +
-                                    '<input type="text" class="form-control" id="' + endpointId + '" value="' + $('<div/>').text((data.client.serveraddress ? (data.client.serveraddress + ':' + (data.client.serverport || '51820')) : '')).html() + '" placeholder="vpn.company.com:51820">' +
-                                '</div>' +
-                                '<div class="col-md-4">' +
-                                    '<label>{{ lang._("Tunnel Routing") }}</label>' +
-                                    '<input type="text" class="form-control" id="' + routingId + '" value="' + $('<div/>').text(data.client.tunnelrouting || '0.0.0.0/0').html() + '" placeholder="192.168.1.0/24">' +
-                                '</div>' +
-                                '<div class="col-md-4">' +
-                                    '<label>Private key</label>' +
-                                    '<input type="text" class="form-control" id="' + privkeyId + '" value="' + $('<div/>').text(c2sPrivateKeyCache || '').html() + '" placeholder="{{ lang._("Required for .conf/QR") }}">' +
-                                '</div>' +
-                            '</div>' +
-                            '<hr/>' +
-                            '<div class="row">' +
-                                '<div class="col-md-7">' +
-                                    '<textarea class="form-control" id="' + previewId + '" rows="14" readonly></textarea>' +
-                                    '<button type="button" id="' + downloadId + '" class="btn btn-primary" style="margin-top:10px"><i class="fa fa-fw fa-download"></i> Download .conf</button>' +
-                                '</div>' +
-                                '<div class="col-md-5"><div id="' + containerId + '"></div></div>' +
-                            '</div>'
-                    });
-
-                    const renderConfig = function () {
-                        const endpoint = $('#' + endpointId).val();
-                        const routing = $('#' + routingId).val();
-                        const privateKey = $('#' + privkeyId).val();
-                        const rows = [];
-                        rows.push('[Interface]');
-                        rows.push('PrivateKey = ' + (privateKey || '[REPLACE_WITH_CLIENT_PRIVATE_KEY]'));
-                        if (data.client.tunneladdress) {
-                            rows.push('Address = ' + data.client.tunneladdress);
-                        }
-                        rows.push('');
-                        rows.push('[Peer]');
-                        if (data.client.pubkey) {
-                            rows.push('PublicKey = ' + data.client.pubkey);
-                        }
-                        if (endpoint) {
-                            rows.push('Endpoint = ' + endpoint);
-                        }
-                        if (routing) {
-                            rows.push('AllowedIPs = ' + routing);
-                        }
-                        const config = rows.join("\\n");
-                        $('#' + previewId).val(config);
-                        $('#' + containerId).empty().qrcode(config);
-                    };
-
-                    setTimeout(function () {
-                        $('#' + endpointId + ', #' + routingId + ', #' + privkeyId).on('input', renderConfig);
-                        $('#' + downloadId).on('click', function () {
-                            const config = $('#' + previewId).val();
-                            const fileName = (data.client.name || 'wireguard-client') + '.conf';
-                            const blob = new Blob([config], {type: 'text/plain'});
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = fileName;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                        });
-                        renderConfig();
-                    }, 0);
-                });
-            });
-
-            table.find(".command-downloadconf").off("click").on("click", function () {
-                const uuid = $(this).data("row-id");
-                ajaxGet('/api/wireguard/client/get_client/' + uuid, {}, function (data) {
-                    if (!data.client) {
-                        return;
-                    }
-                    const endpoint = data.client.serveraddress ? (data.client.serveraddress + ':' + (data.client.serverport || '51820')) : '';
-                    const rows = [];
-                    rows.push('[Interface]');
-                    rows.push('PrivateKey = [REPLACE_WITH_CLIENT_PRIVATE_KEY]');
-                    if (data.client.tunneladdress) {
-                        rows.push('Address = ' + data.client.tunneladdress);
-                    }
-                    rows.push('');
-                    rows.push('[Peer]');
-                    if (data.client.pubkey) {
-                        rows.push('PublicKey = ' + data.client.pubkey);
-                    }
-                    if (endpoint) {
-                        rows.push('Endpoint = ' + endpoint);
-                    }
-                    rows.push('AllowedIPs = 0.0.0.0/0, ::/0');
-
-                    const config = rows.join("\n");
-                    const fileName = (data.client.name || 'wireguard-client') + '.conf';
-                    const blob = new Blob([config], {type: 'text/plain'});
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                });
-            });
-        });
-
         const grid_instances = $("#{{formGridWireguardServer['table_id']}}").UIBootgrid({
             search: '/api/wireguard/server/search_server',
             get: '/api/wireguard/server/get_server/',
@@ -273,43 +73,6 @@ tr:has(> td > [id="client.type"]) {
             add: '/api/wireguard/server/add_server/',
             del: '/api/wireguard/server/del_server/',
             toggle: '/api/wireguard/server/toggle_server/'
-        });
-
-        const grid_s2s = $("#{{formGridS2SPeer['table_id']}}").UIBootgrid({
-            search: '/api/wireguard/client/search_client',
-            get: '/api/wireguard/client/get_client/',
-            set: '/api/wireguard/client/set_client/',
-            add: '/api/wireguard/client/add_client/',
-            del: '/api/wireguard/client/del_client/',
-            toggle: '/api/wireguard/client/toggle_client/',
-            options:{
-                requestHandler: function(request){
-                    request['type'] = 's2s';
-                    return request;
-                }
-            }
-        });
-
-        /**
-         * S2S dialog: force type=s2s after mapDataToFormUI, hide type row
-         */
-        $('#{{formGridS2SPeer["edit_dialog_id"]}}').on('shown.bs.modal.s2s_type', function() {
-            const dlg = $(this);
-            dlg.find('[id="client.type"]').closest('tr').hide();
-            setTimeout(function() {
-                dlg.find('[id="client.type"]').val('s2s');
-            }, 200);
-        });
-
-        /**
-         * Peers dialog: force type=client after mapDataToFormUI, hide type row
-         */
-        $('#{{formGridWireguardClient["edit_dialog_id"]}}').on('shown.bs.modal.peers_type', function() {
-            const dlg = $(this);
-            dlg.find('[id="client.type"]').closest('tr').hide();
-            setTimeout(function() {
-                dlg.find('[id="client.type"]').val('client');
-            }, 200);
         });
 
         // ... (phần code trước vẫn giữ nguyên)
@@ -453,7 +216,7 @@ tr:has(> td > [id="client.type"]) {
                     // Đã clear tunnel address ở trên rồi, không cần clear nữa
                     
                     // Bước 1: Tạo keypair trước
-                    ajaxGet("/api/wireguard/general/generateKeypair", {}, function (keypairData) {
+                    ajaxGet("/api/wireguard/server/key_pair", {}, function (keypairData) {
                         if (keypairData.pubkey && keypairData.privkey) {
                             $("#server\\.pubkey").val(keypairData.pubkey);
                             $("#server\\.privkey").val(keypairData.privkey);
@@ -571,7 +334,7 @@ tr:has(> td > [id="client.type"]) {
                         // keypair nếu trống
                         if ((!$("#server\\.pubkey").val() || !$("#server\\.privkey").val()) && 
                             confirm("Bạn chưa có keypair. Bạn có muốn tạo keypair mới không?")) {
-                            ajaxGet("/api/wireguard/general/generateKeypair", {}, function (data) {
+                            ajaxGet("/api/wireguard/server/key_pair", {}, function (data) {
                                 if (data.pubkey && data.privkey) {
                                     $("#server\\.pubkey").val(data.pubkey);
                                     $("#server\\.privkey").val(data.privkey);
@@ -629,7 +392,7 @@ tr:has(> td > [id="client.type"]) {
          */
         $("#control_label_server\\.pubkey").append($("#keygen_div").detach().show());
         $("#keygen").click(function(){
-            ajaxGet("/api/wireguard/general/generateKeypair", {}, function(data, status){
+            ajaxGet("/api/wireguard/server/key_pair", {}, function(data, status){
                 if (data.pubkey && data.privkey) {
                     $("#server\\.pubkey").val(data.pubkey);
                     $("#server\\.privkey").val(data.privkey);
@@ -1614,7 +1377,7 @@ tr:has(> td > [id="client.type"]) {
                 
                 // Tự động sinh keypair
                 ajaxGet("/api/wireguard/server/key_pair", {}, function(data, status){
-                    if (data.status && data.status === 'ok') {
+                    if (data.pubkey && data.privkey) {
                         $("#configbuilder\\.pubkey").val(data.pubkey);
                         $("#configbuilder\\.privkey").val(data.privkey).change();
                     }
@@ -1761,11 +1524,6 @@ tr:has(> td > [id="client.type"]) {
                 $('#{{formGridWireguardClient['table_id']}}').bootgrid('reload');
             } else if (e.target.id == 'tab_instances') {
                 $('#{{formGridWireguardServer['table_id']}}').bootgrid('reload');
-            } else if (e.target.id == 'tab_s2s') {
-                $('#{{formGridS2SPeer['table_id']}}').bootgrid('reload');
-            } else if (e.target.id == 'tab_c2s') {
-                currentClientDialogMode = 'c2s';
-                $("#{{formGridWireguardClientList['table_id']}}").bootgrid('reload');
             }
         });
 
@@ -1794,10 +1552,8 @@ tr:has(> td > [id="client.type"]) {
 <!-- Navigation bar -->
 <ul class="nav nav-tabs" data-tabs="tabs" id="maintabs">
     <li class="active"><a data-toggle="tab" id="tab_instances" href="#instances">{{ lang._('Instances') }}</a></li>
-    <li style="display:none"><a data-toggle="tab" id="tab_peers" href="#peers">{{ lang._('Peers') }}</a></li>
-    <li style="display:none"><a data-toggle="tab" id="tab_configbuilder" href="#configbuilder">{{ lang._('Peer generator') }}</a></li>
-    <li><a data-toggle="tab" id="tab_s2s" href="#s2s">{{ lang._('Site-to-Site') }}</a></li>
-    <li><a data-toggle="tab" id="tab_c2s" href="#c2s">{{ lang._('Client-to-Site') }}</a></li>
+    <li><a data-toggle="tab" id="tab_peers" href="#peers">{{ lang._('Peers') }}</a></li>
+    <li><a data-toggle="tab" id="tab_configbuilder" href="#configbuilder">{{ lang._('Peer generator') }}</a></li>
 </ul>
 
 <div class="tab-content content-box">
@@ -1845,12 +1601,8 @@ tr:has(> td > [id="client.type"]) {
         </span>
         {{ partial("layout_partials/base_form",['fields':formDialogConfigBuilder,'id':'frm_config_builder'])}}
     </div>
-    <div id="s2s" class="tab-pane fade in">
-        {{ partial('layout_partials/base_bootgrid_table', formGridS2SPeer)}}
-    </div>
     {{ partial("layout_partials/base_form",['fields':generalForm,'id':'frm_general_settings'])}}
 </div>
 {{ partial('layout_partials/base_apply_button', {'data_endpoint': '/api/wireguard/service/reconfigure'}) }}
 {{ partial("layout_partials/base_dialog",['fields':formDialogEditWireguardClient,'id':formGridWireguardClient['edit_dialog_id'],'label':lang._('Edit peer')])}}
 {{ partial("layout_partials/base_dialog",['fields':formDialogEditWireguardServer,'id':formGridWireguardServer['edit_dialog_id'],'label':lang._('Edit instance')])}}
-{{ partial("layout_partials/base_dialog",['fields':formDialogEditS2SPeer,'id':formGridS2SPeer['edit_dialog_id'],'label':lang._('Edit site-to-site connection')])}}
