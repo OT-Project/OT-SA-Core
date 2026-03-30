@@ -1,0 +1,102 @@
+<form>
+    <field>
+        <id>user.enabled</id>
+        <label>Enabled</label>
+        <type>checkbox</type>
+        <help>Enable or disable SSH access for this user.</help>
+        <grid_view>
+            <width>5em</width>
+            <type>boolean</type>
+            <formatter>rowtoggle</formatter>
+            <sequence>10</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.username</id>
+        <label>Username</label>
+        <type>dropdown</type>
+        <help>Select an existing OPNsense system user to grant SSH access.</help>
+        <grid_view>
+            <sequence>20</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.authMethod</id>
+        <label>Auth Method</label>
+        <type>dropdown</type>
+        <help>Authentication method for SSH login. Key-only is recommended for OT environments.</help>
+        <grid_view>
+            <width>8em</width>
+            <sequence>40</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.sshPublicKey</id>
+        <label>SSH Public Key</label>
+        <type>textbox</type>
+        <help>Paste the user's SSH public key. Required if auth method is "Key Only" or "Key + Password".</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.shell</id>
+        <label>Shell</label>
+        <type>dropdown</type>
+        <help>Login shell for this user. "No Login" blocks interactive sessions but allows SCP/SFTP.</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.permissionGroup</id>
+        <label>Permission Group</label>
+        <type>dropdown</type>
+        <help>Role-based access level. Admin: unrestricted. Operator: service management. Viewer: read-only.</help>
+        <grid_view>
+            <width>8em</width>
+            <sequence>50</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.allowedNetworks</id>
+        <label>Allowed Networks</label>
+        <type>select_multiple</type>
+        <style>tokenize</style>
+        <allownew>true</allownew>
+        <help>Restrict SSH access to specific source networks (CIDR notation, e.g. 192.168.1.0/24). Empty means all networks are allowed.</help>
+        <grid_view>
+            <sequence>30</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.sessionTimeout</id>
+        <label>Session Timeout (min)</label>
+        <type>text</type>
+        <help>Idle timeout in minutes before automatic disconnect. 0 = unlimited (not recommended for OT).</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.maxSessions</id>
+        <label>Max Sessions</label>
+        <type>text</type>
+        <help>Maximum simultaneous SSH sessions for this user.</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.portForwarding</id>
+        <label>Port Forwarding</label>
+        <type>checkbox</type>
+        <help>Allow TCP port forwarding / tunneling. Should be disabled in OT environments to prevent zone bridging.</help>
+        <grid_view>
+            <width>5em</width>
+            <type>boolean</type>
+            <formatter>boolean</formatter>
+            <sequence>60</sequence>
+        </grid_view>
+    </field>
+</form>

@@ -28,32 +28,12 @@
 
 namespace OPNsense\Auth;
 
-class UserController extends \OPNsense\Base\IndexController
+use OPNsense\Base\BaseModel;
+
+/**
+ * Class SshUser
+ * @package OPNsense\Auth
+ */
+class SshUser extends BaseModel
 {
-    protected function templateJSIncludes()
-    {
-        $result = parent::templateJSIncludes();
-        $result[] = '/ui/js/moment-with-locales.min.js';
-        $result[] = '/ui/js/jquery.qrcode.js';
-        $result[] = '/ui/js/qrcode.js';
-        $result[] = '/ui/js/bootstrap-datepicker.min.js';
-
-        return $result;
-    }
-
-    protected function templateCssIncludes()
-    {
-        $result = parent::templateCssIncludes();
-        $result[] = '/ui/css/bootstrap-datepicker3.min.css';
-        return $result;
-    }
-
-    public function indexAction()
-    {
-        $this->view->formDialogEditUser = $this->getForm("dialogUser");
-        $this->view->formGridUser = $this->getFormGrid("dialogUser");
-        $this->view->formDialogSsh = $this->getForm("dialogSsh");
-        $this->view->formGridSsh = $this->getFormGrid("dialogSsh");
-        $this->view->pick('OPNsense/Auth/user');
-    }
 }
