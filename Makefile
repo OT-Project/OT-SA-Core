@@ -85,7 +85,7 @@ _NEXTMATCH=	--match=${CORE_ABI}\*
 .  endif
 . endif
 . if empty(_NEXTMATCH)
-. error Did not find appropriate tag for CORE_ABI=${CORE_ABI}
+.  warning Did not find appropriate tag for CORE_ABI=${CORE_ABI}, using defaults
 . endif
 CORE_COMMIT!=	${GITVERSION} ${_NEXTMATCH}
 .endif
