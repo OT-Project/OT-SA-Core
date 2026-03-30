@@ -28,48 +28,6 @@
         <type>checkbox</type>
     </field>
     <field>
-        <id>unbound.general.regdhcp</id>
-        <label>Register ISC DHCP4 Leases</label>
-        <type>checkbox</type>
-        <help>If this option is set, then machines that specify their hostname when requesting a DHCP lease will be registered in Unbound, so that their name can be resolved.</help>
-    </field>
-    <field>
-        <id>unbound.general.regdhcpdomain</id>
-        <label>DHCP Domain Override</label>
-        <type>text</type>
-        <help>The default domain name to use for DHCP lease registration. If empty, the system domain is used.</help>
-    </field>
-    <field>
-        <id>unbound.general.regdhcpstatic</id>
-        <label>Register DHCP Static Mappings</label>
-        <type>checkbox</type>
-        <help>
-            <![CDATA[If this option is set, then DHCP static mappings will be registered in Unbound, so that their name can be resolved.
-            You should also set the domain in <a href="/system_general.php">System: Settings: General</a> to the proper value.]]>
-        </help>
-    </field>
-    <field>
-        <id>unbound.general.noreglladdr6</id>
-        <label>Do not register IPv6 Link-Local addresses</label>
-        <type>checkbox</type>
-        <help>
-            If this option is set, then IPv6 link-local addresses will not be registered in Unbound,
-            preventing return of unreachable address when more than one listen interface is configured.
-        </help>
-    </field>
-    <field>
-        <id>unbound.general.noregrecords</id>
-        <label>Do not register system A/AAAA records</label>
-        <type>checkbox</type>
-        <help>
-            <![CDATA[If this option is set, then no A/AAAA records for the configured listen interfaces will be generated.
-            If desired, you can manually add them in
-            <a href="/ui/unbound/overrides">Unbound DNS: Overrides</a>.
-            Use this to control which interface IP addresses are mapped to the system host/domain name
-            as well as to restrict the amount of information exposed in replies to queries for the system host/domain name.]]>
-        </help>
-    </field>
-    <field>
         <id>unbound.general.cacheflush</id>
         <label>Flush DNS Cache during reload</label>
         <type>checkbox</type>
@@ -86,17 +44,6 @@
             <![CDATA[The local zone type used for the system domain.
             Type descriptions are available under "local-zone:" in the
             <a href="https://nlnetlabs.nl/documentation/unbound/unbound.conf/#local-zone">unbound.conf(5)</a> manual page. The default is 'transparent'.]]>
-        </help>
-    </field>
-    <field>
-        <id>unbound.general.outgoing_interface</id>
-        <label>Outgoing Network Interfaces</label>
-        <type>select_multiple</type>
-        <advanced>true</advanced>
-        <hint>All (recommended)</hint>
-        <help>
-            Utilize different network interfaces that Unbound will use to send queries to authoritative servers and receive their replies.
-            By default all interfaces are used. Note that setting explicit outgoing interfaces only works when they are statically configured.
         </help>
     </field>
 </form>
