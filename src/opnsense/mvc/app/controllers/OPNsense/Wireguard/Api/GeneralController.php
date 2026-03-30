@@ -31,36 +31,10 @@ namespace OPNsense\Wireguard\Api;
 
 use OPNsense\Base\ApiMutableModelControllerBase;
 use OPNsense\Core\Config;
-use OPNsense\Core\Backend;
-
 class GeneralController extends ApiMutableModelControllerBase
 {
     protected static $internalModelClass = '\OPNsense\Wireguard\General';
     protected static $internalModelName = 'general';
-
-    /**
-     * Generate WireGuard keypair
-     * @return array
-     */
-    public function generateKeypairAction()
-    {
-        $backend = new Backend();
-        $response = $backend->configdRun('wireguard gen_keypair');
-        
-        $keys = json_decode($response, true);
-        
-        if (isset($keys['privkey']) && isset($keys['pubkey'])) {
-            return [
-                'pubkey' => $keys['pubkey'],
-                'privkey' => $keys['privkey']
-            ];
-        }
-        
-        return [
-            'pubkey' => '',
-            'privkey' => ''
-        ];
-    }
 
     /**
      * Get next available listen port

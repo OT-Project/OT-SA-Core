@@ -453,7 +453,7 @@ tr:has(> td > [id="client.type"]) {
                     // Đã clear tunnel address ở trên rồi, không cần clear nữa
                     
                     // Bước 1: Tạo keypair trước
-                    ajaxGet("/api/wireguard/general/generateKeypair", {}, function (keypairData) {
+                    ajaxGet("/api/wireguard/server/key_pair", {}, function (keypairData) {
                         if (keypairData.pubkey && keypairData.privkey) {
                             $("#server\\.pubkey").val(keypairData.pubkey);
                             $("#server\\.privkey").val(keypairData.privkey);
@@ -571,7 +571,7 @@ tr:has(> td > [id="client.type"]) {
                         // keypair nếu trống
                         if ((!$("#server\\.pubkey").val() || !$("#server\\.privkey").val()) && 
                             confirm("Bạn chưa có keypair. Bạn có muốn tạo keypair mới không?")) {
-                            ajaxGet("/api/wireguard/general/generateKeypair", {}, function (data) {
+                            ajaxGet("/api/wireguard/server/key_pair", {}, function (data) {
                                 if (data.pubkey && data.privkey) {
                                     $("#server\\.pubkey").val(data.pubkey);
                                     $("#server\\.privkey").val(data.privkey);
@@ -629,7 +629,7 @@ tr:has(> td > [id="client.type"]) {
          */
         $("#control_label_server\\.pubkey").append($("#keygen_div").detach().show());
         $("#keygen").click(function(){
-            ajaxGet("/api/wireguard/general/generateKeypair", {}, function(data, status){
+            ajaxGet("/api/wireguard/server/key_pair", {}, function(data, status){
                 if (data.pubkey && data.privkey) {
                     $("#server\\.pubkey").val(data.pubkey);
                     $("#server\\.privkey").val(data.privkey);
@@ -1614,7 +1614,7 @@ tr:has(> td > [id="client.type"]) {
                 
                 // Tự động sinh keypair
                 ajaxGet("/api/wireguard/server/key_pair", {}, function(data, status){
-                    if (data.status && data.status === 'ok') {
+                    if (data.pubkey && data.privkey) {
                         $("#configbuilder\\.pubkey").val(data.pubkey);
                         $("#configbuilder\\.privkey").val(data.privkey).change();
                     }
