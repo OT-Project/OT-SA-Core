@@ -1,0 +1,93 @@
+<form>
+    <field>
+        <id>client.enabled</id>
+        <label>Enabled</label>
+        <type>checkbox</type>
+        <help>Enable or disable this site-to-site connection.</help>
+        <grid_view>
+            <width>6em</width>
+            <type>boolean</type>
+            <formatter>rowtoggle</formatter>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.name</id>
+        <label>Site Name</label>
+        <type>text</type>
+        <help>A unique name for this site-to-site connection (alphanumeric, dash, underscore, max 64 characters).</help>
+    </field>
+    <field>
+        <id>client.servers</id>
+        <label>Instance</label>
+        <type>dropdown</type>
+        <help>The local WireGuard instance (wg0, wg1, …) this peer is attached to.</help>
+        <grid_view>
+            <width>8em</width>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.pubkey</id>
+        <label>Peer Public Key</label>
+        <type>text</type>
+        <help>The WireGuard public key of the remote site. Obtain this from the remote firewall's WireGuard instance.</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.psk</id>
+        <label>Pre-shared Key</label>
+        <type>password</type>
+        <help>Optional symmetric pre-shared key for additional post-quantum resistance. Must match on both sides.</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.serveraddress</id>
+        <label>Endpoint Address</label>
+        <type>text</type>
+        <help>Public IP address or hostname of the remote site. Leave empty if the remote site is roaming (initiates only).</help>
+        <grid_view>
+            <width>15em</width>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.serverport</id>
+        <label>Endpoint Port</label>
+        <type>text</type>
+        <help>UDP port the remote WireGuard instance listens on. Defaults to 51820.</help>
+        <grid_view>
+            <width>8em</width>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.tunneladdress</id>
+        <label>Remote Subnets</label>
+        <style>tokenize</style>
+        <type>select_multiple</type>
+        <allownew>true</allownew>
+        <help>Subnets reachable through this peer in CIDR notation (e.g. 10.10.0.0/24). WireGuard will only route traffic to these prefixes through this tunnel. Enter each network and press Enter.</help>
+        <grid_view>
+            <width>20em</width>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.keepalive</id>
+        <label>Keepalive Interval</label>
+        <type>text</type>
+        <help>Send a keepalive packet every N seconds to keep NAT mappings alive. 25 seconds is recommended for most NAT devices. Leave empty to disable.</help>
+        <grid_view>
+            <visible>false</visible>
+        </grid_view>
+    </field>
+    <field>
+        <id>client.type</id>
+        <label>Type</label>
+        <type>hidden</type>
+        <hint>s2s</hint>
+        <grid_view>
+            <width>6em</width>
+        </grid_view>
+    </field>
+</form>

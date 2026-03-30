@@ -1,7 +1,7 @@
 <model>
     <mount>//OPNsense/wireguard/client</mount>
     <description>WireGuard peer configuration</description>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
     <items>
         <clients>
             <client type=".\ClientField">
@@ -14,6 +14,11 @@
                     <Mask>/^([0-9a-zA-Z._\-]){1,64}$/u</Mask>
                     <ValidationMessage>Should be a string between 1 and 64 characters. Allowed characters are alphanumeric characters, dash and underscores.</ValidationMessage>
                 </name>
+                <type type="TextField">
+                    <Default>s2s</Default>
+                    <Mask>/^(client|s2s|c2s)$/</Mask>
+                    <ValidationMessage>Type must be either client, s2s or c2s.</ValidationMessage>
+                </type>
                 <pubkey type="Base64Field">
                     <Required>Y</Required>
                     <Constraints>
@@ -56,6 +61,8 @@
                     <MaximumValue>65535</MaximumValue>
                     <ValidationMessage>Please specify a value between 1 and 65535.</ValidationMessage>
                 </keepalive>
+                <peer_dns type="TextField"/>
+                <tunnelrouting type="TextField"/>
                 <servers type="ModelRelationField" volatile="true">
                     <Model>
                         <template>
