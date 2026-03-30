@@ -12,20 +12,13 @@
     </field>
     <field>
         <id>client.name</id>
-        <label>Client Name</label>
+        <label>Name</label>
         <type>text</type>
         <help>Set the name for this peer.</help>
     </field>
     <field>
-        <id>client.type</id>
-        <type>hidden</type>
-        <grid_view>
-            <visible>false</visible>
-        </grid_view>
-    </field>
-    <field>
         <id>client.pubkey</id>
-        <label>Client Public Key</label>
+        <label>Public key</label>
         <type>text</type>
         <help>Public key of this peer. You can generate the key using the private key piped to "wg pubkey".</help>
         <grid_view>
@@ -43,7 +36,7 @@
     </field>
     <field>
         <id>client.tunneladdress</id>
-        <label>Assigned Client IP</label>
+        <label>Allowed IPs</label>
         <style>tokenize</style>
         <type>select_multiple</type>
         <allownew>true</allownew>
@@ -69,7 +62,7 @@
     </field>
     <field>
         <id>client.servers</id>
-        <label>Instance</label>
+        <label>Instances</label>
         <type>select_multiple</type>
         <help>List of instances this peer belongs to.</help>
     </field>
@@ -78,23 +71,6 @@
         <label>Keepalive interval</label>
         <type>text</type>
         <help>Set persistent keepalive interval in seconds.</help>
-        <grid_view>
-            <visible>false</visible>
-        </grid_view>
-    </field>
-    <field>
-        <id>client.peer_dns</id>
-        <label>DNS servers</label>
-        <type>text</type>
-        <help>Optional list of DNS servers, separated by comma.</help>
-        <grid_view>
-            <visible>false</visible>
-        </grid_view>
-    </field>
-    <field>
-        <id>client.tunnelrouting</id>
-        <label>Tunnel routing</label>
-        <type>hidden</type>
         <grid_view>
             <visible>false</visible>
         </grid_view>

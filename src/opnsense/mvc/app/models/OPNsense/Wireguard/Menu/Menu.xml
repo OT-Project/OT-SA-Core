@@ -2,10 +2,8 @@
     <VPN>
       <WireGuard cssClass="fa fa-lock fa-fw">
           <Instances order="10" url="/ui/wireguard/general#instances"/>
-          <!-- <Peers order="20" url="/ui/wireguard/general#peers"/> -->
-          <!-- <PeerGenerator order="30" VisibleName="Peer generator" url="/ui/wireguard/general#configbuilder"/> -->
-          <SiteToSite order="35" VisibleName="Site-to-Site" url="/ui/wireguard/general#s2s"/>
-          <ClientToSite order="37" VisibleName="Client-to-Site" url="/ui/wireguard/general#c2s"/>
+          <Peers order="20" url="/ui/wireguard/general#peers"/>
+          <PeerGenerator order="30" VisibleName="Peer generator" url="/ui/wireguard/general#configbuilder"/>
           <Status order="40" url="/ui/wireguard/diagnostics/"/>
           <LogFile order="50" VisibleName="Log File" url="/ui/diagnostics/log/core/wireguard"/>
       </WireGuard>
