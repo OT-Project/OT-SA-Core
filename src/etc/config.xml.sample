@@ -26,7 +26,7 @@
       <uid>0</uid>
     </user>
     <timezone>Etc/UTC</timezone>
-    <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org 2.opnsense.pool.ntp.org 3.opnsense.pool.ntp.org</timeservers>
+    <timeservers>time.google.com time.cloudflare.com pool.ntp.org time.windows.com</timeservers>
     <webgui>
       <protocol>https</protocol>
     </webgui>
@@ -135,6 +135,6 @@
     <enable/>
   </rrd>
   <ntpd>
-    <prefer>0.opnsense.pool.ntp.org</prefer>
+    <prefer>time.google.com</prefer>
   </ntpd>
 </opnsense>
