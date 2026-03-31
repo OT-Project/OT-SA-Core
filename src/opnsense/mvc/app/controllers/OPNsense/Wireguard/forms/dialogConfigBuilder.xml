@@ -6,10 +6,16 @@
         <help>Choose an instance to create a new peer for.</help>
     </field>
     <field>
-        <id>configbuilder.endpoint</id>
-        <label>Endpoint</label>
+        <id>configbuilder.endpoint_ip</id>
+        <label>Endpoint IP</label>
+       <type>dropdown</type>
+        <help>Select or enter the public IP/hostname to reach this firewall.</help>
+    </field>
+    <field>
+        <id>configbuilder.endpoint_port</id>
+        <label>Endpoint Port</label>
         <type>text</type>
-        <help>Specify how to reach the instance, usually the public address of this firewall. (e.g. my.endpoint.local:51820)</help>
+        <help>Port to reach the WireGuard instance (default: 51820).</help>
     </field>
     <field>
         <id>configbuilder.name</id>
@@ -44,8 +50,10 @@
     <field>
         <id>configbuilder.tunneladdress</id>
         <label>Allowed IPs</label>
-        <type>text</type>
-        <help>List of networks allowed to pass through the tunnel adapter. Use CIDR notation like 10.0.0.0/24.</help>
+        <type>select_multiple</type>
+        <style>tokenize</style>
+        <allownew>true</allownew>
+        <help>Select firewall IPs or enter custom networks in CIDR notation (e.g., 10.0.0.0/24).</help>
     </field>
     <field>
         <id>configbuilder.keepalive</id>
@@ -56,8 +64,10 @@
     <field>
         <id>configbuilder.peer_dns</id>
         <label>DNS Servers</label>
-        <type>text</type>
-        <help>Comma-separated list of DNS servers to use on the peer.</help>
+        <type>select_multiple</type>
+        <style>tokenize</style>
+        <allownew>true</allownew>
+        <help>Select common DNS servers (Google 8.8.8.8, Cloudflare 1.1.1.1) or enter custom ones.</help>
     </field>
     <field>
         <id>configbuilder.output</id>
