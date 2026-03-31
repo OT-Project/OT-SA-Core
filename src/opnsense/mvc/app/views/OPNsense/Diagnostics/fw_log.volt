@@ -1390,7 +1390,7 @@
                         <option value="!~">{{ lang._('does not contain') }}</option>
                         <option value="!=">{{ lang._('is not') }}</option>
                     </select>
-                    <input id="filter-value" type="text" placeholder="Search…" style="width: 200px;"/>
+                    <input id="filter-value" type="text" placeholder="{{lang._('Search…')}}" style="width: 200px;"/>
                     <select id="interface-select" class="selectpicker" data-width="200px"></select>
                     <button id="apply-filter" class="btn">{{ lang._('Apply') }}</button>
                 </div>
@@ -1427,7 +1427,7 @@
                     <input type="checkbox" id="tg-poll" checked/>
                     <span class="toggle-ui"></span>
                     <span class="fa fa-refresh"></span>
-                    <span class="toggle-label">{{ lang._('Auto-refresh') }}</span>
+                    <span class="toggle-label">{{ lang._('Auto refresh') }}</span>
                 </label>
 
                 <label class="toggle">
