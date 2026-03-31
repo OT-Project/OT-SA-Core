@@ -3,17 +3,17 @@
 """
     OT-SA SSH User Access Management — Apply per-user SSH configurations
 
-    Reads the SshUser model config and:
-    1. Writes authorized_keys for users with SSH public keys
-    2. Updates user shells via pw usermod
+    Reads SSH-enabled users from /conf/config.xml (system/user entries with
+    ssh_enabled=1) and writes authorized_keys for users who have public keys.
 
     Copyright (C) 2024 Deciso B.V.
     All rights reserved.
 """
 
-import subprocess
 import os
 import sys
+import base64
+import subprocess
 import xml.etree.ElementTree as ET
 
 CONFIG_PATH = '/conf/config.xml'
@@ -22,29 +22,34 @@ AUTH_KEYS_MODE = 0o600
 
 
 def get_ssh_users():
-    """Parse SshUser entries from config.xml"""
+    """Parse system users with ssh_enabled=1 from config.xml"""
     users = []
     try:
         tree = ET.parse(CONFIG_PATH)
         root = tree.getroot()
-        sshuser_node = root.find('.//OPNsense/auth/sshuser/users')
-        if sshuser_node is None:
-            return users
 
-        for user_node in sshuser_node.findall('user'):
-            enabled = user_node.findtext('enabled', '0')
-            if enabled != '1':
+        for user_node in root.findall('.//system/user'):
+            ssh_enabled = user_node.findtext('ssh_enabled', '0')
+            disabled = user_node.findtext('disabled', '0')
+            if ssh_enabled != '1' or disabled == '1':
                 continue
 
-            username = user_node.findtext('username', '')
+            username = user_node.findtext('name', '')
             if not username:
                 continue
 
+            # Decode authorized keys (stored as base64 in config.xml)
+            auth_keys_b64 = user_node.findtext('authorizedkeys', '')
+            public_key = ''
+            if auth_keys_b64 and auth_keys_b64.strip():
+                try:
+                    public_key = base64.b64decode(auth_keys_b64).decode('utf-8', errors='replace').strip()
+                except Exception:
+                    public_key = ''
+
             users.append({
                 'username': username,
-                'sshPublicKey': user_node.findtext('sshPublicKey', ''),
-                'shell': user_node.findtext('shell', '/usr/local/sbin/opnsense-shell'),
-                'permissionGroup': user_node.findtext('permissionGroup', 'operator'),
+                'public_key': public_key,
             })
     except Exception as e:
         print(f"Error parsing config: {e}", file=sys.stderr)
@@ -54,18 +59,6 @@ def get_ssh_users():
 
 def get_user_home(username):
     """Get the home directory for a user"""
-    try:
-        result = subprocess.run(
-            ['pw', 'usershow', username, '-7'],
-            capture_output=True, text=True
-        )
-        if result.returncode == 0:
-            # pw usershow -7 outputs just the shell, but we need home dir
-            pass
-    except Exception:
-        pass
-
-    # Use getent to get home directory
     try:
         result = subprocess.run(
             ['getent', 'passwd', username],
@@ -78,7 +71,6 @@ def get_user_home(username):
     except Exception:
         pass
 
-    # Fallback: root gets /root, others get /home/username
     if username == 'root':
         return '/root'
     return f'/home/{username}'
@@ -89,10 +81,8 @@ def write_authorized_keys(username, public_key):
     home_dir = get_user_home(username)
     ssh_dir = os.path.join(home_dir, '.ssh')
 
-    # Create .ssh directory if needed
     if not os.path.isdir(ssh_dir):
         os.makedirs(ssh_dir, mode=SSH_DIR_MODE, exist_ok=True)
-        # Set ownership to the user
         try:
             subprocess.run(['chown', f'{username}:{username}', ssh_dir], check=True)
         except subprocess.CalledProcessError:
@@ -112,7 +102,7 @@ def write_authorized_keys(username, public_key):
             subprocess.run(['chown', username, auth_keys_path], check=False)
         print(f"  [OK] Wrote authorized_keys for {username}")
     else:
-        # No key — remove authorized_keys if it was managed by us
+        # No key — remove authorized_keys if managed by us
         if os.path.isfile(auth_keys_path):
             with open(auth_keys_path, 'r') as f:
                 content = f.read()
@@ -121,43 +111,11 @@ def write_authorized_keys(username, public_key):
                 print(f"  [OK] Removed managed authorized_keys for {username}")
 
 
-def update_user_shell(username, shell):
-    """Update the user's login shell"""
-    try:
-        subprocess.run(
-            ['pw', 'usermod', username, '-s', shell],
-            check=True, capture_output=True
-        )
-        print(f"  [OK] Set shell for {username}: {shell}")
-    except subprocess.CalledProcessError as e:
-        print(f"  [WARN] Failed to set shell for {username}: {e.stderr}", file=sys.stderr)
-
-
-def map_permission_group(username, group):
-    """Map permission group to OPNsense system groups"""
-    group_map = {
-        'admin': 'admins',
-        'operator': 'operator',
-        'viewer': 'viewer',
-    }
-    target_group = group_map.get(group, 'operator')
-    try:
-        subprocess.run(
-            ['pw', 'groupmod', target_group, '-m', username],
-            check=True, capture_output=True
-        )
-        print(f"  [OK] Added {username} to group: {target_group}")
-    except subprocess.CalledProcessError as e:
-        # Group may not exist yet
-        print(f"  [WARN] Could not add {username} to group {target_group}: {e.stderr}",
-              file=sys.stderr)
-
-
 if __name__ == '__main__':
     ssh_users = get_ssh_users()
 
     if not ssh_users:
-        print("No enabled SSH users configured.")
+        print("No SSH-enabled users configured.")
         sys.exit(0)
 
     print(f"Applying SSH settings for {len(ssh_users)} user(s)...")
@@ -165,8 +123,6 @@ if __name__ == '__main__':
     for user in ssh_users:
         username = user['username']
         print(f"\n--- {username} ---")
-        write_authorized_keys(username, user.get('sshPublicKey', ''))
-        update_user_shell(username, user['shell'])
-        map_permission_group(username, user['permissionGroup'])
+        write_authorized_keys(username, user['public_key'])
 
     print("\nDone.")

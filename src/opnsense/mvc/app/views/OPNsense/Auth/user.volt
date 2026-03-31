@@ -127,15 +127,31 @@
         });
 
         /**
-         * SSH Management bootgrid
+         * SSH Management bootgrid — read-only view of system users
          */
         let grid_ssh = $("#grid-ssh").UIBootgrid({
-            search: '/api/auth/ssh/searchUser/',
-            get: '/api/auth/ssh/getUser/',
-            add: '/api/auth/ssh/addUser/',
-            set: '/api/auth/ssh/setUser/',
-            del: '/api/auth/ssh/delUser/',
-            toggle: '/api/auth/ssh/toggleUser/'
+            search: '/api/auth/user/searchSsh/',
+            get: '/api/auth/user/getSsh/',
+            set: '/api/auth/user/setSsh/',
+            toggle: '/api/auth/user/toggleSsh/'
+        });
+
+        // Toggle Authorized Keys based on Auth Method
+        $('#dialog_dialogSsh').on('shown.bs.modal', function() {
+            let authMethod = $('#user\\.ssh_auth_method');
+            let authKeysBox = $('#user\\.authorizedkeys').closest('tr');
+            
+            function toggleKeys() {
+                let val = authMethod.val();
+                if (val === 'key_only' || val === 'both') {
+                    authKeysBox.show();
+                } else {
+                    authKeysBox.hide();
+                }
+            }
+            
+            authMethod.off('change.sshToggle').on('change.sshToggle', toggleKeys);
+            toggleKeys();
         });
 
         $("#reconfigureAct-ssh").SimpleActionButton({
@@ -145,41 +161,9 @@
                 return dfObj;
             },
             onAction: function (data, status) {
+                $("#sshChangeMessage").hide();
                 updateServiceControlMenu();
             }
-        });
-
-        $("#importSshUsers").click(function () {
-            stdDialogConfirm(
-                '{{ lang._("Import SSH Users") }}',
-                '{{ lang._("Import existing system users into SSH Management? This only works if no SSH entries exist yet.") }}',
-                '{{ lang._("Import") }}', '{{ lang._("Cancel") }}', function () {
-                    ajaxCall('/api/auth/ssh/import', {}, function (data) {
-                        if (data.status === 'ok') {
-                            $("#grid-ssh").bootgrid('reload');
-                            BootstrapDialog.show({
-                                type: BootstrapDialog.TYPE_SUCCESS,
-                                title: '{{ lang._("Import Complete") }}',
-                                message: data.message,
-                                buttons: [{
-                                    label: '{{ lang._("OK") }}',
-                                    action: function (dialogRef) { dialogRef.close(); }
-                                }]
-                            });
-                        } else {
-                            BootstrapDialog.show({
-                                type: BootstrapDialog.TYPE_WARNING,
-                                title: '{{ lang._("Import Result") }}',
-                                message: data.message || '{{ lang._("No users imported.") }}',
-                                buttons: [{
-                                    label: '{{ lang._("OK") }}',
-                                    action: function (dialogRef) { dialogRef.close(); }
-                                }]
-                            });
-                        }
-                    });
-                }
-            );
         });
 
         /**
@@ -287,43 +271,29 @@
             {{ lang._('After changing settings, please remember to apply them.') }}
         </div>
         <table id="grid-ssh" class="table table-condensed table-hover table-striped table-responsive"
-            data-editDialog="DialogSsh">
+            data-editDialog="dialog_dialogSsh">
             <thead>
                 <tr>
-                    <th data-column-id="uuid" data-type="string" data-identifier="true" data-visible="false">{{ lang._('ID') }}</th>
-                    <th data-column-id="enabled" data-width="5em" data-type="boolean" data-formatter="rowtoggle">{{ lang._('Enabled') }}</th>
-                    <th data-column-id="username" data-type="string">{{ lang._('Username') }}</th>
-                    <th data-column-id="allowedNetworks" data-type="string">{{ lang._('Allowed Networks') }}</th>
-                    <th data-column-id="authMethod" data-width="8em" data-type="string">{{ lang._('Auth Method') }}</th>
-                    <th data-column-id="permissionGroup" data-width="8em" data-type="string">{{ lang._('Permission') }}</th>
-                    <th data-column-id="portForwarding" data-width="5em" data-type="boolean" data-formatter="boolean">{{ lang._('Fwd') }}</th>
-                    <th data-column-id="commands" data-width="9em" data-formatter="commands" data-sortable="false">{{ lang._('Commands') }}</th>
+                    <th data-column-id="uuid" data-type="string" data-identifier="true" data-visible="false">{{
+                        lang._('ID') }}</th>
+                    <th data-column-id="ssh_enabled" data-width="6em" data-type="boolean" data-formatter="rowtoggle">{{
+                        lang._('SSH') }}</th>
+                    <th data-column-id="name" data-type="string">{{ lang._('Username') }}</th>
+                    <th data-column-id="ssh_allowed_networks" data-type="string">{{ lang._('Allowed Networks') }}</th>
+                    <th data-column-id="ssh_auth_method_label" data-width="12em" data-type="string">{{ lang._('Auth
+                        Method') }}</th>
+                    <th data-column-id="commands" data-width="7em" data-formatter="commands" data-sortable="false">{{
+                        lang._('') }}</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
-            <tfoot>
-                <tr>
-                    <td></td>
-                    <td>
-                        <button data-action="deleteSelected" type="button" class="btn btn-xs btn-default"><span
-                                class="fa fa-fw fa-trash-o"></span></button>
-                        <button data-action="add" type="button" class="btn btn-xs btn-primary"><span
-                                class="fa fa-fw fa-plus"></span></button>
-                    </td>
-                </tr>
-            </tfoot>
         </table>
         <div class="col-md-12">
-            <button class="btn btn-primary" id="reconfigureAct-ssh"
-                data-endpoint="/api/auth/ssh/reconfigure"
-                data-label="{{ lang._('Apply') }}"
-                data-error-title="{{ lang._('Error reconfiguring SSH') }}"
+            <button class="btn btn-primary" id="reconfigureAct-ssh" data-endpoint="/api/auth/user/reconfigureSsh"
+                data-label="{{ lang._('Apply') }}" data-error-title="{{ lang._('Error reconfiguring SSH') }}"
                 type="button">
                 <b>{{ lang._('Apply') }}</b> <i id="reconfigureAct-ssh_progress" class=""></i>
-            </button>
-            <button class="btn btn-default" id="importSshUsers" type="button">
-                <i class="fa fa-fw fa-download"></i> {{ lang._('Import from config') }}
             </button>
         </div>
     </div>
@@ -362,3 +332,14 @@ User')])}}
 {{
 partial("layout_partials/base_dialog",['fields':formDialogSsh,'id':formGridSsh['edit_dialog_id'],'label':lang._('Edit
 SSH User')])}}
+
+<style>
+/* Ensure the SSH Authorized Keys textarea correctly wraps long uninterrupted Base64 strings */
+textarea#user\.authorizedkeys {
+    font-family: monospace;
+    font-size: 13px;
+    word-break: break-all;
+    min-height: 120px;
+    white-space: pre-wrap;
+}
+</style>
