@@ -31,6 +31,7 @@
 require_once('config.inc');
 require_once('auth.inc');
 require_once('util.inc');
+require_once('/usr/local/opnsense/scripts/shell/langmode.php');
 
 $fp = fopen('php://stdin', 'r');
 
@@ -41,18 +42,18 @@ $fp = fopen('php://stdin', 'r');
 if (isset($argv[2]) && isset($argv[3]) && $argv[2] === '-h' && $argv[3] === '0') {
     $admin_user = &getUserEntryByUID(0);
     if (!$admin_user) {
-        echo "user not found\n";
+        echo __('user not found') . "\n";
         exit(1);
     }
 
-    echo "new password for user {$admin_user['name']}:";
+    echo __('new password for user %s:', $admin_user['name']);
     shell_safe('/bin/stty -echo');
     $password = chop(fgets($fp));
     shell_safe('/bin/stty echo');
     echo "\n";
 
     if (empty($password)) {
-        echo "empty password read\n";
+        echo __('empty password read') . "\n";
         exit(1);
     }
 
@@ -81,14 +82,14 @@ if (isset($argv[2]) && isset($argv[3]) && $argv[2] === '-h' && $argv[3] === '0')
         unset($admin_user['shell']);
     }
 
-    echo "new password for user {$admin_user['name']}:";
+    echo __('new password for user %s:', $admin_user['name']);
     shell_safe('/bin/stty -echo');
     $password = chop(fgets($fp));
     shell_safe('/bin/stty echo');
     echo "\n";
 
     if (empty($password)) {
-        echo "empty password read\n";
+        echo __('empty password read') . "\n";
         exit(1);
     }
 
@@ -102,16 +103,16 @@ if (isset($argv[2]) && isset($argv[3]) && $argv[2] === '-h' && $argv[3] === '0')
     exit(0);
 }
 
-echo "The root user login behaviour will be restored to its defaults.\n\nDo you want to proceed? [y/N]: ";
+echo __('The root user login behaviour will be restored to its defaults.') . "\n\n" . __('Do you want to proceed?') . " " . __('[y/N]: ');
 
-if (strcasecmp(chop(fgets($fp)), 'y') != 0) {
+if (strcasecmp(normalize_yes_no(chop(fgets($fp))), 'y') != 0) {
     return;
 }
 
 if (isset($config['system']['webgui']['authmode']) && $config['system']['webgui']['authmode'] != 'Local Database') {
-    echo sprintf("\nThe authentication server is set to \"%s\".\n", $config['system']['webgui']['authmode']);
-    echo 'Do you want to set it back to Local Database? [y/N]: ';
-    if (strcasecmp(chop(fgets($fp)), 'y') == 0) {
+    echo sprintf("\n" . __('The authentication server is set to "%s".', $config['system']['webgui']['authmode'])) . "\n";
+    echo __('Do you want to set it back to Local Database?') . ' ' . __('[y/N]: ');
+    if (strcasecmp(normalize_yes_no(chop(fgets($fp))), 'y') == 0) {
         $config['system']['webgui']['authmode'] = 'Local Database';
     }
 }
@@ -122,7 +123,7 @@ if (!$admin_user) {
     $admin_user['uid'] = 0;
     $a_users = &config_read_array('system', 'user');
     $a_users[] = $admin_user;
-    echo "\nRestored missing root user.\n";
+    echo "\n" . __('Restored missing root user.') . "\n";
 }
 
 $admin_user['scope'] = 'system';
@@ -135,24 +136,24 @@ if (isset($admin_user['shell'])) {
     unset($admin_user['shell']);
 }
 
-echo "\nType a new password: ";
+echo "\n" . __('Type a new password: ');
 
 shell_safe('/bin/stty -echo');
 $password = chop(fgets($fp));
 shell_safe('/bin/stty echo');
 echo "\n";
 if (empty($password)) {
-    echo "\nPassword cannot be empty.\n";
+    echo "\n" . __('Password cannot be empty.') . "\n";
     return;
 }
 
-echo "Confirm new password: ";
+echo __('Confirm new password: ');
 shell_safe('/bin/stty -echo');
 $confirm = chop(fgets($fp));
 shell_safe('/bin/stty echo');
 echo "\n";
 if ($password !== $confirm) {
-    echo "\nPasswords do not match.\n";
+    echo "\n" . __('Passwords do not match.') . "\n";
     return;
 }
 
@@ -161,4 +162,4 @@ local_user_set($admin_user);
 
 write_config('Root user reset from console');
 
-echo "\nThe root user has been reset successfully.\n";
+echo "\n" . __('The root user has been reset successfully.') . "\n";

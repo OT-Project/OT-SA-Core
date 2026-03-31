@@ -85,7 +85,6 @@ _NEXTMATCH=	--match=${CORE_ABI}\*
 .  endif
 . endif
 . if empty(_NEXTMATCH)
-. error Did not find appropriate tag for CORE_ABI=${CORE_ABI}
 . endif
 CORE_COMMIT!=	${GITVERSION} ${_NEXTMATCH}
 .endif
@@ -112,12 +111,12 @@ CORE_PKGVERSION=	${CORE_VERSION}
 CORE_PYTHON_DOT=	${CORE_PYTHON:C/./&./1}
 
 CORE_COMMENT?=		${CORE_PRODUCT} ${CORE_TYPE} release
-CORE_MAINTAINER?=	project@opnsense.org
+CORE_MAINTAINER?=	bkcs@hust.edu.vn
 CORE_ORIGIN?=		opnsense/${CORE_NAME}
-CORE_PACKAGESITE?=	https://pkg.opnsense.org
-CORE_PRODUCT?=		OPNsense
+CORE_PACKAGESITE?=	https://repo.kamiyuri.dev/main
+CORE_PRODUCT?=		OTSA
 CORE_REPOSITORY?=	${CORE_ABI}/latest
-CORE_WWW?=		https://opnsense.org/
+CORE_WWW?=		#
 CORE_USER?=		wwwonly
 CORE_UID?=		789
 CORE_GROUP?=		${CORE_USER}

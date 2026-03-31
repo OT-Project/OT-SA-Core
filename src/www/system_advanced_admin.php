@@ -806,7 +806,9 @@ $(document).ready(function() {
                   </div>
                 </td>
               </tr>
-              <tr>
+
+              <!-- TODO: unhide this -->
+              <!-- <tr>
                 <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("Advanced");?></td>
                 <td>
                   <button id="show-advanced-cryptocryptobtn" class="btn btn-xs btn-default" value="yes"><?= gettext('Show cryptographic overrides') ?></button>
@@ -902,10 +904,10 @@ $(document).ready(function() {
                       <?=gettext("Specifies the maximum amount of data that may be transmitted or received before the session key is renegotiated within a given time. The defaults depend on cipher and are usually the best option.");?>
                     </div>
                 </td>
-              </tr>
+              </tr> -->
             </table>
           </div>
-          <div class="content-box tab-content table-responsive __mb">
+          <!-- TODO: remove unncessary parts <div class="content-box tab-content table-responsive __mb">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
                 <td style="width:22%"><strong><?= gettext('Console') ?></strong></td>
@@ -979,8 +981,8 @@ $(document).ready(function() {
                 </td>
               </tr>
             </table>
-          </div>
-          <div class="content-box tab-content table-responsive __mb">
+          </div> -->
+          <!-- <div class="content-box tab-content table-responsive __mb">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
                 <td style="width:22%"><strong><?= gettext('Shell') ?></strong></td>
@@ -998,8 +1000,8 @@ $(document).ready(function() {
                 </td>
               </tr>
             </table>
-          </div>
-          <div class="content-box tab-content table-responsive __mb">
+          </div> -->
+          <!-- <div class="content-box tab-content table-responsive __mb">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
                 <td style="width:22%"><strong><?= gettext('Authentication') ?></strong></td>
@@ -1039,9 +1041,9 @@ $(document).ready(function() {
                 <td></td>
                 <td>
                   <select name="sudo_allow_group" class="selectpicker">
-                      <option value=""><!-- do not translate: -->wheel</option>
+                      <option value="">wheel</option>
 <?php foreach ($a_group as $group): ?>
-                      <option value="<?= html_safe($group['name']) ?>" <?= $pconfig['sudo_allow_group'] == $group['name'] ? 'selected="selected"' : '' ?>><!-- do not translate: -->wheel, <?= html_safe($group['name']) ?></option>
+                      <option value="<?= html_safe($group['name']) ?>" <?= $pconfig['sudo_allow_group'] == $group['name'] ? 'selected="selected"' : '' ?>>wheel, <?= html_safe($group['name']) ?></option>
 <?php endforeach ?>
                   </select>
                   <div class="hidden" data-for="help_for_sudo_allow_wheel">
@@ -1065,8 +1067,8 @@ $(document).ready(function() {
                 </td>
               </tr>
             </table>
-          </div>
-          <div class="content-box tab-content table-responsive __mb">
+          </div> -->
+          <!-- <div class="content-box tab-content table-responsive __mb">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
                 <td style="width:22%"><strong><?= gettext('Deployment') ?></strong></td>
@@ -1099,7 +1101,7 @@ $(document).ready(function() {
                 </td>
               </tr>
             </table>
-          </div>
+          </div> -->
           <div class="content-box tab-content table-responsive">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
