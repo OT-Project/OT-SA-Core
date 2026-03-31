@@ -1,4 +1,4 @@
-<menu>
+<!-- <menu>
     <VPN>
       <WireGuard cssClass="fa fa-lock fa-fw">
           <Instances order="10" url="/ui/wireguard/general#instances"/>
@@ -8,4 +8,4 @@
           <LogFile order="50" VisibleName="Log File" url="/ui/diagnostics/log/core/wireguard"/>
       </WireGuard>
     </VPN>
-</menu>
+</menu> -->

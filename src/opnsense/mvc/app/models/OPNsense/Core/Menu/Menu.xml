@@ -138,7 +138,8 @@
         <OpenDNS VisibleName="OpenDNS" url="/services_opendns.php" cssClass="fa fa-tags fa-fw" visibility="delete"/>
     </Services>
     <VPN order="50" cssClass="fa fa-globe">
-        <OpenVPN cssClass="fa fa-lock fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <OpenVPN cssClass="fa fa-lock fa-fw" visibility="delete">
             <Instances order="10" url="/ui/openvpn/instances"/>
             <!-- XXX order gap for client/server legacy pages -->
             <CSC order="30" VisibleName="Client Specific Overrides" url="/ui/openvpn/client_overwrites"/>
@@ -148,6 +149,12 @@
             <Status order="60" VisibleName="Connection Status" url="/ui/openvpn/status"/>
             <LogFile order="70" VisibleName="Log File" url="/ui/diagnostics/log/core/openvpn"/>
         </OpenVPN>
+        <Instances order="10" url="/ui/wireguard/general#instances"/>
+          <Peers order="20" url="/ui/wireguard/general#peers"/>
+          <PeerGenerator order="30" VisibleName="Peer generator" url="/ui/wireguard/general#configbuilder"/>
+          <Status order="40" url="/ui/wireguard/diagnostics/"/>
+          <LogFile order="50" VisibleName="Log File" url="/ui/diagnostics/log/core/wireguard"/>
+
     </VPN>
     <Power order="70" cssClass="fa fa-plug">
         <Reboot order="10" url="/ui/core/reboot" cssClass="fa fa-repeat fa-fw"/>
