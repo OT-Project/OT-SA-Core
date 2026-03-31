@@ -1,0 +1,45 @@
+<form>
+    <field>
+        <id>user.ssh_enabled</id>
+        <label>SSH Access</label>
+        <type>checkbox</type>
+        <help>Enable or disable SSH access for this user.</help>
+    </field>
+    <field>
+        <id>user.name</id>
+        <label>Username</label>
+        <type>text</type>
+        <readonly>true</readonly>
+        <grid_view>
+            <sequence>10</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.ssh_auth_method</id>
+        <label>Auth Method</label>
+        <type>dropdown</type>
+        <help>Authentication method for SSH login.</help>
+        <grid_view>
+            <width>12em</width>
+            <sequence>30</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.ssh_allowed_networks</id>
+        <label>Allowed Networks</label>
+        <style>tokenize</style>
+        <type>select_multiple</type>
+        <allownew>true</allownew>
+        <help>Restrict SSH access to specific source networks (CIDR notation, e.g. 192.168.1.0/24). Empty = resolved from LAN interface.</help>
+        <grid_view>
+            <sequence>20</sequence>
+        </grid_view>
+    </field>
+    <field>
+        <id>user.authorizedkeys</id>
+        <label>Authorized Keys</label>
+        <type>textbox</type>
+        <style>form-control</style>
+        <help>Paste one SSH public key per line (ssh-rsa, ssh-ed25519, ecdsa-sha2-*, etc.)</help>
+    </field>
+</form>

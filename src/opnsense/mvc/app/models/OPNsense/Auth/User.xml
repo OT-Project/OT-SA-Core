@@ -49,6 +49,24 @@
             </group_memberships>
             <descr type="DescriptionField"/>
             <dashboard type="TextField"/>
+            <!-- SSH Access Management (per-user) -->
+            <ssh_enabled type="BooleanField">
+                <Default>0</Default>
+            </ssh_enabled>
+            <ssh_auth_method type="OptionField">
+                <Default>password</Default>
+                <Required>Y</Required>
+                <OptionValues>
+                    <password>Password Only</password>
+                    <key_only>Key Only</key_only>
+                    <both>Key + Password</both>
+                </OptionValues>
+            </ssh_auth_method>
+            <ssh_allowed_networks type="NetworkField">
+                <Default>0.0.0.0/0</Default>
+                <NetMaskRequired>Y</NetMaskRequired>
+                <AsList>Y</AsList>
+            </ssh_allowed_networks>
         </user>
     </items>
 </model>

@@ -52,6 +52,8 @@ class UserController extends \OPNsense\Base\IndexController
     {
         $this->view->formDialogEditUser = $this->getForm("dialogUser");
         $this->view->formGridUser = $this->getFormGrid("dialogUser");
+        $this->view->formDialogSsh = $this->getForm("dialogSsh");
+        $this->view->formGridSsh = $this->getFormGrid("dialogSsh");
         $this->view->pick('OPNsense/Auth/user');
     }
 }

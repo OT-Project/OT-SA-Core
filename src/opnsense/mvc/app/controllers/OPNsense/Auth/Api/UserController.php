@@ -46,7 +46,8 @@ class UserController extends ApiMutableModelControllerBase
     protected static $internalModelClass = 'OPNsense\Auth\User';
 
     private $export_ignore = [
-        'uid', 'comments', 'password', 'authorizedkeys', 'otp_seed', 'scope', 'scrambled_password', 'dashboard'
+        'uid', 'comments', 'password', 'authorizedkeys', 'otp_seed', 'scope', 'scrambled_password', 'dashboard',
+        'ssh_enabled', 'ssh_auth_method', 'ssh_allowed_networks'
     ];
 
     private function getHostname()
@@ -65,9 +66,11 @@ class UserController extends ApiMutableModelControllerBase
             $members = $group->member->getValues();
             if (in_array($this_uid, $members) && !in_array($group->gid, $this_gids)) {
                 unset($members[array_search($this_uid, $members)]);
-            } elseif (!in_array($this_uid, $members) && in_array($group->gid, $this_gids)) {
+            }
+            elseif (!in_array($this_uid, $members) && in_array($group->gid, $this_gids)) {
                 $members[] = $this_uid;
-            } else {
+            }
+            else {
                 continue;
             }
             $group->member = implode(',', $members);
@@ -79,14 +82,14 @@ class UserController extends ApiMutableModelControllerBase
             throw new UserException(
                 sprintf(gettext("User %s can not lock itself out"), $this->getUserName()),
                 gettext("Usermanager")
-            );
+                );
         }
 
         /* Password handling */
         if (
-            !empty((string)$node->scrambled_password) || (
-            $node->password->isFieldChanged() && !$node->password->isEmpty()
-            )
+        !empty((string)$node->scrambled_password) || (
+        $node->password->isFieldChanged() && !$node->password->isEmpty()
+        )
         ) {
             if (!empty((string)$node->scrambled_password)) {
                 /* generate a random password */
@@ -95,13 +98,15 @@ class UserController extends ApiMutableModelControllerBase
                 while (($i = strpos($password, "\0")) !== false) {
                     $password[$i] = random_bytes(1);
                 }
-            } else {
+            }
+            else {
                 $password = $node->password->getValue();
             }
             $hash = $this->getModel()->generatePasswordHash($password);
             if ($hash !== false && strpos($hash, '$') === 0) {
                 $node->password = $hash;
-            } else {
+            }
+            else {
                 /* log and throw exception, not being able to hash the password should be fatal. */
                 $this->getLogger('audit')->error(sprintf("Failed to hash password for user %s", $node->name));
                 throw new UserException(sprintf(gettext("Failed to hash password for user %s"), $node->name));
@@ -160,23 +165,24 @@ class UserController extends ApiMutableModelControllerBase
             return $this->importCsv(
                 'user',
                 $this->request->getPost('payload'),
-                ['name'],
+            ['name'],
                 function (&$record) use ($that) {
-                    foreach ($that->export_ignore as $fieldname) {
-                        if (isset($record[$fieldname])) {
-                            unset($record[$fieldname]);
-                        }
+                foreach ($that->export_ignore as $fieldname) {
+                    if (isset($record[$fieldname])) {
+                        unset($record[$fieldname]);
                     }
-                },
-                function ($node) use ($that) {
-                    /* new user without password, scramble one */
-                    if ($node->password->isFieldChanged() && $node->password->isEmpty()) {
-                        $node->scrambled_password = '1';
-                    }
-                    $that->setBaseHook($node);
                 }
+            },
+                function ($node) use ($that) {
+                /* new user without password, scramble one */
+                if ($node->password->isFieldChanged() && $node->password->isEmpty()) {
+                    $node->scrambled_password = '1';
+                }
+                $that->setBaseHook($node);
+            }
             );
-        } else {
+        }
+        else {
             return ['status' => 'failed'];
         }
     }
@@ -187,11 +193,11 @@ class UserController extends ApiMutableModelControllerBase
         return [
             'seed' => $seed,
             'otp_uri_template' => sprintf(
-                "otpauth://totp/%s@%s?secret=%s&issuer=OPNsense&image=https://docs.opnsense.org/_static/favicon.png",
-                '|USER|',
-                $this->getHostname(),
-                $seed
-            )
+            "otpauth://totp/%s@%s?secret=%s&issuer=OPNsense&image=https://docs.opnsense.org/_static/favicon.png",
+            '|USER|',
+            $this->getHostname(),
+            $seed
+        )
         ];
     }
 
@@ -231,12 +237,13 @@ class UserController extends ApiMutableModelControllerBase
                 throw new UserException(
                     sprintf(gettext("Not allowed to delete system user %s"), $node->name),
                     gettext("Usermanager")
-                );
-            } elseif ($node->name == $this->getUserName()) {
+                    );
+            }
+            elseif ($node->name == $this->getUserName()) {
                 throw new UserException(
                     sprintf(gettext("Not allowed to remove logged in user %s"), $node->name),
                     gettext("Usermanager")
-                );
+                    );
             }
             if (!empty($node)) {
                 $username = (string)$node->name;
@@ -266,7 +273,8 @@ class UserController extends ApiMutableModelControllerBase
                 $user->apikeys->del($key);
                 $this->save(false, true);
                 return ['result' => 'deleted'];
-            } else {
+            }
+            else {
                 return ['result' => 'not found'];
             }
         }
@@ -288,5 +296,167 @@ class UserController extends ApiMutableModelControllerBase
             Config::getInstance()->unlock();
         }
         return ["result" => "failed"];
+    }
+
+    /* ================================================================
+     *  SSH Management endpoints
+     * ================================================================ */
+
+    /**
+     * Search all users with SSH-relevant fields for the SSH Management tab
+     */
+    public function searchSshAction()
+    {
+        $result = $this->searchBase('user', ['name', 'ssh_enabled', 'ssh_auth_method', 'ssh_allowed_networks', 'disabled']);
+        if (!empty($result['rows'])) {
+            foreach ($result['rows'] as &$row) {
+                // Indicate if user has authorized keys
+                $node = $this->getModel()->getNodeByReference('user.' . $row['uuid']);
+                $hasKey = !empty((string)$node->authorizedkeys);
+
+                $authMethod = $row['ssh_auth_method'] ?? 'password';
+                // Backward compatibility: If method is password but user has keys, assume 'both'
+                if ($authMethod === 'password' && $hasKey) {
+                    $authMethod = 'both';
+                }
+
+                // Show human-readable auth method
+                $authLabels = [
+                    'password' => 'Password',
+                    'key_only' => 'Key Only',
+                    'both' => 'Key + Password',
+                ];
+                $row['ssh_auth_method_label'] = $authLabels[$authMethod];
+                $row['has_key'] = $hasKey ? '1' : '0';
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get SSH settings for a specific user (uses standard getBase for form population)
+     */
+    public function getSshAction($uuid = null)
+    {
+        $result = $this->getBase('user', 'user', $uuid);
+
+        // Backward compatibility: If auth method is password but user already has keys configured,
+        // dynamically change the response to 'both' so the UI reveals the keys and sets the proper initial state.
+        if (isset($result['user']) && isset($result['user']['ssh_auth_method']) && is_array($result['user']['ssh_auth_method'])) {
+            $hasKey = !empty($result['user']['authorizedkeys']);
+            
+            // Check if 'password' is the currently selected option
+            $isPasswordSelected = false;
+            if (isset($result['user']['ssh_auth_method']['password']) && 
+                !empty($result['user']['ssh_auth_method']['password']['selected'])) {
+                $isPasswordSelected = true;
+            }
+            
+            if ($isPasswordSelected && $hasKey) {
+                // Deselect password, select both
+                $result['user']['ssh_auth_method']['password']['selected'] = 0;
+                if (isset($result['user']['ssh_auth_method']['both'])) {
+                    $result['user']['ssh_auth_method']['both']['selected'] = 1;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Update SSH settings for a specific user (uses standard setBase for form save)
+     */
+    public function setSshAction($uuid = null)
+    {
+        return $this->setBase('user', 'user', $uuid);
+    }
+
+    /**
+     * Toggle SSH access for a specific user
+     */
+    public function toggleSshAction($uuid)
+    {
+        if (!$this->request->isPost()) {
+            return ['result' => 'failed'];
+        }
+
+        Config::getInstance()->lock();
+        $node = $this->getModel()->getNodeByReference('user.' . $uuid);
+        if ($node === null) {
+            Config::getInstance()->unlock();
+            return ['result' => 'failed'];
+        }
+
+        $node->ssh_enabled = ((string)$node->ssh_enabled === '1') ? '0' : '1';
+        $this->save();
+        return ['result' => 'ok', 'changed' => true];
+    }
+
+    /**
+     * Get SSH authorized keys for a specific user
+     */
+    public function getSshKeyAction($uuid = null)
+    {
+        if ($uuid === null) {
+            return ['result' => 'failed'];
+        }
+
+        $node = $this->getModel()->getNodeByReference('user.' . $uuid);
+        if ($node === null) {
+            return ['result' => 'failed'];
+        }
+
+        $keys = '';
+        if (!empty((string)$node->authorizedkeys)) {
+            $keys = base64_decode((string)$node->authorizedkeys);
+        }
+
+        return [
+            'result' => 'ok',
+            'username' => (string)$node->name,
+            'authorizedkeys' => $keys
+        ];
+    }
+
+    /**
+     * Set SSH authorized keys for a specific user
+     */
+    public function setSshKeyAction($uuid = null)
+    {
+        if (!$this->request->isPost() || $uuid === null) {
+            return ['result' => 'failed'];
+        }
+
+        Config::getInstance()->lock();
+        $node = $this->getModel()->getNodeByReference('user.' . $uuid);
+        if ($node === null) {
+            Config::getInstance()->unlock();
+            return ['result' => 'failed'];
+        }
+
+        $keys = $this->request->getPost('authorizedkeys', '');
+        $node->authorizedkeys = base64_encode(trim($keys));
+        $this->save();
+
+        (new Backend())->configdpRun('auth sync user', [(string)$node->name]);
+
+        return ['result' => 'saved'];
+    }
+
+    /**
+     * Reconfigure SSH access — regenerate sshd config and restart
+     */
+    public function reconfigureSshAction()
+    {
+        if (!$this->request->isPost()) {
+            return ['result' => 'failed'];
+        }
+
+        $backend = new Backend();
+        $backend->configdRun('template reload OPNsense/Auth/SshManagement');
+        $backend->configdpRun('sshmanagement configure');
+
+        return ['result' => 'ok'];
     }
 }

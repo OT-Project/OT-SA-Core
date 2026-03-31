@@ -130,6 +130,10 @@
         </LogFiles>
     </Firewall>
     <Services order="60" cssClass="fa fa-cog">
+        <SSH VisibleName="Secure Shell" order="10" cssClass="fa fa-terminal fa-fw">
+            <Settings order="10" url="/services_ssh.php"/>
+            <LogFile order="20" VisibleName="Log File" url="/ui/diagnostics/log/core/sshd"/>
+        </SSH>
         <!-- TODO: Hide unnecessary menu items -->
         <OpenDNS VisibleName="OpenDNS" url="/services_opendns.php" cssClass="fa fa-tags fa-fw" visibility="delete"/>
     </Services>

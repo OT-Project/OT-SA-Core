@@ -38,16 +38,7 @@ require_once("system.inc");
 $a_group = &config_read_array('system', 'group');
 /* XXX: both webgui and console(ssh) use the same config reference, but may not support the same options */
 $a_authmode = auth_get_authserver_list('WebGui');
-$ssh_rekeylimit_choices = [
-  '' => gettext('System defaults'),
-  'default 60s' => gettext('60 seconds'),
-  'default 600s' => gettext('10 minutes'),
-  '512M 60s' => gettext('512MB, 60 seconds'),
-  '512M 600s' => gettext('512MB, 10 minutes'),
-  '512M 1h' => gettext('512MB, 1 hour'),
-  '1G 60s' => gettext('1GB, 60 seconds'),
-  '1G 1h' => gettext('1GB, 1 hour'),
-];
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig = [];
@@ -76,17 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig['primaryconsole'] = $config['system']['primaryconsole'];
     $pconfig['secondaryconsole'] = $config['system']['secondaryconsole'] ?? null;
     $pconfig['autologout'] = $config['system']['autologout'] ?? null;
-    $pconfig['enablesshd'] = $config['system']['ssh']['enabled'] ?? null;
-    $pconfig['sshport'] = $config['system']['ssh']['port'] ?? null;
-    $pconfig['sshinterfaces'] = !empty($config['system']['ssh']['interfaces']) ? explode(',', $config['system']['ssh']['interfaces']) : [];
-    $pconfig['ssh-kex'] = !empty($config['system']['ssh']['kex']) ? explode(',', $config['system']['ssh']['kex']) : [];
-    $pconfig['ssh-ciphers'] = !empty($config['system']['ssh']['ciphers']) ? explode(',', $config['system']['ssh']['ciphers']) : [];
-    $pconfig['ssh-macs'] = !empty($config['system']['ssh']['macs']) ? explode(',', $config['system']['ssh']['macs']) : [];
-    $pconfig['ssh-keys'] = !empty($config['system']['ssh']['keys']) ? explode(',', $config['system']['ssh']['keys']) : [];
-    $pconfig['ssh-keysig'] = !empty($config['system']['ssh']['keysig']) ? explode(',', $config['system']['ssh']['keysig']) : [];
-    $pconfig['ssh-rekeylimit'] = !empty($config['system']['ssh']['rekeylimit']) ? $config['system']['ssh']['rekeylimit'] : '';
-    $pconfig['sshpasswordauth'] = isset($config['system']['ssh']['passwordauth']);
-    $pconfig['sshdpermitrootlogin'] = isset($config['system']['ssh']['permitrootlogin']);
+
     $pconfig['quietlogin'] = isset($config['system']['webgui']['quietlogin']);
     $pconfig['deployment'] = $config['system']['deployment'] ?? '';
 
@@ -114,9 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
-    if (!empty($pconfig['sshport']) && !is_port($pconfig['sshport'])) {
-        $input_errors[] = gettext('You must specify a valid SSH port number.');
-    }
+
 
     if (!empty($pconfig['session_timeout']) && (!is_numeric($pconfig['session_timeout']) || $pconfig['session_timeout'] <= 0)) {
         $input_errors[] = gettext('Session timeout must be an integer value.');
@@ -158,9 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
-    if (!empty($pconfig['ssh-rekeylimit']) && !isset($ssh_rekeylimit_choices[$pconfig['ssh-rekeylimit']])) {
-        $input_errors[] = gettext('Invalid rekey limit option.');
-    }
+
 
     if (count($input_errors) == 0) {
         $newinterfaces = !empty($pconfig['webguiinterfaces']) ? implode(',', $pconfig['webguiinterfaces']) : '';
@@ -307,27 +284,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($config['system']['autologout']);
         }
 
-        if (empty($config['system']['ssh'])) {
-            $config['system']['ssh'] = [];
-        }
-
-        /* always store setting to prevent installer auto-start */
-        $config['system']['ssh']['noauto'] = 1;
-
-        $config['system']['ssh']['interfaces'] = !empty($pconfig['sshinterfaces']) ? implode(',', $pconfig['sshinterfaces']) : null;
-        $config['system']['ssh']['kex'] = !empty($pconfig['ssh-kex']) ? implode(',', $pconfig['ssh-kex']) : null;
-        $config['system']['ssh']['ciphers'] = !empty($pconfig['ssh-ciphers']) ? implode(',', $pconfig['ssh-ciphers']) : null;
-        $config['system']['ssh']['macs'] = !empty($pconfig['ssh-macs']) ? implode(',', $pconfig['ssh-macs']) : null;
-        $config['system']['ssh']['keys'] = !empty($pconfig['ssh-keys']) ? implode(',', $pconfig['ssh-keys']) : null;
-        $config['system']['ssh']['keysig'] = !empty($pconfig['ssh-keysig']) ? implode(',', $pconfig['ssh-keysig']) : null;
-        $config['system']['ssh']['rekeylimit'] =  !empty($pconfig['ssh-rekeylimit']) ? $pconfig['ssh-rekeylimit'] : null;
-
-        if (!empty($pconfig['enablesshd'])) {
-            $config['system']['ssh']['enabled'] = 'enabled';
-        } elseif (isset($config['system']['ssh']['enabled'])) {
-            unset($config['system']['ssh']['enabled']);
-        }
-
         if (!empty($pconfig['sudo_allow_group'])) {
             $config['system']['sudo_allow_group'] = $pconfig['sudo_allow_group'];
         } elseif (isset($config['system']['sudo_allow_group'])) {
@@ -340,23 +296,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($config['system']['user_allow_gen_token']);
         }
 
-        if (!empty($pconfig['sshpasswordauth'])) {
-            $config['system']['ssh']['passwordauth'] = true;
-        } elseif (isset($config['system']['ssh']['passwordauth'])) {
-            unset($config['system']['ssh']['passwordauth']);
-        }
 
-        if (!empty($pconfig['sshport'])) {
-            $config['system']['ssh']['port'] = $pconfig['sshport'];
-        } elseif (isset($config['system']['ssh']['port'])) {
-            unset($config['system']['ssh']['port']);
-        }
-
-        if (!empty($pconfig['sshdpermitrootlogin'])) {
-            $config['system']['ssh']['permitrootlogin'] = true;
-        } elseif (isset($config['system']['ssh']['permitrootlogin'])) {
-            unset($config['system']['ssh']['permitrootlogin']);
-        }
 
         if ($restart_webgui) {
             $http_host_port = explode("]", $_SERVER['HTTP_HOST']);
@@ -391,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         system_resolver_configure();
         plugins_configure('dns');
         plugins_configure('dhcp');
-        configd_run('openssh restart', true);
+
 
         if ($restart_webgui) {
             configd_run('webgui restart 3', true);
@@ -411,7 +351,7 @@ if (empty($pconfig['webguiproto']) || !$certs_available) {
     $pconfig['webguiproto'] = "http";
 }
 
-$sshoptions = json_decode(configd_run('openssh query'), true);
+
 
 legacy_html_escape_form_data($pconfig);
 legacy_html_escape_form_data($a_group);
@@ -420,22 +360,7 @@ include("head.inc");
 
 ?>
 <body>
-<script>
-    $( document ).ready(function() {
-        $("#show-advanced-cryptocryptobtn").click(function (event) {
-            event.preventDefault();
-            $(this).parent().parent().hide();
-            $(".show-advanced-crypto").show();
-            $(window).trigger('resize');
-        });
-        // show advanced when at least one option is set
-        $(".advanced-crypto").each(function () {
-            if ($(this).val() != '') {
-                $("#show-advanced-cryptocryptobtn").click();
-            }
-        });
-    });
-</script>
+
 <?php include("fbegin.inc"); ?>
 <script>
 
@@ -748,165 +673,7 @@ $(document).ready(function() {
               </tr>
             </table>
           </div>
-          <div class="content-box tab-content table-responsive __mb">
-            <table class="table table-striped opnsense_standard_table_form">
-              <tr>
-                <td style="width:22%"><strong><?= gettext('Secure Shell') ?></strong></td>
-                <td style="width:78%"></td>
-              </tr>
-              <tr>
-                <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("Secure Shell Server"); ?></td>
-                <td>
-                  <input name="enablesshd" type="checkbox" value="yes" <?= empty($pconfig['enablesshd']) ? '' : 'checked="checked"' ?> />
-                  <?=gettext("Enable Secure Shell"); ?>
-                </td>
-              </tr>
-              <tr>
-                <td><a id="help_for_sshdpermitrootlogin" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext("Root Login") ?></td>
-                <td>
-                  <input name="sshdpermitrootlogin" type="checkbox" value="yes" <?= empty($pconfig['sshdpermitrootlogin']) ? '' : 'checked="checked"' ?> />
-                  <?=gettext("Permit root user login"); ?>
-                  <div class="hidden" data-for="help_for_sshdpermitrootlogin">
-                    <?= gettext(
-                      'Root login is generally discouraged. It is advised ' .
-                      'to log in via another user and switch to root afterwards.'
-                    ) ?>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><a id="help_for_sshpasswordauth" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext("Authentication Method") ?></td>
-                <td>
-                  <input name="sshpasswordauth" type="checkbox" value="yes" <?= empty($pconfig['sshpasswordauth']) ? '' : 'checked="checked"' ?> />
-                  <?=gettext("Permit password login"); ?>
-                  <div class="hidden" data-for="help_for_sshpasswordauth">
-                    <?= gettext('When disabled, authorized keys need to be configured for each user that has been granted secure shell access.') ?>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><a id="help_for_sshport" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("SSH port"); ?></td>
-                <td>
-                  <input name="sshport" type="text" value="<?=$pconfig['sshport'];?>" placeholder="22" />
-                  <div class="hidden" data-for="help_for_sshport">
-                    <?=gettext("Leave this blank for the default of 22."); ?>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><a id="help_for_sshinterfaces" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext('Listen Interfaces') ?></td>
-                <td>
-                  <select name="sshinterfaces[]" multiple="multiple" class="selectpicker" title="<?= html_safe(gettext('All (recommended)')) ?>">
-<?php foreach ($interfaces as $iface => $ifacename): ?>
-                      <option value="<?= html_safe($iface) ?>" <?= !empty($pconfig['sshinterfaces']) && in_array($iface, $pconfig['sshinterfaces']) ? 'selected="selected"' : '' ?>><?= html_safe($ifacename) ?></option>
-<?php endforeach ?>
-                  </select>
-                  <div class="hidden" data-for="help_for_sshinterfaces">
-                    <?= gettext('Only accept connections from the selected interfaces. Leave empty to listen globally. Use with care.') ?>
-                  </div>
-                </td>
-              </tr>
 
-              <!-- TODO: unhide this -->
-              <!-- <tr>
-                <td><i class="fa fa-info-circle text-muted"></i> <?=gettext("Advanced");?></td>
-                <td>
-                  <button id="show-advanced-cryptocryptobtn" class="btn btn-xs btn-default" value="yes"><?= gettext('Show cryptographic overrides') ?></button>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshkex" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Key exchange algorithms"); ?></td>
-                <td>
-                    <select name="ssh-kex[]" class="selectpicker advanced-crypto" multiple="multiple" data-live-search="true" title="<?=gettext("System defaults");?>">
-<?php foreach ($options = empty($sshoptions['kex']) ? [] : $sshoptions['kex'] as $option): ?>
-                      <option value="<?=$option;?>" <?= !empty($pconfig['ssh-kex']) && in_array($option, $pconfig['ssh-kex']) ? 'selected="selected"' : '' ?>>
-                        <?=$option;?>
-                      </option>
-<?php endforeach ?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshkex">
-                      <?=gettext("The key exchange methods that are used to generate per-connection keys");?>
-                    </div>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshciphers" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Ciphers"); ?></td>
-                <td>
-                    <select name="ssh-ciphers[]" class="selectpicker advanced-crypto" multiple="multiple" data-live-search="true" title="<?=gettext("System defaults");?>">
-<?php foreach ($options = empty($sshoptions['cipher']) ? [] : $sshoptions['cipher'] as $option): ?>
-                      <option value="<?=$option;?>" <?= !empty($pconfig['ssh-ciphers']) && in_array($option, $pconfig['ssh-ciphers']) ? 'selected="selected"' : '' ?>>
-                        <?=$option;?>
-                      </option>
-<?php endforeach ?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshciphers">
-                      <?=gettext("The ciphers to encrypt the connection");?>
-                    </div>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshmacs" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("MACs"); ?></td>
-                <td>
-                    <select name="ssh-macs[]" class="selectpicker advanced-crypto" multiple="multiple" data-live-search="true" title="<?=gettext("System defaults");?>">
-<?php foreach ($options = empty($sshoptions['mac']) ? [] : $sshoptions['mac'] as $option): ?>
-                      <option value="<?=$option;?>" <?= !empty($pconfig['ssh-macs']) && in_array($option, $pconfig['ssh-macs']) ? 'selected="selected"' : '' ?>>
-                        <?=$option;?>
-                      </option>
-<?php
-                    endforeach;?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshmacs">
-                      <?=gettext("The message authentication codes used to detect traffic modification");?>
-                    </div>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshkeys" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Host key algorithms"); ?></td>
-                <td>
-                    <select name="ssh-keys[]" class="selectpicker advanced-crypto" multiple="multiple" data-live-search="true" title="<?=gettext("System defaults");?>">
-<?php foreach ($options = empty($sshoptions['key']) ? [] : $sshoptions['key'] as $option): ?>
-                      <option value="<?=$option;?>" <?= !empty($pconfig['ssh-keys']) && in_array($option, $pconfig['ssh-keys']) ? 'selected="selected"' : '' ?>>
-                        <?=$option;?>
-                      </option>
-<?php endforeach ?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshkeys">
-                      <?= gettext('Specifies the host key algorithms that the server offers') ?>
-                    </div>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshkeysig" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Public key signature algorithms"); ?></td>
-                <td>
-                    <select name="ssh-keysig[]" class="selectpicker advanced-crypto" multiple="multiple" data-live-search="true" title="<?=gettext("System defaults");?>">
-<?php foreach ($options = empty($sshoptions['key-sig']) ? [] : $sshoptions['key-sig'] as $option): ?>
-                      <option value="<?=$option;?>" <?= !empty($pconfig['ssh-keysig']) && in_array($option, $pconfig['ssh-keysig']) ? 'selected="selected"' : '' ?>>
-                        <?=$option;?>
-                      </option>
-<?php endforeach ?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshkeysig">
-                      <?=gettext("The signature algorithms that are used for public key authentication");?>
-                    </div>
-                </td>
-              </tr>
-              <tr class="show-advanced-crypto" style="display:none">
-                <td><a id="help_for_sshrekeylimit" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?=gettext("Rekey Limit"); ?></td>
-                <td>
-                    <select name="ssh-rekeylimit" class="selectpicker advanced-crypto" data-live-search="true">
-<?php foreach ($ssh_rekeylimit_choices as $option => $descr): ?>
-                      <option value="<?=$option;?>" <?= $option == $pconfig['ssh-rekeylimit'] ? 'selected="selected"' : '' ?>>
-                        <?=$descr;?>
-                      </option>
-<?php endforeach ?>
-                    </select>
-                    <div class="hidden" data-for="help_for_sshrekeylimit">
-                      <?=gettext("Specifies the maximum amount of data that may be transmitted or received before the session key is renegotiated within a given time. The defaults depend on cipher and are usually the best option.");?>
-                    </div>
-                </td>
-              </tr> -->
-            </table>
-          </div>
           <!-- TODO: remove unncessary parts <div class="content-box tab-content table-responsive __mb">
             <table class="table table-striped opnsense_standard_table_form">
               <tr>
