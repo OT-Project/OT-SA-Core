@@ -6,7 +6,11 @@
 set -e
 
 TEMPLATE="OPNsense/Auth/SshManagement"
-SSHD_CONFIG_DROPIN="/etc/ssh/sshd_config.d/otsa-sshmanagement.conf"
+SSHD_DROPIN_DIR="/usr/local/etc/ssh/sshd_config.d"
+SSHD_CONFIG_DROPIN="${SSHD_DROPIN_DIR}/otsa-sshmanagement.conf"
+
+# Ensure drop-in directory exists
+mkdir -p "${SSHD_DROPIN_DIR}"
 
 echo "==> Rendering SSH management template..."
 /usr/local/sbin/configctl template reload "${TEMPLATE}" 2>/dev/null || true

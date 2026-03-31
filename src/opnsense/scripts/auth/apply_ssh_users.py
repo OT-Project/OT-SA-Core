@@ -126,3 +126,4 @@ if __name__ == '__main__':
         write_authorized_keys(username, user['public_key'])
 
     print("\nDone.")
+

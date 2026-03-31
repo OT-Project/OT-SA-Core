@@ -27,8 +27,10 @@
     <field>
         <id>user.ssh_allowed_networks</id>
         <label>Allowed Networks</label>
-        <type>text</type>
-        <help>Restrict SSH access to specific source networks (CIDR notation, e.g. 192.168.1.0/24). Empty = resolved from LAN interface. Use commas for multiple networks.</help>
+        <style>tokenize</style>
+        <type>select_multiple</type>
+        <allownew>true</allownew>
+        <help>Restrict SSH access to specific source networks (CIDR notation, e.g. 192.168.1.0/24). Empty = resolved from LAN interface.</help>
         <grid_view>
             <sequence>20</sequence>
         </grid_view>

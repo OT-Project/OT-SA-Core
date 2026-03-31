@@ -126,9 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         filter_configure();
         system_login_configure();
         if (!empty($pconfig['enablesshd'])) {
-            mwexec('service sshd restart');
+            mwexec('pluginctl -s openssh restart');
         } else {
-            mwexec('service sshd stop');
+            mwexec('pluginctl -s openssh stop');
         }
     }
 }
