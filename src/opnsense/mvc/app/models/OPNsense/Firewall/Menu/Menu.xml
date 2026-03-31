@@ -8,16 +8,16 @@
             <SourceNat order="80" VisibleName="Source NAT" url="/ui/firewall/source_nat/">
                 <FilterRef url="/ui/firewall/source_nat#*" visibility="hidden"/>
             </SourceNat>
-            <DNat order="100" VisibleName="Destination NAT" url="/ui/firewall/d_nat/">
+            <DNat order="100" VisibleName="Port Forward" url="/ui/firewall/d_nat/">
                 <FilterRef url="/ui/firewall/d_nat#*" visibility="hidden"/>
             </DNat>
             <OneToOne order="200" VisibleName="One-to-One NAT" url="/ui/firewall/one_to_one/">
                 <FilterRef url="/ui/firewall/one_to_one#*" visibility="hidden"/>
             </OneToOne>
             <!-- TODO: Hide unnecessary menu items -->
-            <NPTv6 order="500" url="/ui/firewall/npt/" visibility="delete">
+            <!-- <NPTv6 order="500" url="/ui/firewall/npt/" visibility="delete">
                 <FilterRef url="/ui/firewall/npt#*" visibility="hidden"/>
-            </NPTv6>
+            </NPTv6> -->
         </NAT>
     </Firewall>
 </menu>
