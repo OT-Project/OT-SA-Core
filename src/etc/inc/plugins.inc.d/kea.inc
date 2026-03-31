@@ -286,7 +286,7 @@ function kea_xmlrpc_sync()
     $result = [];
 
     $result[] = [
-        'description' => gettext('Kea DHCP'),
+        'description' => gettext('DHCP Server'),
         'section' => 'OPNsense.Kea',
         'id' => 'kea',
         'services' => ["kea-dhcpv4", "kea-dhcpv6"],
