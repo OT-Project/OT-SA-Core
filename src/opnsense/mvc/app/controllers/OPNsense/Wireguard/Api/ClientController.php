@@ -40,34 +40,6 @@ class ClientController extends ApiMutableModelControllerBase
     protected static $internalModelName = 'client';
     protected static $internalModelClass = '\OPNsense\Wireguard\Client';
 
-    private function splitEndpoint(string $endpoint): array
-    {
-        $endpoint = trim($endpoint);
-        $host = '';
-        $port = '51820';
-
-        if ($endpoint === '') {
-            return [$host, $port];
-        }
-
-        if (preg_match('/^\[([^\]]+)\](?::([0-9]{1,5}))?$/', $endpoint, $matches)) {
-            $host = trim($matches[1]);
-            $port = isset($matches[2]) && $matches[2] !== '' ? trim($matches[2]) : $port;
-            return [$host, $port];
-        }
-
-        $firstColon = strpos($endpoint, ':');
-        $lastColon = strrpos($endpoint, ':');
-        if ($firstColon !== false && $firstColon === $lastColon) {
-            $host = trim(substr($endpoint, 0, $lastColon));
-            $port = trim(substr($endpoint, $lastColon + 1)) ?: $port;
-            return [$host, $port];
-        }
-
-        $host = $endpoint;
-        return [$host, $port];
-    }
-
     public function pskAction()
     {
         return ['psk' => trim((new Backend())->configdRun('wireguard gen_psk')), 'status' => 'ok' ];
@@ -128,48 +100,10 @@ class ClientController extends ApiMutableModelControllerBase
     {
         $add_uuid = null;
         if (!empty($this->request->getPost(static::$internalModelName)) && $this->request->isPost()) {
-            if (empty($this->request->getPost(static::$internalModelName)['type'])) {
-                $_POST[static::$internalModelName]['type'] = 's2s';
-            }
             $servers = [];
             if (!empty($this->request->getPost(static::$internalModelName)['servers'])) {
                 $servers = explode(',', $this->request->getPost(static::$internalModelName)['servers']);
             }
-
-            if ($_POST[static::$internalModelName]['type'] === 'c2s') {
-                if (empty($_POST[static::$internalModelName]['tunnelrouting'])) {
-                    $_POST[static::$internalModelName]['tunnelrouting'] = '0.0.0.0/0';
-                }
-
-                if (!empty($servers)) {
-                    $serverNode = (new Server())->getNodeByReference('servers.server.' . reset($servers));
-                    if ($serverNode !== null) {
-                        if (
-                            empty($_POST[static::$internalModelName]['serveraddress']) ||
-                            empty($_POST[static::$internalModelName]['serverport'])
-                        ) {
-                            [$host, $port] = $this->splitEndpoint((string)$serverNode->endpoint);
-                            if (!empty($host) && empty($_POST[static::$internalModelName]['serveraddress'])) {
-                                $_POST[static::$internalModelName]['serveraddress'] = $host;
-                            }
-                            if (!empty($port) && empty($_POST[static::$internalModelName]['serverport'])) {
-                                $_POST[static::$internalModelName]['serverport'] = $port;
-                            }
-                        }
-
-                        if (empty($_POST[static::$internalModelName]['peer_dns'])) {
-                            $fallbackDns = (string)$serverNode->peer_dns;
-                            if (empty($fallbackDns)) {
-                                $fallbackDns = (string)$serverNode->dns;
-                            }
-                            if (!empty($fallbackDns)) {
-                                $_POST[static::$internalModelName]['peer_dns'] = $fallbackDns;
-                            }
-                        }
-                    }
-                }
-            }
-
             Config::getInstance()->lock();
             $mdl = new Server();
             if (empty($uuid)) {
@@ -214,9 +148,6 @@ class ClientController extends ApiMutableModelControllerBase
         $uuid = null;
         $server = null;
         if ($this->request->isPost() && !empty($this->request->getPost('configbuilder'))) {
-            if (empty($this->request->getPost('configbuilder')['type'])) {
-                $_POST['configbuilder']['type'] = 'c2s';
-            }
             Config::getInstance()->lock();
             $mdl = new Server();
             $uuid = $this->getModel()->clients->generateUUID();
@@ -361,23 +292,20 @@ class ClientController extends ApiMutableModelControllerBase
         $result = ['status' => 'failed'];
         if ($this->request->isGet()) {
             $peers = [];
-            $preferredSubnetV4 = null;
-            $fallbackSubnet = null;
+            $subnets = [];
             $used_addresses = []; /* We cleanse addresses before storing here, to allow string matching */
 
             foreach ((new Server())->servers->server->iterateItems() as $key => $node) {
                 if ($key == $uuid) {
                     $peers = array_filter(explode(',', (string)$node->peers));
                     $result['endpoint'] = (string)$node->endpoint;
-                    $result['peer_dns'] = !empty((string)$node->peer_dns) ? (string)$node->peer_dns : (string)$node->dns;
+                    $result['peer_dns'] = (string)$node->peer_dns;
                     $result['mtu'] = (string)$node->mtu;
                     $result['pubkey'] = (string)$node->pubkey;
                     foreach (array_filter(explode(',', (string)$node->tunneladdress)) as $addr) {
-                        if (!str_contains($addr, ':') && $preferredSubnetV4 === null) {
-                            $preferredSubnetV4 = $addr;
-                        }
-                        if ($fallbackSubnet === null) {
-                            $fallbackSubnet = $addr;
+                        $proto = str_contains($addr, ':') ? 'inet6' : 'inet';
+                        if (!isset($subnets[$proto])) {
+                            $subnets[$proto] = $addr;
                         }
                         $used_addresses[] = inet_ntop(inet_pton(explode('/', $addr)[0]));
                     }
@@ -389,18 +317,17 @@ class ClientController extends ApiMutableModelControllerBase
                             }
                         }
                     }
-                    $selectedSubnet = $preferredSubnetV4 ?? $fallbackSubnet;
-                    $tunneladdress = '';
-                    if (!empty($selectedSubnet)) {
-                        foreach (Util::cidrRangeIterator($selectedSubnet) as $addr) {
+                    $tunneladdress = [];
+                    foreach ($subnets as $cidr) {
+                        foreach (Util::cidrRangeIterator($cidr) as $addr) {
                             if (!in_array($addr, $used_addresses)) {
                                 $netmask = str_contains($addr, ':') ? '128' : '32';
-                                $tunneladdress = $addr . '/' . $netmask;
+                                $tunneladdress[] = $addr . '/' . $netmask;
                                 break;
                             }
                         }
                     }
-                    $result['address'] = $tunneladdress;
+                    $result['address'] = implode(',', $tunneladdress);
                     $result['status'] = 'ok';
                     break;
                 }
