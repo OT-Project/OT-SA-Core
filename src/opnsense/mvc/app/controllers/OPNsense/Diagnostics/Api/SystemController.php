@@ -108,7 +108,9 @@ class SystemController extends ApiControllerBase
             !empty($product['product_check']['upgrade_packages']);
 
         $versions = [
-            sprintf('%s %s-%s', $product['product_name'], $product['product_version'], $product['product_arch']),
+            // TODO: hide actual product's info
+            // sprintf('%s %s-%s', $product['product_name'], $product['product_version'], $product['product_arch']),
+            'OT Security Appliance 1.0.0',
             php_uname('s') . ' ' . php_uname('r'),
             trim($backend->configdRun('system openssl version')),
         ];

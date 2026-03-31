@@ -1,0 +1,15 @@
+# Force LF line endings for all files (required for FreeBSD/OPNsense BSD make)
+* text=auto eol=lf
+
+# Binary files - no conversion
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.docx binary

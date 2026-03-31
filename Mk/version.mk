@@ -33,6 +33,6 @@ CORE_TYPE?=	community
 # plugins that were migrated to core are here
 CORE_CONFLICTS?=firewall wireguard wireguard-go
 
-CORE_COPYRIGHT_HOLDER?=	Deciso B.V.
-CORE_COPYRIGHT_WWW?=	https://www.deciso.com/
-CORE_COPYRIGHT_YEARS?=	2014-2026
+CORE_COPYRIGHT_HOLDER?=	BKCS
+CORE_COPYRIGHT_WWW?=	https://bkcs.hust.edu.vn
+CORE_COPYRIGHT_YEARS?=	2026
