@@ -1,32 +1,38 @@
 <menu>
     <Interfaces>
         <Assignments order="200" url="/interfaces_assign.php" cssClass="fa fa-pencil fa-fw"/>
+        <!-- TODO: unhide this -->
         <Devices order="210" cssClass="fa fa-archive fa-fw">
-            <Bridge url="/ui/interfaces/bridge"/>
-            <GIF url="/ui/interfaces/gif"/>
-            <GRE url="/ui/interfaces/gre"/>
-            <LAGG url="/ui/interfaces/lagg"/>
-            <Loopback url="/ui/interfaces/loopback"/>
-            <PPP VisibleName="Point-to-Point" url="/interfaces_ppps.php">
+            <Bridge url="/ui/interfaces/bridge" visibility="delete"/>
+            <GIF url="/ui/interfaces/gif" visibility="delete"/>
+            <GRE url="/ui/interfaces/gre" visibility="delete"/>
+            <LAGG url="/ui/interfaces/lagg" visibility="delete"/>
+            <Loopback url="/ui/interfaces/loopback" visibility="delete"/>
+            <!-- TODO: Hide unnecessary menu items -->
+            <PPP VisibleName="Point-to-Point" url="/interfaces_ppps.php" visibility="delete">
                 <Edit url="/interfaces_ppps_edit.php*" visibility="hidden"/>
             </PPP>
             <VLAN url="/ui/interfaces/vlan"/>
-            <VXLAN url="/ui/interfaces/vxlan"/>
+            <VXLAN url="/ui/interfaces/vxlan" visibility="delete"/>
         </Devices>
-        <Neighbors order="220" cssClass="fa fa-users fa-fw">
-            <Manual VisibleName="Static Assignments" url="/ui/interfaces/neighbor"/>
+        <!-- TODO: Hide unnecessary menu items -->
+        <Neighbors order="220" cssClass="fa fa-users fa-fw" visibility="delete">
+            <Manual VisibleName="Static Assignments" url="/ui/interfaces/neighbor" visibility="delete"/>
         </Neighbors>
         <Overview order="230" url="/ui/interfaces/overview" cssClass="fa fa-tasks fa-fw"/>
+        <!-- TODO: Hide unnecessary menu items -->
         <Settings order="240" url="/ui/interfaces/settings" cssClass="fa fa-cogs fa-fw"/>
-        <VIP order="250" VisibleName="Virtual IPs" cssClass="fa fa-clone fa-fw">
+        <VIP order="250" VisibleName="Virtual IPs" cssClass="fa fa-clone fa-fw" visibility="delete">
             <Settings url="/ui/interfaces/vip"/>
             <Status url="/ui/diagnostics/interface/vip"/>
         </VIP>
-        <Wireless order="260" cssClass="fa fa-wifi fa-fw">
+        <!-- TODO: Hide unnecessary menu items -->
+        <Wireless order="260" cssClass="fa fa-wifi fa-fw" visibility="delete">
             <Devices url="/interfaces_wireless.php">
                 <Edit url="/interfaces_wireless_edit.php*" visibility="hidden"/>
             </Devices>
         </Wireless>
-        <Diagnostics order="270" cssClass="fa fa-medkit fa-fw"/>
+        <!-- TODO: Hide unnecessary menu items -->
+        <Diagnostics order="270" cssClass="fa fa-medkit fa-fw" visibility="delete"/>
     </Interfaces>
 </menu>

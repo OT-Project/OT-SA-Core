@@ -1,7 +1,8 @@
 <menu>
     <System>
         <Settings>
-            <Logging url="/ui/syslog"/>
+            <!-- TODO: unhide this -->
+            <Logging url="/ui/syslog" visibility="delete"/>
         </Settings>
     </System>
 </menu>

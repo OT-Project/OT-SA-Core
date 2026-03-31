@@ -1,7 +1,8 @@
 <menu>
     <System>
+        <!-- TODO: unhide this -->
         <Settings>
-            <Cron url="/ui/cron">
+            <Cron url="/ui/cron" visibility="delete">
                 <item url="/ui/cron/*" visibility="hidden"/>
             </Cron>
         </Settings>
