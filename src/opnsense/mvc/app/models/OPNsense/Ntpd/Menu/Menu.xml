@@ -1,6 +1,6 @@
 <menu>
     <Services>
-        <NTP VisibleName="NTP Server" cssClass="fa fa-clock-o fa-fw">
+        <NTP VisibleName="NTP Resolver" cssClass="fa fa-clock-o fa-fw">
             <General order="10" url="/services_ntpd.php"/>
             <!-- TODO: GPS and PPS tabs hidden for OT-SA -->
             <!-- <GPS order="20" url="/services_ntpd_gps.php"/> -->
