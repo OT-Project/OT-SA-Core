@@ -310,8 +310,8 @@ function local_user_set(&$user, $force_password = false, $userattrs = null)
     if (empty($user['password'])) {
         auth_log("Cannot set user {$user['name']}: password is missing");
         return;
-    } elseif (empty($user['shell']) && $user['uid'] != 0) {
-        /* no shell, no local user */
+    } elseif (empty($user['shell']) && $user['uid'] != 0 && empty($user['ssh_enabled'])) {
+        /* no shell and no ssh access, no local user */
         return;
     }
 
@@ -348,7 +348,10 @@ function local_user_set(&$user, $force_password = false, $userattrs = null)
         $user_home = '/root';
     } else {
         $is_admin = userIsAdmin($user['name']);
-        $user_shell = $is_admin && !empty($user['shell']) ? $user['shell'] : '/usr/sbin/nologin';
+        $has_shell_access = $is_admin || !empty($user['ssh_enabled']);
+        $user_shell = $has_shell_access
+            ? (!empty($user['shell']) ? $user['shell'] : '/bin/sh')
+            : '/usr/sbin/nologin';
         $user_group = $is_admin ? 'wheel' : 'nobody';
         $user_home = "/home/{$user_name}";
     }

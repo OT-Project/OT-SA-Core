@@ -302,78 +302,68 @@ class UserController extends ApiMutableModelControllerBase
      *  SSH Management endpoints
      * ================================================================ */
 
+    private static $SSH_AUTH_LABELS = [
+        'password' => 'Password',
+        'key_only' => 'Key Only',
+        'both' => 'Key + Password',
+    ];
+
     /**
-     * Search all users with SSH-relevant fields for the SSH Management tab
+     * Apply per-user SSH config: sync the user's pw db entry (shell, group,
+     * authorized_keys) and re-render the sshd drop-in.
+     */
+    private function applySshForUser($username)
+    {
+        $backend = new Backend();
+        /* sync the user (writes pw db, shell, group, authorized_keys) before
+         * regenerating the sshd drop-in — uses configdRun for ordering */
+        $backend->configdRun('auth sync user ' . escapeshellarg($username));
+        $backend->configdpRun('sshmanagement configure');
+    }
+
+    /**
+     * Search all users with SSH-relevant fields for the SSH Management tab.
      */
     public function searchSshAction()
     {
         $result = $this->searchBase('user', ['name', 'ssh_enabled', 'ssh_auth_method', 'ssh_allowed_networks', 'disabled']);
         if (!empty($result['rows'])) {
             foreach ($result['rows'] as &$row) {
-                // Indicate if user has authorized keys
                 $node = $this->getModel()->getNodeByReference('user.' . $row['uuid']);
-                $hasKey = !empty((string)$node->authorizedkeys);
-
                 $authMethod = $row['ssh_auth_method'] ?? 'password';
-                // Backward compatibility: If method is password but user has keys, assume 'both'
-                if ($authMethod === 'password' && $hasKey) {
-                    $authMethod = 'both';
-                }
-
-                // Show human-readable auth method
-                $authLabels = [
-                    'password' => 'Password',
-                    'key_only' => 'Key Only',
-                    'both' => 'Key + Password',
-                ];
-                $row['ssh_auth_method_label'] = $authLabels[$authMethod];
-                $row['has_key'] = $hasKey ? '1' : '0';
+                $row['ssh_auth_method_label'] = self::$SSH_AUTH_LABELS[$authMethod] ?? $authMethod;
+                $row['has_key'] = !empty((string)$node->authorizedkeys) ? '1' : '0';
             }
         }
         return $result;
     }
 
     /**
-     * Get SSH settings for a specific user (uses standard getBase for form population)
+     * Get SSH settings for a specific user (form population).
      */
     public function getSshAction($uuid = null)
     {
-        $result = $this->getBase('user', 'user', $uuid);
+        return $this->getBase('user', 'user', $uuid);
+    }
 
-        // Backward compatibility: If auth method is password but user already has keys configured,
-        // dynamically change the response to 'both' so the UI reveals the keys and sets the proper initial state.
-        if (isset($result['user']) && isset($result['user']['ssh_auth_method']) && is_array($result['user']['ssh_auth_method'])) {
-            $hasKey = !empty($result['user']['authorizedkeys']);
-            
-            // Check if 'password' is the currently selected option
-            $isPasswordSelected = false;
-            if (isset($result['user']['ssh_auth_method']['password']) && 
-                !empty($result['user']['ssh_auth_method']['password']['selected'])) {
-                $isPasswordSelected = true;
-            }
-            
-            if ($isPasswordSelected && $hasKey) {
-                // Deselect password, select both
-                $result['user']['ssh_auth_method']['password']['selected'] = 0;
-                if (isset($result['user']['ssh_auth_method']['both'])) {
-                    $result['user']['ssh_auth_method']['both']['selected'] = 1;
-                }
+    /**
+     * Update SSH settings for a specific user.
+     * Triggers user-sync and sshd drop-in regeneration on success.
+     */
+    public function setSshAction($uuid = null)
+    {
+        $result = $this->setBase('user', 'user', $uuid);
+        if (!empty($result['result']) && $result['result'] === 'saved') {
+            $node = $this->getModel()->getNodeByReference('user.' . $uuid);
+            if ($node !== null) {
+                $this->applySshForUser((string)$node->name);
             }
         }
-
         return $result;
     }
 
     /**
-     * Update SSH settings for a specific user (uses standard setBase for form save)
-     */
-    public function setSshAction($uuid = null)
-    {
-        return $this->setBase('user', 'user', $uuid);
-    }
-
-    /**
-     * Toggle SSH access for a specific user
+     * Toggle SSH access for a specific user.
      */
     public function toggleSshAction($uuid)
     {
@@ -390,11 +380,12 @@ class UserController extends ApiMutableModelControllerBase
 
         $node->ssh_enabled = ((string)$node->ssh_enabled === '1') ? '0' : '1';
         $this->save();
+        $this->applySshForUser((string)$node->name);
         return ['result' => 'ok', 'changed' => true];
     }
 
     /**
-     * Get SSH authorized keys for a specific user
+     * Get SSH authorized keys for a specific user.
      */
     public function getSshKeyAction($uuid = null)
     {
@@ -420,7 +411,7 @@ class UserController extends ApiMutableModelControllerBase
     }
 
     /**
-     * Set SSH authorized keys for a specific user
+     * Set SSH authorized keys for a specific user.
      */
     public function setSshKeyAction($uuid = null)
     {
@@ -438,14 +429,13 @@ class UserController extends ApiMutableModelControllerBase
         $keys = $this->request->getPost('authorizedkeys', '');
         $node->authorizedkeys = base64_encode(trim($keys));
         $this->save();
-
-        (new Backend())->configdpRun('auth sync user', [(string)$node->name]);
+        $this->applySshForUser((string)$node->name);
 
         return ['result' => 'saved'];
     }
 
     /**
-     * Reconfigure SSH access — regenerate sshd config and restart
+     * Reconfigure SSH access — regenerate sshd config and restart.
      */
     public function reconfigureSshAction()
     {
@@ -453,9 +443,7 @@ class UserController extends ApiMutableModelControllerBase
             return ['result' => 'failed'];
         }
 
-        $backend = new Backend();
-        $backend->configdRun('template reload OPNsense/Auth/SshManagement');
-        $backend->configdpRun('sshmanagement configure');
+        (new Backend())->configdpRun('sshmanagement configure');
 
         return ['result' => 'ok'];
     }

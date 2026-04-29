@@ -289,7 +289,7 @@
             <tbody>
             </tbody>
         </table>
-        <div class="col-md-12">
+        <div class="col-md-12" style="margin-top: 15px; margin-bottom: 15px;">
             <button class="btn btn-primary" id="reconfigureAct-ssh" data-endpoint="/api/auth/user/reconfigureSsh"
                 data-label="{{ lang._('Apply') }}" data-error-title="{{ lang._('Error reconfiguring SSH') }}"
                 type="button">
