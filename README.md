@@ -1,118 +1,171 @@
-OPNsense GUI and system management
-==================================
-
-The OPNsense project invites developers to start contributing to
-the code base.  For your own purposes or – even better – to join us in
-creating the best open source firewall available.
-
-The build process has been designed to make it easy for anyone to
-build and write code.  The main outline of the new codebase is
-available at:
-
-https://docs.opnsense.org/development/architecture.html
-
-Our aim is to gradually evolve to a new codebase instead of using a
-big bang approach into something new.
-
-<a href="https://scan.coverity.com/projects/opnsense-core">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/26974/badge.svg"/>
-</a>
-
-Build tools
-===========
-
-To create working software like OPNsense you need the sources and the
-tools to build it.  The build tools for OPNsense are freely available.
-
-Notes on how to build OPNsense can be found in the tools repository:
-
-https://github.com/opnsense/tools
-
-Contribute
+OT-SA-Core
 ==========
 
-You can contribute to the project in many ways, e.g. testing
-functionality, sending in bug reports or creating pull requests
-directly via GitHub.  Any help is always very welcome!
+OT-SA-Core is the source tree for **OTSA** — the firmware/operating
+system shipped on BKCS's **OT firewall appliance**, a multi-NIC
+mini-PC deployed at the OT/IT boundary to protect Operational
+Technology (OT/ICS) networks.
 
-You can learn more about contributing on [CONTRIBUTING.md](./CONTRIBUTING.md).
+The codebase is a hard-fork of the upstream
+[OPNsense core](https://github.com/opnsense/core) project (FreeBSD-based
+firewall framework), rebranded and re-scoped for OT-specific
+deployments. Upstream remains the reference for the underlying
+framework; this fork adds the appliance branding, Vietnamese
+localization, a custom theme, a trimmed menu set, and OT-oriented
+service defaults.
+
+Where OTSA fits in the BKCS OT product line
+-------------------------------------------
+
+The BKCS OT solution has two complementary software components, each
+running on its own appliance:
+
+| Component | Role | Hardware | Codebase | Forked from |
+|-----------|------|----------|----------|-------------|
+| **OTSA** *(this repo)* | Edge firewall — segments, filters and inspects traffic at the OT/IT boundary | Multi-NIC mini-PC | `OT-SA-Core` | `opnsense/core` |
+| **OTSC** | Central management & monitoring — collects telemetry, alerts and policy from OTSA appliances | Central server | `OT-SC-*` (separate repos) | `wazuh/wazuh` |
+
+OTSA appliances are designed to interoperate with an OTSC central
+node, but each codebase evolves independently. **This repository only
+covers OTSA.**
+
+Project identity
+----------------
+
+| Field | Value |
+|-------|-------|
+| Product | OTSA |
+| Owner | BKCS — https://bkcs.hust.edu.vn |
+| Maintainer | bkcs@hust.edu.vn |
+| Package repository | https://repo.kamiyuri.dev/main |
+| License | 2-Clause BSD (inherited from OPNsense) |
+| Upstream | https://github.com/opnsense/core |
+
+What's customized
+-----------------
+
+The fork diverges from upstream in the following areas. Files outside
+these areas are generally upstream-managed and should be touched
+conservatively to keep future syncs feasible.
+
+* **Branding & build** — `Makefile`, `Mk/version.mk`,
+  `Scripts/version.sh`, custom pkg repository config and signing
+  fingerprints under `src/etc/pkg/`.
+* **Localization** — full Vietnamese catalog at
+  `src/share/locale/vi_VN/LC_MESSAGES/OPNsense.po`, plus a console
+  language switcher at `src/opnsense/scripts/shell/langmode.php`.
+* **Theme** — `src/opnsense/www/themes/otsa/` ("OTSA 2.0" neobrutalist
+  theme with sidebar layout, dark mode, and BKCS branding).
+* **Menu trim for OT** — entries across
+  `src/opnsense/mvc/app/models/OPNsense/*/Menu/Menu.xml` are reduced
+  and renamed:
+  * "Destination NAT" → "Port Forward"
+  * Kea menu items + service description → "DHCP Server"
+  * WireGuard consolidated under the main VPN menu; OpenVPN hidden
+  * "DNS Server" entry added under Unbound
+* **SSH** — dedicated configuration page at
+  `src/www/services_ssh.php`, per-user access management migrated
+  onto the native `OPNsense/Auth/User` model, CIDR-based network
+  restrictions, service control via `pluginctl`.
+* **WireGuard** — controllers, forms and the general view reworked
+  for OT site-to-site connectivity.
+* **Services configured for OT** — NTP, DNS (Unbound), DHCP (Kea).
+* **Console & shell scripts** under `src/opnsense/scripts/shell/` and
+  the MOTD template, plus a custom `src/etc/ssh/sshd_config`.
+* **Web GUI core** — significant rewrites in `src/www/interfaces.php`,
+  `authgui.inc`, `system_advanced_admin.php`, and the layout partials
+  that render the new menu and theme.
+* **Design assets** — Penpot mockups `re-design.pen` and `ui.pen` at
+  the repository root are the authoritative source for theme work.
+
+Repository layout
+-----------------
+
+| Path | Purpose |
+|------|---------|
+| `src/etc/` | FreeBSD system configuration shipped with the appliance |
+| `src/opnsense/mvc/` | PHP MVC application (models, controllers, views, forms) |
+| `src/opnsense/www/themes/otsa/` | OTSA theme assets and compiled CSS |
+| `src/opnsense/scripts/` | Console and service-side scripts |
+| `src/www/` | Legacy PHP pages (firewall, interfaces, services) |
+| `src/share/locale/vi_VN/` | Vietnamese translation catalog |
+| `Mk/`, `Scripts/`, `Makefile` | Build system |
+| `re-design.pen`, `ui.pen` | UI/UX mockups (Penpot) |
+| `.context/git_conventions.md` | Mandatory commit-message rules |
+
+Branches and workflow
+---------------------
+
+* `dev` — default integration branch; all feature PRs merge here.
+* `staging` — pre-release validation.
+* `main` — release branch.
+
+Work happens on `feature/<area>` branches (e.g. `feature/ssh`,
+`feature/vpn`, `feature/ntp`, `feature/dhcp`) and is merged into `dev`
+through pull requests.
+
+Commit conventions
+------------------
+
+Commit messages **must** follow `.context/git_conventions.md`:
+
+```
+<type>(<scope>): <imperative subject ≤72 chars, no period>
+
+<motivation paragraph>
+
+- Bullet describing change
+- Bullet describing change
+```
+
+Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`,
+`test`, `chore`, `ci`, `security`, `revert`, `merge`. Use `!` after
+the scope and a `BREAKING CHANGE:` footer for incompatible changes.
+Subject and body are always written in English.
+
+Build
+-----
+
+The build system is inherited from upstream OPNsense; see
+https://docs.opnsense.org/development/architecture.html for the
+underlying architecture and https://github.com/opnsense/tools for the
+image-build toolchain. The resulting image is meant to be flashed
+onto the firewall mini-PC hardware.
+
+Common Makefile targets:
+
+* `make package` — build a package from the current tree. Useful
+  options include `CORE_PRODUCT`, `CORE_PACKAGESITE`,
+  `CORE_MAINTAINER`, `CORE_NAME`. Defaults are set in `Makefile` and
+  `Mk/version.mk` to OTSA/BKCS values — do not revert them to
+  OPNsense defaults.
+* `make update` — pull the latest commits on the current branch from
+  the configured remote.
+* `make upgrade` — build the package and replace the installed one.
+* `make collect` — pull changes back from a running system for known
+  files.
+* `make lint` — syntax checks; run before opening a PR.
+* `make style` — PSR-12 (PHP) and PEP-8 (Python) style checks.
+* `make sweep` — run automatic sanitizers across the codebase.
+
+For day-to-day development, an OPNsense VM with the `os-debug` plugin
+installed gives the most convenient environment.
+
+Contributing
+------------
+
+Internal contributions go through GitHub PRs against `dev`. Before
+opening a PR:
+
+1. Make sure your branch is named `feature/<area>` or `fix/<area>`.
+2. Run `make lint` and `make style`.
+3. Verify your commit messages match `.context/git_conventions.md`.
+4. Reference the design (`re-design.pen` / `ui.pen`) when proposing
+   UI changes.
 
 License
-=======
+-------
 
-OPNsense is and will always be available under the 2-Clause BSD license:
-
-https://opensource.org/licenses/BSD-2-Clause
-
-Every contribution made to the project must be licensed under the
-same conditions in order to keep OPNsense truly free and accessible
-for everybody.
-
-Makefile targets
-================
-
-The repository offers a couple of targets that either tie into
-tools.git build processes or are aimed at fast development.
-
-make package
-------------
-
-A package of the current state of the repository can be created using
-this target.  It may require several packages to be installed.  The
-target will try to assist in case of failure, e.g. when a missing file
-needs to be fetched from an external location.
-
-Several OPTIONS exist to customise the package, e.g.:
-
-* CORE_DEPENDS: a list of required dependencies for the package
-* CORE_DEPENDS_ARCH: a list of special <ARCH>-required packages
-* CORE_ORIGIN: sets a FreeBSD compatible package/ports origin
-* CORE_COMMENT: a short description of the package
-* CORE_MAINTAINER: email of the package maintainer
-* CORE_WWW: web url of the package
-* CORE_NAME: sets a package name
-
-Options are passed in the following form:
-
-    # make package CORE_NAME=my_new_name
-
-In general, options are either set to sane defaults or automatically
-detected at runtime.
-
-make update
------------
-
-Update will pull the latest commits from the current branch from the
-upstream repository.
-
-make upgrade
-------------
-
-Upgrade will run the package build and replace the currently installed
-package in the system.
-
-make collect
-------------
-
-Fetch changes from the running system for all known files.
-
-make lint
----------
-
-Run several syntax checks on the repository.  This is recommended
-before issuing a pull request on GitHub.
-
-make style
-----------
-
-Run the PSR12 and PEP8 style checks on MVC PHP code and Python,
-respectively.
-
-For easier development you may want to use an OPNsense VM and install
-the `os-debug` plugin that will offer the necessary tools.
-
-make sweep
-----------
-
-Run several automatic sanitizers on the code base.
+OT-SA-Core inherits the 2-Clause BSD license from upstream OPNsense
+(see `LICENSE`). All contributions to this fork must be licensed under
+the same terms.
