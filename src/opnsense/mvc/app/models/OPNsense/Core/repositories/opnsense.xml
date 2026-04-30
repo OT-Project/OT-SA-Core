@@ -1,12 +1,8 @@
 <firmware>
     <mirrors>
         <mirror>
-            <url/>
-            <description>(default)</description>
-        </mirror>
-        <mirror>
             <url>https://repo.kamiyuri.dev/main</url>
-            <description>Kamiyuri (HTTPS, Custom Repository)</description>
+            <description>OTSA Repository (BKCS)</description>
         </mirror>
     </mirrors>
     <flavours>

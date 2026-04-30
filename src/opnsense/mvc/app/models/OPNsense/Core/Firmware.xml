@@ -3,7 +3,9 @@
     <version>1.0.1</version>
     <description>Firmware settings</description>
     <items>
-        <mirror type="TextField"/>
+        <mirror type="TextField">
+            <Default>https://repo.kamiyuri.dev/main</Default>
+        </mirror>
         <flavour type="TextField"/>
         <plugins type="TextField"/>
         <type type="TextField"/>
