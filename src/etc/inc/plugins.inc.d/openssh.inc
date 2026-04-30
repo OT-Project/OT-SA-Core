@@ -166,8 +166,8 @@ function openssh_configure_do($verbose = false, $interface_map = null)
     $sshconf .= "X11Forwarding no\n";
     $sshconf .= "PubkeyAuthentication yes\n";
     $sshconf .= "Subsystem sftp internal-sftp\n";
-    $sshconf .= "AllowGroups wheel";
-    $sshconf .= "\n";
+    /* Per-user access control is enforced via the SSH Management drop-in
+     * (AllowUsers user@CIDR …) under sshd_config.d/. No global AllowGroups. */
     if (isset($sshcfg['permitrootlogin'])) {
         $sshconf .= "PermitRootLogin yes\n";
     } else {
