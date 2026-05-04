@@ -152,12 +152,19 @@
             });
             mapDataToFormUI({'frm_GeneralSettings':'/api/ids/settings/get'}).done(function(data){
                 // set schedule updates link to cron
-                $.each(data.frm_GeneralSettings.ids.general.UpdateCron, function(key, value) {
-                    if (value.selected == 1) {
-                        $("#scheduled_updates").attr("href","/ui/cron/item/open/"+key);
-                        $("#scheduled_updates").show();
-                    }
-                });
+                if (data.frm_GeneralSettings.ids.general.UpdateCron) {
+                    console.log('UpdateCron data:', data.frm_GeneralSettings.ids.general.UpdateCron);
+                    $.each(data.frm_GeneralSettings.ids.general.UpdateCron, function(key, value) {
+                        console.log('Cron item - key:', key, 'value:', value);
+                        if (key && value && value.selected == 1) {
+                            var cronUrl = "/ui/cron/item/open/"+key;
+                            console.log('Setting cron link to:', cronUrl);
+                            $("#scheduled_updates").attr("href", cronUrl);
+                            $("#scheduled_updates").show();
+                            return false; // break after first selected item
+                        }
+                    });
+                }
                 formatTokenizersUI();
                 $('.selectpicker').selectpicker('refresh');
             });

@@ -82,5 +82,4 @@ $( document ).ready(function() {
     widgetManager.initialize();
 });
 </script>
-
 <div class="grid-stack"></div>
