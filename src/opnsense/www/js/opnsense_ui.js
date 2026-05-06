@@ -191,12 +191,16 @@ function updateServiceControlUI(serviceName)
         if (data['status'] === "running") {
             status_html += 'label-success';
             status_icon = 'play';
-            buttons += '<span id="restartService" class="btn btn-sm btn-default"><i class="fa fa-repeat fa-fw"></i></span>';
-            buttons += '<span id="stopService" class="btn btn-sm btn-default"><i class="fa fa-stop fa-fw"></span>';
+            if (serviceName !== 'h323') {
+                buttons += '<span id="restartService" class="btn btn-sm btn-default"><i class="fa fa-repeat fa-fw"></i></span>';
+                buttons += '<span id="stopService" class="btn btn-sm btn-default"><i class="fa fa-stop fa-fw"></span>';
+            }
         } else if (data['status'] === "stopped") {
             status_html += 'label-danger';
             status_icon = 'stop';
-            buttons += '<span id="startService" class="btn btn-sm btn-default"><i class="fa fa-play fa-fw"></i></span>';
+            if (serviceName !== 'h323') {
+                buttons += '<span id="startService" class="btn btn-sm btn-default"><i class="fa fa-play fa-fw"></i></span>';
+            }
         } else {
             status_html += 'hidden';
         }
@@ -205,7 +209,7 @@ function updateServiceControlUI(serviceName)
 
         $('#service_status_container').html(status_html + " " + buttons);
 
-        if (data['widget'] !== undefined) {
+        if (data['widget'] !== undefined && serviceName !== 'h323') {
             // tooltip service action widgets
             ['stop', 'start', 'restart'].forEach(function(action){
                 let obj = $("#" + action + "Service");
@@ -218,18 +222,20 @@ function updateServiceControlUI(serviceName)
             });
         }
 
-        const commands = ["start", "restart", "stop"];
-        commands.forEach(function(command) {
-            $("#" + command + "Service").click(function(){
-                $('#OPNsenseStdWaitDialog').modal('show');
-                ajaxCall("/api/" + serviceName + "/service/" + command, {},function() {
-                    $('#OPNsenseStdWaitDialog').modal('hide');
-                    ajaxCall("/api/" + serviceName + "/service/status", {}, function() {
-                        updateServiceControlUI(serviceName);
+        if (serviceName !== 'h323') {
+            const commands = ["start", "restart", "stop"];
+            commands.forEach(function(command) {
+                $("#" + command + "Service").click(function(){
+                    $('#OPNsenseStdWaitDialog').modal('show');
+                    ajaxCall("/api/" + serviceName + "/service/" + command, {},function() {
+                        $('#OPNsenseStdWaitDialog').modal('hide');
+                        ajaxCall("/api/" + serviceName + "/service/status", {}, function() {
+                            updateServiceControlUI(serviceName);
+                        });
                     });
                 });
             });
-        });
+        }
     });
 }
 

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<menu>
+    <Services>
+        <H323Proxy VisibleName="H323 Proxy" cssClass="fa fa-phone fa-fw" url="/ui/h323/settings"/>
+    </Services>
+</menu>
