@@ -861,6 +861,8 @@
                     otsa_card('available');
                 } else if (data['status'] == 'none' || data['status'] == 'ok') {
                     otsa_card('uptodate');
+                } else if (data['status'] == 'check') {
+                    otsa_card('checking');
                 } else if (data['status'] == 'error') {
                     $('#otsa_update_error_msg').text(data['status_msg'] || '');
                     otsa_card('error');
@@ -870,14 +872,33 @@
         otsa_refresh_card();
         $('#checkupdate').on('click', function() {
             otsa_card('checking');
-            setTimeout(otsa_refresh_card, 3000);
-            setTimeout(otsa_refresh_card, 8000);
-            setTimeout(otsa_refresh_card, 15000);
+            // Backend chạy song song qua handler upstream (backend('check') →
+            // trackStatus). Không poll /api/core/firmware/status trực tiếp ở
+            // đây vì endpoint trả cache của lần check trước trong khi backend
+            // còn đang chạy → có thể đọc nhầm 'none' và chuyển card sang
+            // uptodate dù check chưa xong. Card sẽ được refresh bởi observer
+            // bên dưới khi upstream gỡ spinner trên #updatetab_progress.
         });
         $('#otsa_update_btn').on('click', function() {
             otsa_card('updating');
             $('#upgrade').click();
         });
+
+        // Đồng bộ card với upstream tracker. trackStatus() gỡ class
+        // 'fa-spinner' trên #updatetab_progress khi backend trả status=='done'
+        // — đó là lúc /api/core/firmware/status mới phản ánh kết quả check
+        // hiện tại thay vì cache cũ.
+        (function () {
+            var tabIcon = document.getElementById('updatetab_progress');
+            if (!tabIcon || typeof MutationObserver === 'undefined') {
+                return;
+            }
+            new MutationObserver(function () {
+                if (!tabIcon.classList.contains('fa-spinner')) {
+                    otsa_refresh_card();
+                }
+            }).observe(tabIcon, { attributes: true, attributeFilter: ['class'] });
+        })();
     });
 </script>
 <div class="container-fluid">

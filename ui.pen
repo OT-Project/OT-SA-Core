@@ -1,11 +1,11 @@
 {
-  "version": "2.9",
+  "version": "2.11",
   "children": [
     {
       "type": "frame",
       "id": "2yVAJ",
-      "x": -337.64705882352973,
-      "y": 300,
+      "x": 50,
+      "y": 50,
       "name": "P1-01-DesignSystem-Colors",
       "theme": {
         "mode": "dark"
@@ -2104,20 +2104,22 @@
     {
       "type": "group",
       "id": "PV2Rr",
-      "x": 1367,
-      "y": -672,
+      "x": 1590,
+      "y": 50,
       "name": "Frames",
-      "layout": "vertical",
-      "gap": 50,
-      "padding": 50,
       "children": [
         {
           "type": "frame",
           "id": "FNn01",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 0,
           "name": "Login",
           "theme": {
             "mode": "dark"
           },
+          "width": 1440,
+          "height": 900,
           "fill": "$bg-page",
           "children": [
             {
@@ -2564,19 +2566,22 @@
         {
           "type": "group",
           "id": "UPwNC",
+          "layoutPosition": "absolute",
+          "x": 1540,
+          "y": 0,
           "name": "Lobby",
-          "layout": "horizontal",
-          "gap": 50,
-          "padding": 50,
           "children": [
             {
               "type": "frame",
               "id": "hjs07",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 0,
               "name": "P3-02-Dashboard-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 6448.435452392758,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -5619,12 +5624,14 @@
             {
               "type": "frame",
               "id": "0631D",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 1800,
               "name": "P3-21-Password-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 2603.953825892073,
-              "height": 4738.199774815594,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -6906,19 +6913,22 @@
         {
           "type": "group",
           "id": "2pN2e",
+          "layoutPosition": "absolute",
+          "x": 3080,
+          "y": 0,
           "name": "Firewall",
-          "layout": "horizontal",
-          "gap": 50,
           "children": [
             {
               "type": "frame",
               "id": "vZtiS",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 0,
               "name": "P3-17-Firewall-Aliases-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 916.1816172393551,
-              "height": 8.693798402086191,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -8771,12 +8781,14 @@
             {
               "type": "frame",
               "id": "QwvIc",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 2490,
               "name": "P3-03-Firewall-Rules-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1633.695273923936,
-              "height": 750.0000000000003,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -11574,11 +11586,14 @@
             {
               "type": "frame",
               "id": "YB9Lm",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 4980,
               "name": "P3-18-NAT-PortForward-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1610.164269219433,
+              "width": 1440,
               "fill": "$bg-page",
               "children": [
                 {
@@ -12687,35 +12702,37 @@
         {
           "type": "group",
           "id": "giYkU",
+          "layoutPosition": "absolute",
+          "x": 4620,
+          "y": 0,
           "name": "System",
-          "layout": "vertical",
-          "gap": 50,
-          "padding": 50,
           "children": [
             {
               "type": "group",
               "id": "f3xOk",
+              "x": 0,
+              "y": 0,
               "name": "Access",
-              "layout": "vertical",
-              "gap": 50,
-              "padding": 50,
               "children": [
                 {
                   "type": "group",
                   "id": "D9Cp2",
+                  "x": 0,
+                  "y": 0,
                   "name": "Users",
-                  "layout": "horizontal",
-                  "gap": 50,
-                  "padding": 50,
                   "children": [
                     {
                       "type": "frame",
                       "id": "YvxA2",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 0,
                       "name": "P3-19-Users-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "width": 8482.952652278136,
+                      "width": 1440,
+                      "height": 900,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -14133,11 +14150,15 @@
                     {
                       "type": "frame",
                       "id": "AJklk",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 980,
                       "name": "P4-01b-Access-Users-SSH-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "width": 8482.952652278149,
+                      "width": 1440,
+                      "height": 900,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -15986,11 +16007,15 @@
                     {
                       "type": "frame",
                       "id": "qXmpy",
+                      "layoutPosition": "absolute",
+                      "x": 0,
+                      "y": 1960,
                       "name": "P4-01-Access-Users-Dark",
                       "theme": {
                         "mode": "dark"
                       },
-                      "width": 8482.952652278142,
+                      "width": 1440,
+                      "height": 900,
                       "fill": "$bg-page",
                       "children": [
                         {
@@ -17688,11 +17713,15 @@
                 {
                   "type": "frame",
                   "id": "kyybu",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 2940,
                   "name": "P4-05-Access-Tester-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "width": 2174.8690967051543,
+                  "width": 1440,
+                  "height": 900,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -18949,11 +18978,15 @@
                 {
                   "type": "frame",
                   "id": "hTuKS",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 3920,
                   "name": "P4-04-Access-Servers-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "width": 2174.8690967051543,
+                  "width": 1440,
+                  "height": 900,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -19867,6 +19900,7 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
+                      "height": 343,
                       "layout": "vertical",
                       "children": [
                         {
@@ -20560,11 +20594,15 @@
                 {
                   "type": "frame",
                   "id": "XbSpd",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 4900,
                   "name": "P4-03-Access-Privileges-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "width": 2174.8690967051543,
+                  "width": 1440,
+                  "height": 900,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -21478,6 +21516,7 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
+                      "height": 348,
                       "layout": "vertical",
                       "children": [
                         {
@@ -22174,11 +22213,15 @@
                 {
                   "type": "frame",
                   "id": "cwwGq",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 5880,
                   "name": "P4-02-Access-Groups-Dark",
                   "theme": {
                     "mode": "dark"
                   },
-                  "width": 2174.8690967051543,
+                  "width": 1440,
+                  "height": 900,
                   "fill": "$bg-page",
                   "children": [
                     {
@@ -23092,6 +23135,7 @@
                       "name": "mainContent",
                       "clip": true,
                       "width": "fill_container",
+                      "height": 348,
                       "layout": "vertical",
                       "children": [
                         {
@@ -23788,11 +23832,15 @@
             {
               "type": "frame",
               "id": "udjS7",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 6860,
               "name": "P3-08-Firmware-Status-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "gap": 50,
               "children": [
@@ -25438,11 +25486,15 @@
             {
               "type": "frame",
               "id": "8wwl1",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 7940,
               "name": "P3-11-Tunables-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "children": [
                 {
@@ -26247,6 +26299,7 @@
                   "name": "mainA",
                   "clip": true,
                   "width": "fill_container",
+                  "height": 285,
                   "layout": "vertical",
                   "children": [
                     {
@@ -26945,11 +26998,15 @@
             {
               "type": "frame",
               "id": "kQISG",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 9020,
               "name": "P3-16-Backup-History-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "children": [
                 {
@@ -28615,11 +28672,15 @@
             {
               "type": "frame",
               "id": "pK7In",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 10100,
               "name": "P3-12-HA-Settings-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "children": [
                 {
@@ -30056,11 +30117,15 @@
             {
               "type": "frame",
               "id": "IEdvb",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 11180,
               "name": "P3-05-System-Settings-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "children": [
                 {
@@ -31906,11 +31971,15 @@
             {
               "type": "frame",
               "id": "KlZPF",
+              "layoutPosition": "absolute",
+              "x": 0,
+              "y": 12260,
               "name": "P3-06-Log-Viewer-Dark",
               "theme": {
                 "mode": "dark"
               },
-              "width": 1720.108694682734,
+              "width": 1440,
+              "height": 1000,
               "fill": "$bg-page",
               "children": [
                 {
