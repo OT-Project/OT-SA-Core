@@ -83,6 +83,147 @@ function openssh_stop()
     mwexecf('service sshd stop');
 }
 
+function openssh_host_key_types()
+{
+    return ['rsa', 'ecdsa', 'ed25519'];
+}
+
+function openssh_host_key_path($type)
+{
+    return "/conf/sshd/ssh_host_{$type}_key";
+}
+
+function openssh_host_key_fingerprint($type)
+{
+    $pub = openssh_host_key_path($type) . '.pub';
+    if (!file_exists($pub)) {
+        return null;
+    }
+
+    $output = [];
+    $rc = 0;
+    exec('/usr/local/bin/ssh-keygen -l -E sha256 -f ' . escapeshellarg($pub) . ' 2>/dev/null', $output, $rc);
+    if ($rc !== 0 || empty($output)) {
+        return null;
+    }
+
+    /* ssh-keygen -l output: "<bits> SHA256:<hash> <comment> (<algorithm>)" */
+    if (preg_match('/^(\d+)\s+(\S+)\s+(.*)\s+\(([^)]+)\)\s*$/', $output[0], $m)) {
+        return [
+            'bits' => (int)$m[1],
+            'sha256' => $m[2],
+            'comment' => trim($m[3]),
+            'algorithm' => $m[4],
+        ];
+    }
+
+    return null;
+}
+
+function openssh_rsa_bit_choices()
+{
+    return [3072, 4096, 11776];
+}
+
+function openssh_host_key_public_text($type)
+{
+    $pub = openssh_host_key_path($type) . '.pub';
+    return file_exists($pub) ? trim(file_get_contents($pub)) : null;
+}
+
+function openssh_host_keys_known_hosts_block()
+{
+    global $config;
+    $hostname = $config['system']['hostname'] ?? 'opnsense';
+    $domain = $config['system']['domain'] ?? '';
+    $fqdn = $domain ? "{$hostname}.{$domain}" : $hostname;
+
+    $ips = [];
+    foreach (interfaces_addresses(['lan', 'wan']) as $ip => $info) {
+        if (!empty($info['family']) && $info['family'] === 'inet') {
+            $ips[] = preg_replace('#/\d+$#', '', $ip);
+        }
+    }
+
+    $host_aliases = array_values(array_filter(array_unique(array_merge([$fqdn, $hostname], $ips))));
+    $prefix = implode(',', $host_aliases);
+
+    $lines = [
+        "# OT-SA host keys for {$fqdn}",
+        "# Generated " . date('c'),
+        "# Import these entries into your SSH client's known_hosts file via an",
+        "# out-of-band channel (USB, signed email, in person) — do NOT fetch over",
+        "# an unauthenticated network or you defeat the point.",
+    ];
+
+    foreach (openssh_host_key_types() as $type) {
+        $pub = openssh_host_key_public_text($type);
+        if ($pub === null) {
+            continue;
+        }
+        $parts = explode(' ', $pub, 3);
+        if (count($parts) < 2) {
+            continue;
+        }
+        $lines[] = "{$prefix} {$parts[0]} {$parts[1]}";
+    }
+
+    return implode("\n", $lines) . "\n";
+}
+
+function openssh_regenerate_host_keys(array $types, $rsa_bits = null)
+{
+    @mkdir('/conf/sshd', 0777, true);
+
+    $valid = openssh_host_key_types();
+    $rsa_valid_bits = openssh_rsa_bit_choices();
+    $rsa_bits = is_int($rsa_bits) && in_array($rsa_bits, $rsa_valid_bits, true) ? $rsa_bits : null;
+
+    $result = [];
+
+    foreach ($types as $type) {
+        if (!in_array($type, $valid, true)) {
+            continue;
+        }
+
+        $file = openssh_host_key_path($type);
+        $old = openssh_host_key_fingerprint($type);
+
+        @unlink($file . '.pub');
+        @unlink($file);
+
+        if ($type === 'rsa' && $rsa_bits !== null) {
+            $rc = mwexecf('/usr/local/bin/ssh-keygen -t %s -b %s -N "" -f %s',
+                          [$type, (string)$rsa_bits, $file]);
+        } else {
+            $rc = mwexecf('/usr/local/bin/ssh-keygen -t %s -N "" -f %s', [$type, $file]);
+        }
+
+        if ($rc === 0 && file_exists($file) && file_exists("{$file}.pub")) {
+            $new = openssh_host_key_fingerprint($type);
+            $result[$type] = [
+                'status' => 'ok',
+                'old_fingerprint' => $old['sha256'] ?? null,
+                'new_fingerprint' => $new['sha256'] ?? null,
+                'old_bits' => $old['bits'] ?? null,
+                'bits' => $new['bits'] ?? null,
+                'algorithm' => $new['algorithm'] ?? null,
+            ];
+        } else {
+            $result[$type] = [
+                'status' => 'error',
+                'message' => sprintf('ssh-keygen exited %d', $rc),
+                'old_fingerprint' => $old['sha256'] ?? null,
+                'new_fingerprint' => null,
+                'old_bits' => $old['bits'] ?? null,
+                'bits' => null,
+            ];
+        }
+    }
+
+    return $result;
+}
+
 function openssh_configure_do($verbose = false, $interface_map = null)
 {
     global $config;
@@ -128,17 +269,10 @@ function openssh_configure_do($verbose = false, $interface_map = null)
     /* make ssh home directory */
     @mkdir('/var/empty', 0555, true);
 
-    $keys = [
-        /* .pub files are implied */
-        'rsa' => 'ssh_host_rsa_key',
-        'ecdsa' => 'ssh_host_ecdsa_key',
-        'ed25519' => 'ssh_host_ed25519_key',
-    ];
-
     /* Check for all needed key files. If any are missing, the keys need to be regenerated. */
     $generate_keys = false;
-    foreach ($keys as $name) {
-        $file = "/conf/sshd/{$name}";
+    foreach (openssh_host_key_types() as $type) {
+        $file = openssh_host_key_path($type);
         if (!file_exists($file) || !file_exists("{$file}.pub")) {
             $generate_keys = true;
             break;
@@ -146,12 +280,8 @@ function openssh_configure_do($verbose = false, $interface_map = null)
     }
 
     if ($generate_keys) {
-        foreach ($keys as $type => $name) {
-            $file = "/conf/sshd/{$name}";
-            @unlink("{$file}.pub");
-            @unlink($file);
-            mwexecf('/usr/local/bin/ssh-keygen -t %s -N "" -f %s', [$type, $file]);
-        }
+        $rsa_bits = isset($sshcfg['rsa_bits']) ? (int)$sshcfg['rsa_bits'] : null;
+        openssh_regenerate_host_keys(openssh_host_key_types(), $rsa_bits);
     }
 
     $sshport = isset($sshcfg['port']) ? $sshcfg['port'] : 22;
@@ -187,8 +317,8 @@ function openssh_configure_do($verbose = false, $interface_map = null)
         $sshconf .= sprintf("LogLevel %s\n", $sshcfg['loglevel']);
     }
 
-    foreach ($keys as $name) {
-        $file = "/conf/sshd/{$name}";
+    foreach (openssh_host_key_types() as $type) {
+        $file = openssh_host_key_path($type);
         if (!file_exists($file)) {
             continue;
         }

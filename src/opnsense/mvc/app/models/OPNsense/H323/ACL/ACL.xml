@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<acl>
+    <page-services-h323-logs>
+        <name>Services: H323 Gateway: Logs</name>
+        <patterns>
+            <pattern>ui/h323/logs</pattern>
+            <pattern>api/h323/logs/*</pattern>
+            <pattern>api/h323/settings/get</pattern>
+            <pattern>ui/diagnostics/log/core/h323/*</pattern>
+            <pattern>api/diagnostics/log/core/h323/*</pattern>
+        </patterns>
+    </page-services-h323-logs>
+    <page-services-h323-settings>
+        <name>Services: H323 Gateway: Settings</name>
+        <patterns>
+            <pattern>ui/h323/settings</pattern>
+            <pattern>api/h323/settings/get</pattern>
+            <pattern>api/h323/settings/set</pattern>
+            <pattern>api/h323/settings/reconfigure</pattern>
+        </patterns>
+    </page-services-h323-settings>
+    <!--
+    <page-services-h323-endpoints>
+        <name>Services: H323 Gateway: Endpoints</name>
+        <patterns>
+            <pattern>ui/h323/endpoints</pattern>
+            <pattern>api/h323/settings/get</pattern>
+            <pattern>api/h323/settings/set</pattern>
+            <pattern>api/h323/settings/addEndpoint</pattern>
+            <pattern>api/h323/settings/setEndpoint/*</pattern>
+            <pattern>api/h323/settings/delEndpoint/*</pattern>
+            <pattern>api/h323/settings/getEndpoint/*</pattern>
+            <pattern>api/h323/settings/searchEndpoint</pattern>
+        </patterns>
+    </page-services-h323-endpoints>
+    -->
+    <page-diagnostics-logs-h323>
+        <name>Services: H323 Gateway: Log File</name>
+        <patterns>
+            <pattern>ui/diagnostics/log/core/h323/*</pattern>
+        </patterns>
+    </page-diagnostics-logs-h323>
+</acl>
