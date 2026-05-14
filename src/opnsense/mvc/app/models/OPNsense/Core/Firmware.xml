@@ -3,7 +3,14 @@
     <version>1.0.1</version>
     <description>Firmware settings</description>
     <items>
-        <mirror type="TextField"/>
+        <!--
+            Canonical mirror default — keep in sync with:
+                Makefile (CORE_PACKAGESITE)
+                src/opnsense/mvc/app/models/OPNsense/Core/repositories/opnsense.xml
+        -->
+        <mirror type="TextField">
+            <Default>https://repo.kamiyuri.dev/main</Default>
+        </mirror>
         <flavour type="TextField"/>
         <plugins type="TextField"/>
         <type type="TextField"/>

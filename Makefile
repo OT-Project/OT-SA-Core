@@ -113,6 +113,9 @@ CORE_PYTHON_DOT=	${CORE_PYTHON:C/./&./1}
 CORE_COMMENT?=		${CORE_PRODUCT} ${CORE_TYPE} release
 CORE_MAINTAINER?=	bkcs@hust.edu.vn
 CORE_ORIGIN?=		opnsense/${CORE_NAME}
+# Canonical mirror default — keep in sync with:
+#   src/opnsense/mvc/app/models/OPNsense/Core/Firmware.xml (<mirror><Default>)
+#   src/opnsense/mvc/app/models/OPNsense/Core/repositories/opnsense.xml (<mirror><url>)
 CORE_PACKAGESITE?=	https://repo.kamiyuri.dev/main
 CORE_PRODUCT?=		OTSA
 CORE_REPOSITORY?=	${CORE_ABI}/latest

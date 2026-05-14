@@ -35,6 +35,26 @@
     .dropdown_helper {
         display: none;
     }
+    /* OTSA: ẩn các control technical — audit dropdown, major-upgrade button, plugin conflict resolver
+       Dùng !important vì JS gọi .show() trên các element này sau khi loadInfo. */
+    #audit_actions,
+    #upgrade_maj,
+    #plugin_actions {
+        display: none !important;
+    }
+    /* OTSA: ẩn output console + bảng package list trong tab Updates — thay bằng card thân thiện */
+    #updates #updatelist,
+    #updates #update_status_container {
+        display: none !important;
+    }
+    #otsa_update_view {
+        padding: 40px 20px;
+        text-align: center;
+        min-height: 240px;
+    }
+    #otsa_update_view .fa-3x {
+        margin-bottom: 15px;
+    }
 </style>
 
 <script>
@@ -771,6 +791,40 @@
             }
         });
 
+        $("#test_mirror").click(function() {
+            var url = $("#firmware_mirror_value").val();
+            var $btn = $(this);
+            var $result = $("#test_mirror_result");
+            var $icon = $("#test_mirror_icon");
+
+            $result.removeClass("text-success text-danger").text("");
+            if (!url || !/^https?:\/\//.test(url)) {
+                $result.addClass("text-danger").text("{{ lang._('Invalid URL') }}");
+                return;
+            }
+
+            $btn.prop("disabled", true);
+            $icon.removeClass("fa-plug").addClass("fa-spinner fa-pulse");
+            $result.text("{{ lang._('Testing...') }}");
+
+            ajaxCall('/api/core/firmware/test_mirror', { 'mirror': url }, function(data, status) {
+                $btn.prop("disabled", false);
+                $icon.removeClass("fa-spinner fa-pulse").addClass("fa-plug");
+
+                if (!data) {
+                    $result.addClass("text-danger").text("{{ lang._('No response from server') }}");
+                    return;
+                }
+                if (data.status === 'ok') {
+                    $result.addClass("text-success").html('<i class="fa fa-check"></i> ' + "{{ lang._('DNS, HTTP, signature: OK') }}");
+                } else {
+                    var step = data.step || '?';
+                    var msg = data.message || "{{ lang._('Test failed') }}";
+                    $result.addClass("text-danger").html('<i class="fa fa-times"></i> ' + "{{ lang._('Failed at') }} <code>" + $("<div/>").text(step).html() + "</code>: " + $("<div/>").text(msg).html());
+                }
+            });
+        });
+
         $("#change_mirror").click(function(){
             $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             var confopt = {};
@@ -812,6 +866,73 @@
         $(window).on('hashchange', function(e) {
             $('a[href="' + window.location.hash + '"]').click()
         });
+
+        /* OTSA: state machine cho card update — overlay UI, không động backend logic.
+           Trạng thái: idle | checking | uptodate | available | updating | error */
+        function otsa_card(state) {
+            $('#otsa_update_view > div').hide();
+            $('#otsa_update_' + state).show();
+        }
+        function otsa_refresh_card() {
+            ajaxGet('/api/core/firmware/status', {}, function(data, status) {
+                if (status !== 'success' || !data) {
+                    return;
+                }
+                if (data['status'] == 'update' || data['status'] == 'upgrade') {
+                    var current_ver = 'N/A', new_ver = 'N/A';
+                    var target_name = data['product_target'] || '';
+                    $.each(data['all_packages'] || [], function(i, row) {
+                        if (row['name'] == target_name) {
+                            current_ver = row['old'] || 'N/A';
+                            new_ver = row['new'] || 'N/A';
+                            return false;
+                        }
+                    });
+                    if (data['upgrade_major_version']) {
+                        new_ver = data['upgrade_major_version'];
+                    }
+                    $('#otsa_update_version_info').text(current_ver + ' → ' + new_ver);
+                    otsa_card('available');
+                } else if (data['status'] == 'none' || data['status'] == 'ok') {
+                    otsa_card('uptodate');
+                } else if (data['status'] == 'check') {
+                    otsa_card('checking');
+                } else if (data['status'] == 'error') {
+                    $('#otsa_update_error_msg').text(data['status_msg'] || '');
+                    otsa_card('error');
+                }
+            });
+        }
+        otsa_refresh_card();
+        $('#checkupdate').on('click', function() {
+            otsa_card('checking');
+            // Backend chạy song song qua handler upstream (backend('check') →
+            // trackStatus). Không poll /api/core/firmware/status trực tiếp ở
+            // đây vì endpoint trả cache của lần check trước trong khi backend
+            // còn đang chạy → có thể đọc nhầm 'none' và chuyển card sang
+            // uptodate dù check chưa xong. Card sẽ được refresh bởi observer
+            // bên dưới khi upstream gỡ spinner trên #updatetab_progress.
+        });
+        $('#otsa_update_btn').on('click', function() {
+            otsa_card('updating');
+            $('#upgrade').click();
+        });
+
+        // Đồng bộ card với upstream tracker. trackStatus() gỡ class
+        // 'fa-spinner' trên #updatetab_progress khi backend trả status=='done'
+        // — đó là lúc /api/core/firmware/status mới phản ánh kết quả check
+        // hiện tại thay vì cache cũ.
+        (function () {
+            var tabIcon = document.getElementById('updatetab_progress');
+            if (!tabIcon || typeof MutationObserver === 'undefined') {
+                return;
+            }
+            new MutationObserver(function () {
+                if (!tabIcon.classList.contains('fa-spinner')) {
+                    otsa_refresh_card();
+                }
+            }).observe(tabIcon, { attributes: true, attributeFilter: ['class'] });
+        })();
     });
 </script>
 <div class="container-fluid">
@@ -822,11 +943,45 @@
                 <li id="settingstab"><a data-toggle="tab" href="#settings">{{ lang._('Settings') }} <i id="settingstab_progress"></i></a></li>
                 <li id="changelogtab"><a data-toggle="tab" href="#changelog">{{ lang._('Changelog') }}</a></li>
                 <li id="updatetab"><a data-toggle="tab" href="#updates">{{ lang._('Updates') }} <i id="updatetab_progress"></i></a></li>
-                <li id="plugintab"><a data-toggle="tab" href="#plugins">{{ lang._('Plugins') }}</a></li>
-                <li id="packagestab"><a data-toggle="tab" href="#packages">{{ lang._('Packages') }}</a></li>
+                {# OTSA: hide Plugins/Packages tabs — appliance không cho tải plugin tùy ý #}
+                <li id="plugintab" style="display:none"><a data-toggle="tab" href="#plugins">{{ lang._('Plugins') }}</a></li>
+                <li id="packagestab" style="display:none"><a data-toggle="tab" href="#packages">{{ lang._('Packages') }}</a></li>
             </ul>
             <div class="tab-content content-box">
                 <div id="updates" class="tab-pane table-responsive">
+                    {# OTSA: card UX thay output console + bảng package list — chỉ hiển thị state, ẩn chi tiết technical #}
+                    <div id="otsa_update_view">
+                        <div id="otsa_update_idle">
+                            <i class="fa fa-info-circle fa-3x text-info"></i>
+                            <h4>{{ lang._('Vui lòng nhấn "Kiểm tra cập nhật" trong tab Trạng thái.') }}</h4>
+                        </div>
+                        <div id="otsa_update_checking" style="display:none">
+                            <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                            <h4>{{ lang._('Đang kiểm tra phiên bản...') }}</h4>
+                        </div>
+                        <div id="otsa_update_uptodate" style="display:none">
+                            <i class="fa fa-check-circle fa-3x text-success"></i>
+                            <h4>{{ lang._('Hệ thống đang ở phiên bản mới nhất.') }}</h4>
+                        </div>
+                        <div id="otsa_update_available" style="display:none">
+                            <i class="fa fa-arrow-circle-up fa-3x text-warning"></i>
+                            <h4>{{ lang._('Có bản cập nhật mới') }}</h4>
+                            <p class="lead" id="otsa_update_version_info"></p>
+                            <button class="btn btn-primary btn-lg" id="otsa_update_btn">
+                                <i class="fa fa-download"></i> {{ lang._('Cập nhật ngay') }}
+                            </button>
+                        </div>
+                        <div id="otsa_update_updating" style="display:none">
+                            <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                            <h4>{{ lang._('Đang cập nhật, vui lòng chờ...') }}</h4>
+                            <p>{{ lang._('Quá trình có thể mất vài phút. Không tắt thiết bị.') }}</p>
+                        </div>
+                        <div id="otsa_update_error" style="display:none">
+                            <i class="fa fa-exclamation-circle fa-3x text-danger"></i>
+                            <h4>{{ lang._('Không thể kiểm tra cập nhật') }}</h4>
+                            <p id="otsa_update_error_msg"></p>
+                        </div>
+                    </div>
                     <table class="table table-striped table-condensed" id="updatelist" style="display: none;">
                         <thead>
                             <tr>
@@ -870,7 +1025,8 @@
                 <div id="status" class="tab-pane active table-responsive">
                     <table class="table table-striped table-condensed">
                         <tbody>
-                            <tr>
+                            {# OTSA: ẩn các trường technical (Type/Arch/Commit/Mirror/Repos) — không cần với end user #}
+                            <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Type') }}</td>
                                 <td id="product_id"></td>
                                 <td></td>
@@ -880,22 +1036,22 @@
                                 <td id="product_version"></td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Architecture') }}</td>
                                 <td id="product_arch"></td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Commit') }}</td>
                                 <td id="product_hash"></td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Mirror') }}</td>
                                 <td id="product_mirror"></td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Repositories') }}</td>
                                 <td id="product_repos"></td>
                                 <td></td>
@@ -913,6 +1069,19 @@
                             <tr style='display:none'>
                                 <td style="width: 150px;">{{ lang._('Licensed until') }}</td>
                                 <td id="product_license_valid_to"></td>
+                                <td></td>
+                            </tr>
+                            {# OTSA: branding BKCS #}
+                            <tr>
+                                <td style="width: 150px;">{{ lang._('Vendor') }}</td>
+                                <td>
+                                    <a href="https://bkcs.hust.edu.vn" target="_blank" rel="noopener">BKCS — Trung tâm An toàn thông tin, ĐHBKHN</a>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 150px;">{{ lang._('Copyright') }}</td>
+                                <td>&copy; 2026 BKCS. {{ lang._('All rights reserved.') }}</td>
                                 <td></td>
                             </tr>
                             <tr>
@@ -996,7 +1165,8 @@
                 <div id="settings" class="tab-pane table-responsive">
                     <table class="table table-striped table-condensed">
                         <tbody>
-                            <tr>
+                            {# OTSA: advanced/help toggles ẩn — chỉ giữ Mirror (readonly de facto) + Reboot #}
+                            <tr style="display:none">
                                 <td style="text-align:left"><i class="fa fa-toggle-off text-danger" id="show_advanced_firmware"></i></a> <small>{{ lang._('advanced mode') }}</small></td>
                                 <td colspan="2" style="text-align:right">
                                     <small>{{ lang._('full help') }}</small> <a href="#"><i class="fa fa-toggle-off text-danger" id="show_all_help_firmware"></i></a>
@@ -1008,15 +1178,22 @@
                                     <select class="selectpicker" id="firmware_mirror"  data-size="5" data-live-search="true">
                                     </select>
                                     <div style="display:none;" id="firmware_mirror_custom">
-                                        <input type="text" id="firmware_mirror_value">
+                                        <input type="text" id="firmware_mirror_value" placeholder="https://repo.kamiyuri.dev/main">
+                                    </div>
+                                    <div style="margin-top: 6px;">
+                                        <button class="btn btn-default btn-sm" id="test_mirror" type="button">
+                                            <i class="fa fa-plug" id="test_mirror_icon"></i> {{ lang._('Test connection') }}
+                                        </button>
+                                        <span id="test_mirror_result" style="margin-left: 8px;"></span>
                                     </div>
                                     <div class="hidden" data-for="help_for_mirror">
-                                        {{ lang._('Select an alternate firmware mirror.') }}
+                                        {{ lang._('Default mirror là kho BKCS. Chọn "(custom)" để nhập URL khác (vd staging) rồi bấm "Test connection" để xác minh DNS, HTTP, và chữ ký pkg trước khi lưu.') }}
                                     </div>
                                 </td>
                                 <td></td>
                             </tr>
-                            <tr data-advanced="true">
+                            {# OTSA: ẩn Flavour — không dùng flavour trong snapshot 26.1 #}
+                            <tr style="display:none">
                                 <td><a id="help_for_flavour" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Flavour') }}</td>
                                 <td>
                                     <select class="selectpicker" id="firmware_flavour">
@@ -1030,7 +1207,8 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            {# OTSA: ẩn Type — chỉ có Community family #}
+                            <tr style="display:none">
                                 <td><a id="help_for_type" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Type') }}</td>
                                 <td>
                                     <select class="selectpicker" id="firmware_type">
@@ -1041,7 +1219,8 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            <tr>
+                            {# OTSA: ẩn Subscription — không dùng licensing #}
+                            <tr style="display:none">
                                 <td style="width: 150px;"><a id="help_for_subscription" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Subscription') }}</td>
                                 <td>
                                     <input type="text" id="firmware_subscription">
@@ -1051,7 +1230,8 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            <tr data-advanced="true">
+                            {# OTSA: bỏ data-advanced để Reboot luôn hiển thị #}
+                            <tr>
                                 <td style="width: 150px;"><i class="fa fa-info-circle text-muted"></i> {{ lang._('Reboot') }}</td>
                                 <td>
                                     <input type="checkbox" id="firmware_reboot">
