@@ -791,6 +791,40 @@
             }
         });
 
+        $("#test_mirror").click(function() {
+            var url = $("#firmware_mirror_value").val();
+            var $btn = $(this);
+            var $result = $("#test_mirror_result");
+            var $icon = $("#test_mirror_icon");
+
+            $result.removeClass("text-success text-danger").text("");
+            if (!url || !/^https?:\/\//.test(url)) {
+                $result.addClass("text-danger").text("{{ lang._('Invalid URL') }}");
+                return;
+            }
+
+            $btn.prop("disabled", true);
+            $icon.removeClass("fa-plug").addClass("fa-spinner fa-pulse");
+            $result.text("{{ lang._('Testing...') }}");
+
+            ajaxCall('/api/core/firmware/test_mirror', { 'mirror': url }, function(data, status) {
+                $btn.prop("disabled", false);
+                $icon.removeClass("fa-spinner fa-pulse").addClass("fa-plug");
+
+                if (!data) {
+                    $result.addClass("text-danger").text("{{ lang._('No response from server') }}");
+                    return;
+                }
+                if (data.status === 'ok') {
+                    $result.addClass("text-success").html('<i class="fa fa-check"></i> ' + "{{ lang._('DNS, HTTP, signature: OK') }}");
+                } else {
+                    var step = data.step || '?';
+                    var msg = data.message || "{{ lang._('Test failed') }}";
+                    $result.addClass("text-danger").html('<i class="fa fa-times"></i> ' + "{{ lang._('Failed at') }} <code>" + $("<div/>").text(step).html() + "</code>: " + $("<div/>").text(msg).html());
+                }
+            });
+        });
+
         $("#change_mirror").click(function(){
             $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             var confopt = {};
@@ -1141,14 +1175,19 @@
                             <tr>
                                 <td style="width: 150px;"><a id="help_for_mirror" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Mirror') }}</td>
                                 <td>
-                                    {# OTSA: cố định 1 mirror Kamiyuri (xem repositories/opnsense.xml) — selectpicker chỉ có 1 option #}
                                     <select class="selectpicker" id="firmware_mirror"  data-size="5" data-live-search="true">
                                     </select>
                                     <div style="display:none;" id="firmware_mirror_custom">
-                                        <input type="text" id="firmware_mirror_value">
+                                        <input type="text" id="firmware_mirror_value" placeholder="https://repo.kamiyuri.dev/main">
+                                    </div>
+                                    <div style="margin-top: 6px;">
+                                        <button class="btn btn-default btn-sm" id="test_mirror" type="button">
+                                            <i class="fa fa-plug" id="test_mirror_icon"></i> {{ lang._('Test connection') }}
+                                        </button>
+                                        <span id="test_mirror_result" style="margin-left: 8px;"></span>
                                     </div>
                                     <div class="hidden" data-for="help_for_mirror">
-                                        {{ lang._('OTSA appliance sử dụng kho phần mềm cố định của BKCS.') }}
+                                        {{ lang._('Default mirror là kho BKCS. Chọn "(custom)" để nhập URL khác (vd staging) rồi bấm "Test connection" để xác minh DNS, HTTP, và chữ ký pkg trước khi lưu.') }}
                                     </div>
                                 </td>
                                 <td></td>

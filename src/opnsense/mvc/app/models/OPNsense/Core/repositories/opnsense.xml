@@ -1,5 +1,13 @@
+<!--
+    Canonical mirror default — keep in sync with:
+        Makefile (CORE_PACKAGESITE)
+        src/opnsense/mvc/app/models/OPNsense/Core/Firmware.xml (<mirror><Default>)
+    allow_custom="true" lets the Firmware Settings UI inject a "(custom)"
+    option (handled in firmware.volt fillOptions()) so operators can paste
+    arbitrary URLs. The entries below are quick-pick suggestions only.
+-->
 <firmware>
-    <mirrors>
+    <mirrors allow_custom="true">
         <mirror>
             <url>https://repo.kamiyuri.dev/main</url>
             <description>OTSA Repository (BKCS)</description>

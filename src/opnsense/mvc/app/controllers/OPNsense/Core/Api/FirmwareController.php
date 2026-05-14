@@ -972,6 +972,43 @@ class FirmwareController extends ApiMutableModelControllerBase
     }
 
     /**
+     * Probe a candidate mirror URL for DNS, HTTP reachability, and
+     * repository signature validity without persisting it to the firmware
+     * configuration. Used by the "Test" button on the Settings tab so
+     * operators can verify a custom mirror before saving.
+     *
+     * @return array status payload from otsa-test-mirror
+     */
+    public function testMirrorAction()
+    {
+        if (!$this->request->isPost()) {
+            return ['status' => 'failure', 'step' => 'method', 'message' => gettext('POST required')];
+        }
+
+        $mirror = (string)$this->request->getPost('mirror', 'string', '');
+        $mirror = trim(filter_var($mirror, FILTER_SANITIZE_URL));
+
+        if ($mirror === '' || !preg_match('#^https?://[A-Za-z0-9._~%:/?#\[\]@!$&\'()*+,;=-]+$#', $mirror)) {
+            return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
+        }
+
+        $backend = new Backend();
+        $output = trim($backend->configdpRun('firmware mirror-test', [$mirror]));
+
+        $decoded = json_decode($output, true);
+        if (!is_array($decoded)) {
+            return [
+                'status' => 'failure',
+                'step' => 'parse',
+                'message' => gettext('Unable to parse test result'),
+                'raw' => $output,
+            ];
+        }
+
+        return $decoded;
+    }
+
+    /**
      * set firmware configuration options
      * @return array status
      */
