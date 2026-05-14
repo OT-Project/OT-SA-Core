@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<model>
+    <mount>//OPNsense/h323</mount>
+    <description>H323 Gateway Configuration</description>
+    <version>1.0.0</version>
+    <items>
+        <general>
+            <enabled type="BooleanField">
+                <Default>0</Default>
+                <comment>Enable H323 gateway</comment>
+            </enabled>
+            <signaling_port type="IntegerField">
+                <Default>1720</Default>
+                <MinimumValue>1024</MinimumValue>
+                <MaximumValue>65535</MaximumValue>
+                <comment>H.225 call setup port (TCP)</comment>
+            </signaling_port>
+            <rtp_port_range_start type="IntegerField">
+                <Default>5000</Default>
+                <MinimumValue>1024</MinimumValue>
+                <MaximumValue>65535</MaximumValue>
+                <comment>RTP media port range start</comment>
+            </rtp_port_range_start>
+            <rtp_port_range_end type="IntegerField">
+                <Default>5100</Default>
+                <MinimumValue>1024</MinimumValue>
+                <MaximumValue>65535</MaximumValue>
+                <comment>RTP media port range end</comment>
+            </rtp_port_range_end>
+            <nat_enabled type="BooleanField">
+                <Default>1</Default>
+                <comment>Enable NAT traversal for H323</comment>
+            </nat_enabled>
+            <gateway_alias type="TextField">
+                <Default>OT-SA-H323</Default>
+                <comment>H323 gateway identifier</comment>
+            </gateway_alias>
+            <listen_interface type=".\H323InterfaceField">
+                <comment>Interface to listen on (physical interfaces only)</comment>
+            </listen_interface>
+            <deployment_mode type="OptionField">
+                <Default>local</Default>
+                <comment>Deployment mode: local or upstream</comment>
+                <OptionValues>
+                    <local>Local Service</local>
+                    <upstream>Upstream Server</upstream>
+                </OptionValues>
+            </deployment_mode>
+            <outbound_interface type="TextField">
+                <comment>Outbound interface for upstream connections (optional)</comment>
+            </outbound_interface>
+            <upstream_server type="TextField">
+                <comment>Upstream H.323 gateway IP address or hostname (optional)</comment>
+            </upstream_server>
+        </general>
+        <endpoints>
+            <endpoint type="ArrayField">
+                <name type="TextField">
+                    <comment>Endpoint name/identifier</comment>
+                </name>
+                <address type="TextField">
+                    <comment>IP address or hostname</comment>
+                </address>
+                <enabled type="BooleanField">
+                    <Default>1</Default>
+                </enabled>
+                <description type="TextField">
+                    <comment>Optional description</comment>
+                </description>
+            </endpoint>
+        </endpoints>
+    </items>
+</model>
