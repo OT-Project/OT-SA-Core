@@ -29,6 +29,7 @@
 require_once("guiconfig.inc");
 require_once("filter.inc");
 require_once("system.inc");
+require_once("plugins.inc.d/openssh.inc");
 
 $ssh_rekeylimit_choices = [
     '' => gettext('System defaults'),
@@ -52,7 +53,86 @@ $ssh_loglevel_choices = [
 
 $interfaces = get_configured_interface_with_descr();
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'download_known_hosts') {
+    $body = openssh_host_keys_known_hosts_block();
+    $fname = ($config['system']['hostname'] ?? 'opnsense') . '-known_hosts.txt';
+
+    header('Content-Type: text/plain; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $fname . '"');
+    header('Content-Length: ' . strlen($body));
+    echo $body;
+
+    openlog('sshd_audit', LOG_PID, LOG_AUTH);
+    syslog(LOG_NOTICE, sprintf(
+        'host-keys export user=%s remote=%s format=known_hosts',
+        $_SESSION['Username'] ?? 'unknown',
+        $_SERVER['REMOTE_ADDR'] ?? '-'
+    ));
+    closelog();
+
+    exit;
+}
+
+$regen_result = null;
+$regen_request = ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'regenerate_keys');
+
+if ($regen_request) {
+    $requested = (array)($_POST['key_types'] ?? []);
+    $selected = array_values(array_intersect($requested, openssh_host_key_types()));
+
+    openlog('sshd_audit', LOG_PID, LOG_AUTH);
+
+    if (empty($selected)) {
+        $regen_result = ['status' => 'noop', 'reason' => 'no_types_selected'];
+        syslog(LOG_NOTICE, sprintf(
+            'host-key regenerate user=%s remote=%s result=noop reason=no_types_selected',
+            $_SESSION['Username'] ?? 'unknown',
+            $_SERVER['REMOTE_ADDR'] ?? '-'
+        ));
+    } else {
+        $rsa_bits_post = (int)($_POST['rsa_bits'] ?? 0);
+        $rsa_bits = in_array($rsa_bits_post, openssh_rsa_bit_choices(), true)
+            ? $rsa_bits_post
+            : (isset($config['system']['ssh']['rsa_bits']) ? (int)$config['system']['ssh']['rsa_bits'] : null);
+
+        /* 11776-bit RSA generation can take 5-30+ minutes; relax PHP limits. */
+        @set_time_limit(0);
+        @ignore_user_abort(true);
+
+        $regen_result = openssh_regenerate_host_keys($selected, $rsa_bits);
+
+        foreach ($regen_result as $type => $info) {
+            syslog(LOG_NOTICE, sprintf(
+                'host-key regenerate user=%s remote=%s type=%s bits=%s old_fp=%s new_fp=%s result=%s',
+                $_SESSION['Username'] ?? 'unknown',
+                $_SERVER['REMOTE_ADDR'] ?? '-',
+                $type,
+                $info['bits'] ?? '-',
+                $info['old_fingerprint'] ?? '-',
+                $info['new_fingerprint'] ?? '-',
+                $info['status'] === 'ok' ? 'ok' : ('error:' . ($info['message'] ?? 'unknown'))
+            ));
+        }
+
+        /* Reload sshd so the new keys take effect. Use the same path as the
+         * Save handler below to stay consistent. */
+        mwexec('pluginctl -s openssh restart');
+
+        /* Persist the bit-length choice AFTER logging+restart so write_config()
+         * cannot interfere with the still-open syslog connection. */
+        if ($rsa_bits !== null && in_array('rsa', $selected, true)) {
+            if (empty($config['system']['ssh'])) {
+                $config['system']['ssh'] = [];
+            }
+            $config['system']['ssh']['rsa_bits'] = $rsa_bits;
+            write_config('Updated SSH RSA host key length to ' . $rsa_bits . ' bits.');
+        }
+    }
+
+    closelog();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' || $regen_request) {
     $pconfig = [];
     $pconfig['enablesshd'] = $config['system']['ssh']['enabled'] ?? null;
     $pconfig['sshport'] = $config['system']['ssh']['port'] ?? null;
@@ -64,9 +144,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig['ssh-keysig'] = !empty($config['system']['ssh']['keysig']) ? explode(',', $config['system']['ssh']['keysig']) : [];
     $pconfig['ssh-rekeylimit'] = !empty($config['system']['ssh']['rekeylimit']) ? $config['system']['ssh']['rekeylimit'] : '';
     $pconfig['ssh-loglevel'] = !empty($config['system']['ssh']['loglevel']) ? $config['system']['ssh']['loglevel'] : '';
+    $pconfig['ssh-rsa-bits'] = !empty($config['system']['ssh']['rsa_bits']) ? (string)$config['system']['ssh']['rsa_bits'] : '4096';
     $pconfig['sshpasswordauth'] = isset($config['system']['ssh']['passwordauth']);
     $pconfig['sshdpermitrootlogin'] = isset($config['system']['ssh']['permitrootlogin']);
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !$regen_request) {
     $input_errors = [];
     $pconfig = $_POST;
 
@@ -94,6 +175,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $config['system']['ssh']['keysig'] = !empty($pconfig['ssh-keysig']) ? implode(',', $pconfig['ssh-keysig']) : null;
         $config['system']['ssh']['rekeylimit'] = !empty($pconfig['ssh-rekeylimit']) ? $pconfig['ssh-rekeylimit'] : null;
         $config['system']['ssh']['loglevel'] = !empty($pconfig['ssh-loglevel']) ? $pconfig['ssh-loglevel'] : null;
+
+        /* rsa_bits is owned by the Host keys form (iform_regen) — it is not part
+         * of the main Save form, so this branch does not touch it. Persistence
+         * happens in the regen branch above after a successful key generation. */
 
         if (!empty($pconfig['enablesshd'])) {
             $config['system']['ssh']['enabled'] = 'enabled';
@@ -167,6 +252,49 @@ include("head.inc");
     }
     if (isset($savemsg)) {
         print_info_box($savemsg);
+    }
+    if (isset($regen_result)) {
+        if (($regen_result['status'] ?? null) === 'noop') {
+            print_info_box(gettext('No host key types were selected. Nothing was changed.'));
+        } else {
+            $lines = [];
+            $had_error = false;
+            foreach ($regen_result as $type => $info) {
+                $type_label = strtoupper($type);
+                if ($info['status'] === 'ok') {
+                    $bits_part = '';
+                    $old_bits = $info['old_bits'] ?? null;
+                    $new_bits = $info['bits'] ?? null;
+                    if ($new_bits !== null) {
+                        if ($old_bits !== null && (int)$old_bits !== (int)$new_bits) {
+                            $bits_part = sprintf(' (%d → %d bits)', $old_bits, $new_bits);
+                        } else {
+                            $bits_part = sprintf(' (%d bits)', $new_bits);
+                        }
+                    }
+                    $lines[] = sprintf(
+                        gettext('%s regenerated%s — new fingerprint: %s'),
+                        $type_label,
+                        $bits_part,
+                        $info['new_fingerprint'] ?? '-'
+                    );
+                } else {
+                    $had_error = true;
+                    $lines[] = sprintf(
+                        gettext('%s failed: %s'),
+                        $type_label,
+                        $info['message'] ?? gettext('unknown error')
+                    );
+                }
+            }
+            $msg = '<strong>' . gettext('SSH host keys regenerated. SSH service has been restarted.') . '</strong><br/>' .
+                implode('<br/>', array_map('html_safe', $lines)) . '<br/><br/>' .
+                '<em>' . gettext(
+                    'Clients connecting via SSH will see a host-key mismatch warning ' .
+                    'and must accept the new fingerprint above before connecting again.'
+                ) . '</em>';
+            print_alert_box($msg, $had_error ? 'danger' : 'warning');
+        }
     }
 ?>
       <section class="col-xs-12">
@@ -374,8 +502,234 @@ include("head.inc");
             </table>
           </div>
         </form>
+        <form method="post" name="iform_regen" id="iform_regen">
+          <input type="hidden" name="action" value="regenerate_keys" />
+          <div class="content-box tab-content table-responsive __mb">
+            <table class="table table-striped opnsense_standard_table_form">
+              <tr>
+                <td style="width:22%"><strong><?= gettext('Host keys') ?></strong></td>
+                <td style="width:78%; text-align:right">
+                  <small><?= gettext('full help') ?> </small>
+                  <i class="fa fa-toggle-off text-danger" style="cursor: pointer;" id="show_all_help_page_hostkeys"></i>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th style="width:5%"></th>
+                        <th style="width:10%"><?= gettext('Type') ?></th>
+                        <th><?= gettext('Fingerprint (SHA256)') ?></th>
+                        <th style="width:10%"><?= gettext('Bits') ?></th>
+                        <th style="width:15%"><?= gettext('Public key') ?></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+<?php foreach (openssh_host_key_types() as $type):
+    $fp = openssh_host_key_fingerprint($type);
+    $pub = openssh_host_key_public_text($type);
+?>
+                      <tr>
+                        <td>
+                          <input type="checkbox" name="key_types[]" value="<?= html_safe($type) ?>" id="regen_<?= html_safe($type) ?>" />
+                        </td>
+                        <td>
+                          <label for="regen_<?= html_safe($type) ?>"><?= strtoupper($type) ?></label>
+                        </td>
+                        <td>
+                          <?php if ($fp !== null): ?>
+                            <code><?= html_safe($fp['sha256']) ?></code>
+                          <?php else: ?>
+                            <em class="text-muted"><?= gettext('not generated yet') ?></em>
+                          <?php endif ?>
+                        </td>
+                        <td><?= $fp['bits'] ?? '-' ?></td>
+                        <td>
+                          <?php if ($pub !== null): ?>
+                            <button type="button" class="btn btn-default btn-xs copy-pubkey"
+                                    data-pubkey="<?= html_safe($pub) ?>"
+                                    title="<?= html_safe(gettext('Copy public key to clipboard')) ?>">
+                              <i class="fa fa-copy"></i> <?= gettext('Copy') ?>
+                            </button>
+                          <?php else: ?>
+                            <em class="text-muted">—</em>
+                          <?php endif ?>
+                        </td>
+                      </tr>
+<?php endforeach ?>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td><a id="help_for_rsa_bits" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('RSA key length') ?></td>
+                <td>
+                  <?php $current_rsa_bits = openssh_host_key_fingerprint('rsa')['bits'] ?? null; ?>
+                  <select name="rsa_bits" id="rsa_bits_select" class="selectpicker"
+                          data-current-bits="<?= $current_rsa_bits ?? '' ?>">
+<?php foreach (openssh_rsa_bit_choices() as $bits):
+    $label = $bits . ' bits';
+    if  ($bits === 3072) {
+        $label .= ' (moderate security, faster)';
+    } elseif  ($bits === 4096) {
+        $label .= ' (' . gettext('default') . ')';
+    } elseif ($bits === 11776) {
+        $label .= ' (' . gettext('high assurance, slower') . ')';
+    }
+?>
+                    <option value="<?= $bits ?>" <?= ($pconfig['ssh-rsa-bits'] ?? '4096') === (string)$bits ? 'selected="selected"' : '' ?>>
+                      <?= html_safe($label) ?>
+                    </option>
+<?php endforeach ?>
+                  </select>
+                  <?php if ($current_rsa_bits !== null): ?>
+                    <span class="text-muted" style="margin-left:8px;">
+                      <?= sprintf(gettext('Current: %d bits'), $current_rsa_bits) ?>
+                    </span>
+                  <?php endif ?>
+                  <div id="rsa_bits_change_warning" class="text-warning" style="display:none; margin-top:6px;">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <strong><?= gettext('Bit length sẽ chỉ áp dụng sau khi regenerate.') ?></strong>
+                    <?= gettext('RSA đã được tự động chọn — bấm "Regenerate selected host keys" để sinh khóa mới với độ dài này.') ?>
+                  </div>
+                  <div class="hidden" data-for="help_for_rsa_bits">
+                    <?= gettext('Áp dụng khi regenerate RSA host key (hoặc khi sshd tự sinh key lần đầu lúc boot). ECDSA và Ed25519 có độ dài cố định nên không bị ảnh hưởng.') ?>
+                    <br/><?= gettext('Đổi giá trị ở đây KHÔNG tự áp dụng — vẫn phải bấm Regenerate để sinh khóa mới.') ?>
+                    <br/><strong class="text-warning">⚠ <?= gettext('11776 bits có thể mất 5–30+ phút để sinh trên phần cứng OT thông thường; sshd sẽ bị tạm dừng trong suốt quá trình đó. Web request sẽ block đến khi xong, đừng đóng tab.') ?></strong>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><a id="help_for_regen_hostkeys" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Regenerate') ?></td>
+                <td>
+                  <button type="submit" id="regen_hostkeys_btn" class="btn btn-warning">
+                    <i class="fa fa-refresh"></i> <?= gettext('Regenerate selected host keys') ?>
+                  </button>
+                  <div class="hidden" data-for="help_for_regen_hostkeys">
+                    <strong class="text-danger"><?= gettext('Warning:') ?></strong>
+                    <?= gettext(
+                        'Regenerating host keys breaks the trust relationship with every existing SSH client. ' .
+                        'On the next connection each client will see a host-key mismatch and must accept the new fingerprint shown above. ' .
+                        'The SSH service is restarted immediately after regeneration; active sessions are not killed but new connections must use the new keys.'
+                    ) ?>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </form>
+        <form method="post" name="iform_export" id="iform_export">
+          <input type="hidden" name="action" value="download_known_hosts" />
+          <div class="content-box tab-content table-responsive __mb">
+            <table class="table table-striped opnsense_standard_table_form">
+              <tr>
+                <td style="width:22%"><strong><?= gettext('Export for clients') ?></strong></td>
+                <td style="width:78%; text-align:right">
+                  <small><?= gettext('full help') ?> </small>
+                  <i class="fa fa-toggle-off text-danger" style="cursor: pointer;" id="show_all_help_page_export"></i>
+                </td>
+              </tr>
+              <tr>
+                <td><a id="help_for_export_hostkeys" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> <?= gettext('Known_hosts file') ?></td>
+                <td>
+                  <button type="submit" class="btn btn-default">
+                    <i class="fa fa-download"></i> <?= gettext('Download known_hosts entries') ?>
+                  </button>
+                  <div class="hidden" data-for="help_for_export_hostkeys">
+                    <strong class="text-warning"><?= gettext('Cảnh báo TOFU (Trust On First Use):') ?></strong>
+                    <?= gettext(
+                        'Mặc định khi SSH client kết nối lần đầu, nó tự lưu host key của server vào known_hosts. ' .
+                        'Nếu kết nối đầu tiên đó qua kênh đã bị MITM (Man-In-The-Middle), attacker key được trust ' .
+                        'và mọi kiểm tra fingerprint sau đó đều vô nghĩa.'
+                    ) ?>
+                    <br/><br/>
+                    <strong><?= gettext('Workflow khuyến cáo cho OT appliance:') ?></strong>
+                    <ol>
+                      <li><?= gettext('Tải file này về qua kênh đã xác thực (HTTPS GUI hiện tại + cert hợp lệ).') ?></li>
+                      <li><?= gettext('Copy file tới máy admin qua kênh out-of-band (USB, ký số, in person).') ?></li>
+                      <li><?= gettext('Append vào ~/.ssh/known_hosts của client trước khi SSH lần đầu.') ?></li>
+                    </ol>
+                    <?= gettext('File chứa entry cho cả 3 host key (RSA / ECDSA / Ed25519) với prefix là hostname + IP của LAN/WAN interface.') ?>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </form>
       </section>
     </div>
   </div>
 </section>
+<script>
+$(document).ready(function() {
+    $(document).on('click', '.copy-pubkey', function() {
+        var pubkey = $(this).data('pubkey');
+        var btn = $(this);
+        if (!pubkey) return;
+        var done = function() {
+            var original = btn.html();
+            btn.html('<i class="fa fa-check"></i> ' + <?= json_encode(gettext('Copied')) ?>);
+            setTimeout(function() { btn.html(original); }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pubkey).then(done).catch(function() {
+                /* Permission denied / non-secure context — fall back. */
+                var ta = $('<textarea>').css({position: 'fixed', opacity: 0}).val(pubkey).appendTo('body');
+                ta[0].select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                ta.remove();
+            });
+        } else {
+            var ta = $('<textarea>').css({position: 'fixed', opacity: 0}).val(pubkey).appendTo('body');
+            ta[0].select();
+            try { document.execCommand('copy'); done(); } catch (e) {}
+            ta.remove();
+        }
+    });
+
+    /* Highlight bit-length mismatch and auto-tick RSA when user changes the dropdown. */
+    $('#rsa_bits_select').on('change', function() {
+        var current = parseInt($(this).data('current-bits'), 10);
+        var selected = parseInt($(this).val(), 10);
+        if (current && selected && current !== selected) {
+            $('#rsa_bits_change_warning').show();
+            $('#regen_rsa').prop('checked', true);
+        } else {
+            $('#rsa_bits_change_warning').hide();
+        }
+    });
+
+    $('#iform_regen').on('submit', function(event) {
+        var checked = $(this).find('input[name="key_types[]"]:checked');
+        if (checked.length === 0) {
+            /* Allow submission so the server logs a noop audit entry and shows
+             * a flash warning. No confirm prompt needed for a no-op. */
+            return true;
+        }
+        var types = checked.map(function() { return this.value.toUpperCase(); }).get().join(', ');
+        var extra = '';
+        if ($.inArray('rsa', checked.map(function() { return this.value; }).get()) !== -1) {
+            var current = parseInt($('#rsa_bits_select').data('current-bits'), 10);
+            var selected = parseInt($('#rsa_bits_select').val(), 10);
+            if (current && selected && current !== selected) {
+                extra = '\n\n' + <?= json_encode(gettext('RSA bit length sẽ chuyển từ')) ?> +
+                        ' ' + current + ' → ' + selected + ' bits.';
+                if (selected >= 11776) {
+                    extra += '\n' + <?= json_encode(gettext('⚠ Quá trình này có thể mất 5-30 phút và sshd sẽ tạm dừng.')) ?>;
+                }
+            } else if (selected) {
+                extra = '\n\n' + <?= json_encode(gettext('RSA giữ nguyên độ dài')) ?> + ' ' + selected + ' bits.';
+            }
+        }
+        var msg = <?= json_encode(gettext('Regenerate SSH host keys for')) ?> + ' ' + types + '?' + extra + '\n\n' +
+                  <?= json_encode(gettext('Every existing SSH client will see a host-key mismatch on next connection. The SSH service will be restarted.')) ?>;
+        if (!confirm(msg)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    });
+});
+</script>
 <?php include("foot.inc"); ?>
