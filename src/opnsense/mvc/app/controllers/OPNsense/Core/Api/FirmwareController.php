@@ -988,13 +988,37 @@ class FirmwareController extends ApiMutableModelControllerBase
         $mirror = (string)$this->request->getPost('mirror', 'string', '');
         $mirror = trim(filter_var($mirror, FILTER_SANITIZE_URL));
 
-        // Delimiter is `~` (not `#`) because the URL char class legitimately
+        // Normalise to the documented convention: root URL, no trailing slash.
+        // Strip trailing slashes so operators who paste a copy with one don't
+        // get rejected; configd appends `/${ABI}/${RELEASE}/latest` later.
+        $mirror = rtrim($mirror, '/');
+
+        // Cap length first so an absurdly long input can't waste regex /
+        // parse_url cycles. 2048 covers every legitimate mirror URL we've seen.
+        if ($mirror === '' || strlen($mirror) > 2048) {
+            return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
+        }
+
+        // PCRE delimiter is `~` (not `#`) because the URL char class legitimately
         // contains `#` (fragment marker). PCRE terminates the pattern at the
-        // first unescaped delimiter, so using `#` here makes the regex
-        // collapse to `^https?://[A-Za-z0-9._~%:/?` and the rest is parsed as
-        // flags — preg_match() then errors out and every URL is rejected as
-        // "Invalid mirror URL".
-        if ($mirror === '' || !preg_match('~^https?://[A-Za-z0-9._%:/?#\[\]@!$&\'()*+,;=-]+$~', $mirror)) {
+        // first unescaped delimiter, so using `#` here makes the regex collapse
+        // to `^https?://[A-Za-z0-9._~%:/?` and the rest is parsed as flags —
+        // preg_match() then errors out and every URL is rejected as "Invalid
+        // mirror URL".
+        if (!preg_match('~^https?://[A-Za-z0-9._%:/?#\[\]@!$&\'()*+,;=-]+$~', $mirror)) {
+            return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
+        }
+
+        // The char-class regex above still accepts structurally broken shapes
+        // like `http:///` or `http://#`. parse_url() enforces a real scheme
+        // and host so the configd wrapper never sees a malformed URL.
+        $parts = parse_url($mirror);
+        if (
+            !is_array($parts) ||
+            empty($parts['scheme']) ||
+            empty($parts['host']) ||
+            !in_array($parts['scheme'], ['http', 'https'], true)
+        ) {
             return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
         }
 
