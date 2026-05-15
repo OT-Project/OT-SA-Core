@@ -972,6 +972,55 @@ class FirmwareController extends ApiMutableModelControllerBase
     }
 
     /**
+     * Normalise an operator-supplied mirror URL to the documented convention
+     * (root URL, no trailing slash). Stripping trailing slashes lets operators
+     * paste URLs with or without one; configd appends
+     * `/${ABI}/${RELEASE}/latest` itself.
+     */
+    protected function normaliseMirrorUrl(string $mirror): string
+    {
+        return rtrim(trim(filter_var($mirror, FILTER_SANITIZE_URL)), '/');
+    }
+
+    /**
+     * Validate a normalised mirror URL. Returns null on success, or a short
+     * error key on failure. The check is intentionally shared between
+     * testMirrorAction() and setAction() so an URL that fails Test cannot be
+     * persisted via Save.
+     */
+    protected function validateMirrorUrl(string $mirror): ?string
+    {
+        // Cap length first so an absurdly long input can't waste regex /
+        // parse_url cycles. 2048 covers every legitimate mirror URL we've seen.
+        if ($mirror === '' || strlen($mirror) > 2048) {
+            return 'input';
+        }
+
+        // PCRE delimiter is `~` (not `#`) because the URL char class
+        // legitimately contains `#` (fragment marker). Using `#` as delimiter
+        // makes PCRE terminate the pattern early and reject every URL as
+        // "Invalid mirror URL".
+        if (!preg_match('~^https?://[A-Za-z0-9._%:/?#\[\]@!$&\'()*+,;=-]+$~', $mirror)) {
+            return 'input';
+        }
+
+        // The char-class regex above still accepts structurally broken shapes
+        // like `http:///` or `http://#`. parse_url() enforces a real scheme
+        // and host so the configd wrapper never sees a malformed URL.
+        $parts = parse_url($mirror);
+        if (
+            !is_array($parts) ||
+            empty($parts['scheme']) ||
+            empty($parts['host']) ||
+            !in_array($parts['scheme'], ['http', 'https'], true)
+        ) {
+            return 'input';
+        }
+
+        return null;
+    }
+
+    /**
      * Probe a candidate mirror URL for DNS, HTTP reachability, and
      * repository signature validity without persisting it to the firmware
      * configuration. Used by the "Test" button on the Settings tab so
@@ -985,16 +1034,8 @@ class FirmwareController extends ApiMutableModelControllerBase
             return ['status' => 'failure', 'step' => 'method', 'message' => gettext('POST required')];
         }
 
-        $mirror = (string)$this->request->getPost('mirror', 'string', '');
-        $mirror = trim(filter_var($mirror, FILTER_SANITIZE_URL));
-
-        // Delimiter is `~` (not `#`) because the URL char class legitimately
-        // contains `#` (fragment marker). PCRE terminates the pattern at the
-        // first unescaped delimiter, so using `#` here makes the regex
-        // collapse to `^https?://[A-Za-z0-9._~%:/?` and the rest is parsed as
-        // flags — preg_match() then errors out and every URL is rejected as
-        // "Invalid mirror URL".
-        if ($mirror === '' || !preg_match('~^https?://[A-Za-z0-9._%:/?#\[\]@!$&\'()*+,;=-]+$~', $mirror)) {
+        $mirror = $this->normaliseMirrorUrl((string)$this->request->getPost('mirror', 'string', ''));
+        if ($this->validateMirrorUrl($mirror) !== null) {
             return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
         }
 
@@ -1028,11 +1069,23 @@ class FirmwareController extends ApiMutableModelControllerBase
 
         $values = $this->request->getPost(static::$internalModelName);
 
+        // Validate the mirror URL with the same rules as testMirrorAction so
+        // an URL that cannot be tested cannot be persisted either.
+        if (isset($values['mirror'])) {
+            $values['mirror'] = $this->normaliseMirrorUrl((string)$values['mirror']);
+            if ($this->validateMirrorUrl($values['mirror']) !== null) {
+                $response['status_msg'] = [gettext('Invalid mirror URL')];
+                return $response;
+            }
+        }
+
         foreach ($values as $key => &$value) {
             if ($key == 'plugins') {
                 /* discards plugins on purpose for the time being */
                 unset($values[$key]);
-            } else {
+            } elseif ($key != 'mirror') {
+                /* mirror already normalised above; URL filter on non-URL
+                   fields is upstream behaviour we leave untouched */
                 $value = filter_var($value, FILTER_SANITIZE_URL);
             }
         }

@@ -35,14 +35,14 @@
     .dropdown_helper {
         display: none;
     }
-    /* OTSA: ẩn các control technical — audit dropdown, major-upgrade button, plugin conflict resolver
-       Dùng !important vì JS gọi .show() trên các element này sau khi loadInfo. */
+    /* OTSA: hide technical controls — audit dropdown, major-upgrade button, plugin conflict resolver.
+       !important is required because JS calls .show() on these elements after loadInfo. */
     #audit_actions,
     #upgrade_maj,
     #plugin_actions {
         display: none !important;
     }
-    /* OTSA: ẩn output console + bảng package list trong tab Updates — thay bằng card thân thiện */
+    /* OTSA: hide the output console and package list table in the Updates tab — replaced with a friendlier card. */
     #updates #updatelist,
     #updates #update_status_container {
         display: none !important;
@@ -833,7 +833,10 @@
             // Always derive URL from the dropdown selection (or operator input
             // for custom). This bypasses any stale state in the visible input
             // caused by selectpicker init races or partial change events.
-            var url = selectedMirrorUrl();
+            // Normalise to the documented convention (root URL, no trailing
+            // slash) before checking. Keep this in sync with the server-side
+            // rtrim in FirmwareController::testMirrorAction().
+            var url = (selectedMirrorUrl() || '').replace(/\/+$/, '');
             $("#firmware_mirror_value").val(url);
             var $btn = $(this);
             var $result = $("#test_mirror_result");
@@ -877,11 +880,29 @@
         });
 
         $("#change_mirror").click(function(){
-            $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             var confopt = {};
             // Save the URL the dropdown is pointing at (or operator's custom
             // input), not whatever leftover value lives in the input field.
-            confopt.mirror = selectedMirrorUrl();
+            // Strip trailing slashes so the stored value matches the
+            // documented "root URL, no trailing slash" convention.
+            confopt.mirror = (selectedMirrorUrl() || '').replace(/\/+$/, '');
+
+            // Block obviously invalid URLs before the round-trip. Server-side
+            // setAction() applies the canonical check; this mirrors the same
+            // first-line check used by the Test button so operators get
+            // immediate feedback instead of waiting for a validation error.
+            if (!confopt.mirror || !/^https?:\/\//.test(confopt.mirror)) {
+                stdDialogInform(
+                    '{{ lang._('Firmware status') }}',
+                    "{{ lang._('Invalid mirror URL. Expected a root URL like http://192.168.150.49 (no trailing slash).') }}",
+                    "{{ lang._('Close') }}",
+                    undefined,
+                    'danger'
+                );
+                return;
+            }
+
+            $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             confopt.flavour = $("#firmware_flavour_value").val();
             confopt.type = $("#firmware_type").val();
             confopt.reboot = $("#firmware_reboot").is(":checked") ? '1' : '0';
@@ -920,8 +941,8 @@
             $('a[href="' + window.location.hash + '"]').click()
         });
 
-        /* OTSA: state machine cho card update — overlay UI, không động backend logic.
-           Trạng thái: idle | checking | uptodate | available | updating | error */
+        /* OTSA: state machine for the update card — overlay UI only, leaves backend logic untouched.
+           States: idle | checking | uptodate | available | updating | error */
         function otsa_card(state) {
             $('#otsa_update_view > div').hide();
             $('#otsa_update_' + state).show();
@@ -957,24 +978,45 @@
             });
         }
         otsa_refresh_card();
+        var otsa_check_timer = null;
+        // 5 min — longer than any realistic firmware check on the OT mirror,
+        // short enough that operators don't stare at a frozen card forever.
+        var OTSA_CHECK_TIMEOUT_MS = 5 * 60 * 1000;
         $('#checkupdate').on('click', function() {
             otsa_card('checking');
-            // Backend chạy song song qua handler upstream (backend('check') →
-            // trackStatus). Không poll /api/core/firmware/status trực tiếp ở
-            // đây vì endpoint trả cache của lần check trước trong khi backend
-            // còn đang chạy → có thể đọc nhầm 'none' và chuyển card sang
-            // uptodate dù check chưa xong. Card sẽ được refresh bởi observer
-            // bên dưới khi upstream gỡ spinner trên #updatetab_progress.
+            // The backend runs in parallel via the upstream handler (backend('check') →
+            // trackStatus). Do NOT poll /api/core/firmware/status directly here:
+            // the endpoint returns the cached result of the previous check while
+            // the backend is still running, so it may report 'none' and flip the
+            // card to uptodate before the check actually finishes. The observer
+            // below refreshes the card when upstream removes the spinner on
+            // #updatetab_progress.
+            //
+            // Fallback: if the spinner never clears (daemon crash, network
+            // down mid-check), the observer never fires and the card sits in
+            // 'checking' forever. Force a refresh after the timeout; if the
+            // card is still 'checking', flip to 'error' with a friendly note.
+            if (otsa_check_timer) {
+                clearTimeout(otsa_check_timer);
+            }
+            otsa_check_timer = setTimeout(function() {
+                otsa_check_timer = null;
+                otsa_refresh_card();
+                if ($('#otsa_update_checking').is(':visible')) {
+                    $('#otsa_update_error_msg').text("{{ lang._('Update check timed out. Please verify network connectivity to the mirror and try again.') }}");
+                    otsa_card('error');
+                }
+            }, OTSA_CHECK_TIMEOUT_MS);
         });
         $('#otsa_update_btn').on('click', function() {
             otsa_card('updating');
             $('#upgrade').click();
         });
 
-        // Đồng bộ card với upstream tracker. trackStatus() gỡ class
-        // 'fa-spinner' trên #updatetab_progress khi backend trả status=='done'
-        // — đó là lúc /api/core/firmware/status mới phản ánh kết quả check
-        // hiện tại thay vì cache cũ.
+        // Sync the card with the upstream tracker. trackStatus() removes the
+        // 'fa-spinner' class from #updatetab_progress once the backend reports
+        // status=='done' — that's when /api/core/firmware/status finally
+        // reflects the current check rather than the stale cache.
         (function () {
             var tabIcon = document.getElementById('updatetab_progress');
             if (!tabIcon || typeof MutationObserver === 'undefined') {
@@ -982,6 +1024,10 @@
             }
             new MutationObserver(function () {
                 if (!tabIcon.classList.contains('fa-spinner')) {
+                    if (otsa_check_timer) {
+                        clearTimeout(otsa_check_timer);
+                        otsa_check_timer = null;
+                    }
                     otsa_refresh_card();
                 }
             }).observe(tabIcon, { attributes: true, attributeFilter: ['class'] });
@@ -996,13 +1042,13 @@
                 <li id="settingstab"><a data-toggle="tab" href="#settings">{{ lang._('Settings') }} <i id="settingstab_progress"></i></a></li>
                 <li id="changelogtab"><a data-toggle="tab" href="#changelog">{{ lang._('Changelog') }}</a></li>
                 <li id="updatetab"><a data-toggle="tab" href="#updates">{{ lang._('Updates') }} <i id="updatetab_progress"></i></a></li>
-                {# OTSA: hide Plugins/Packages tabs — appliance không cho tải plugin tùy ý #}
+                {# OTSA: hide Plugins/Packages tabs — the appliance does not allow installing arbitrary plugins #}
                 <li id="plugintab" style="display:none"><a data-toggle="tab" href="#plugins">{{ lang._('Plugins') }}</a></li>
                 <li id="packagestab" style="display:none"><a data-toggle="tab" href="#packages">{{ lang._('Packages') }}</a></li>
             </ul>
             <div class="tab-content content-box">
                 <div id="updates" class="tab-pane table-responsive">
-                    {# OTSA: card UX thay output console + bảng package list — chỉ hiển thị state, ẩn chi tiết technical #}
+                    {# OTSA: friendly card replacing the output console and package list — shows state only, hides technical detail #}
                     <div id="otsa_update_view">
                         <div id="otsa_update_idle">
                             <i class="fa fa-info-circle fa-3x text-info"></i>
@@ -1078,7 +1124,7 @@
                 <div id="status" class="tab-pane active table-responsive">
                     <table class="table table-striped table-condensed">
                         <tbody>
-                            {# OTSA: ẩn các trường technical (Type/Arch/Commit/Mirror/Repos) — không cần với end user #}
+                            {# OTSA: hide technical fields (Type/Arch/Commit/Mirror/Repos) — not needed for end users #}
                             <tr style="display:none">
                                 <td style="width: 150px;">{{ lang._('Type') }}</td>
                                 <td id="product_id"></td>
@@ -1218,7 +1264,7 @@
                 <div id="settings" class="tab-pane table-responsive">
                     <table class="table table-striped table-condensed">
                         <tbody>
-                            {# OTSA: advanced/help toggles ẩn — chỉ giữ Mirror (readonly de facto) + Reboot #}
+                            {# OTSA: advanced/help toggles hidden — only Mirror (de-facto read-only) and Reboot remain #}
                             <tr style="display:none">
                                 <td style="text-align:left"><i class="fa fa-toggle-off text-danger" id="show_advanced_firmware"></i></a> <small>{{ lang._('advanced mode') }}</small></td>
                                 <td colspan="2" style="text-align:right">
@@ -1231,7 +1277,7 @@
                                     <select class="selectpicker" id="firmware_mirror"  data-size="5" data-live-search="true">
                                     </select>
                                     <div id="firmware_mirror_custom" style="margin-top: 6px;">
-                                        <input type="text" id="firmware_mirror_value" style="width: 100%;" placeholder="https://repo.kamiyuri.dev/main">
+                                        <input type="text" id="firmware_mirror_value" style="width: 100%;" placeholder="http://192.168.150.49">
                                     </div>
                                     <div style="margin-top: 6px;">
                                         <button class="btn btn-default btn-sm" id="test_mirror" type="button">
@@ -1245,7 +1291,7 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            {# OTSA: ẩn Flavour — không dùng flavour trong snapshot 26.1 #}
+                            {# OTSA: hide Flavour — flavour is not used in the 26.1 snapshot #}
                             <tr style="display:none">
                                 <td><a id="help_for_flavour" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Flavour') }}</td>
                                 <td>
@@ -1260,7 +1306,7 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            {# OTSA: ẩn Type — chỉ có Community family #}
+                            {# OTSA: hide Type — only the Community family is shipped #}
                             <tr style="display:none">
                                 <td><a id="help_for_type" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Type') }}</td>
                                 <td>
@@ -1272,7 +1318,7 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            {# OTSA: ẩn Subscription — không dùng licensing #}
+                            {# OTSA: hide Subscription — licensing is not used #}
                             <tr style="display:none">
                                 <td style="width: 150px;"><a id="help_for_subscription" href="#" class="showhelp"><i class="fa fa-info-circle"></i></a> {{ lang._('Subscription') }}</td>
                                 <td>
@@ -1283,7 +1329,7 @@
                                 </td>
                                 <td></td>
                             </tr>
-                            {# OTSA: bỏ data-advanced để Reboot luôn hiển thị #}
+                            {# OTSA: data-advanced removed so the Reboot row is always shown #}
                             <tr>
                                 <td style="width: 150px;"><i class="fa fa-info-circle text-muted"></i> {{ lang._('Reboot') }}</td>
                                 <td>

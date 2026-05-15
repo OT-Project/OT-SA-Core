@@ -116,7 +116,7 @@ CORE_ORIGIN?=		opnsense/${CORE_NAME}
 # Canonical mirror default — keep in sync with:
 #   src/opnsense/mvc/app/models/OPNsense/Core/Firmware.xml (<mirror><Default>)
 #   src/opnsense/mvc/app/models/OPNsense/Core/repositories/opnsense.xml (<mirror><url>)
-CORE_PACKAGESITE?=	https://repo.kamiyuri.dev/main
+CORE_PACKAGESITE?=	http://192.168.150.49
 CORE_PRODUCT?=		OTSA
 CORE_REPOSITORY?=	${CORE_ABI}/latest
 CORE_WWW?=		#

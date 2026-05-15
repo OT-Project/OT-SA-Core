@@ -9,7 +9,7 @@
 <firmware>
     <mirrors allow_custom="true">
         <mirror>
-            <url>https://repo.kamiyuri.dev/main</url>
+            <url>http://192.168.150.49</url>
             <description>OTSA Repository (BKCS)</description>
         </mirror>
     </mirrors>
