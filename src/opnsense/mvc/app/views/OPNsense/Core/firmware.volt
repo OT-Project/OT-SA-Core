@@ -718,7 +718,7 @@
                         $("#firmware_mirror :first-child").after($("<option/>")
                             .attr("value", firmwareconfig['mirror'])
                             .text("(custom)")
-                            .data("custom", 1)
+                            .attr("data-custom", "1")
                             .prop('selected', custom_selected)
                         );
                     }
@@ -745,7 +745,7 @@
                         $("#firmware_flavour :first-child").after($("<option/>")
                             .attr("value", firmwareconfig['flavour'])
                             .text("(custom)")
-                            .data("custom", 1)
+                            .attr("data-custom", "1")
                             .prop('selected', custom_selected)
                         );
                     }
@@ -774,12 +774,50 @@
         fillOptions();
         $("#reset_mirror").click(fillOptions);
 
-        $("#firmware_mirror").change(function(){
-            $("#firmware_mirror_value").val($(this).val());
-            if ($(this).find(':selected').data("custom") == 1) {
-                $("#firmware_mirror_custom").show();
+        // Resolve the URL that the Test/Save buttons should act on.
+        //
+        // Source of truth depends on which option is selected:
+        //  - preset mirror  -> use the <option value="..."> directly (always
+        //    correct, immune to stale input or selectpicker init races)
+        //  - (custom)       -> use what the operator typed into the input
+        function selectedMirrorUrl() {
+            var $opt = $("#firmware_mirror").find('option:selected');
+            if (!$opt.length) {
+                return $("#firmware_mirror_value").val() || '';
+            }
+            if ($opt.attr('data-custom') === "1") {
+                return $("#firmware_mirror_value").val() || '';
+            }
+            return $opt.attr('value') || '';
+        }
+
+        // Keep the visible URL input in sync with the dropdown selection.
+        // For presets the input is just a read-only display of the URL; for
+        // (custom) the input is the editable buffer and must not be overwritten
+        // on every change of unrelated state.
+        function refreshMirrorInput() {
+            var $opt = $("#firmware_mirror").find('option:selected');
+            var isCustom = $opt.length && $opt.attr('data-custom') === "1";
+            if (isCustom) {
+                // Restore the saved custom URL the first time custom becomes
+                // selected; afterwards leave whatever the operator typed.
+                if (!$("#firmware_mirror_value").val()) {
+                    $("#firmware_mirror_value").val($opt.attr('value') || '');
+                }
             } else {
-                $("#firmware_mirror_custom").hide();
+                $("#firmware_mirror_value").val($opt.length ? ($opt.attr('value') || '') : '');
+            }
+            $("#firmware_mirror_value").prop('readonly', !isCustom);
+        }
+        $("#firmware_mirror").change(refreshMirrorInput);
+
+        // When operator edits the URL while (custom) is selected, mirror the
+        // edit into the option's value attribute so the underlying <select>
+        // and any consumers (selectpicker, Save POST) stay consistent.
+        $("#firmware_mirror_value").on('input', function() {
+            var $opt = $("#firmware_mirror").find('option:selected');
+            if ($opt.length && $opt.attr('data-custom') === "1") {
+                $opt.attr('value', $(this).val());
             }
         });
         $("#firmware_flavour").change(function() {
@@ -792,7 +830,11 @@
         });
 
         $("#test_mirror").click(function() {
-            var url = $("#firmware_mirror_value").val();
+            // Always derive URL from the dropdown selection (or operator input
+            // for custom). This bypasses any stale state in the visible input
+            // caused by selectpicker init races or partial change events.
+            var url = selectedMirrorUrl();
+            $("#firmware_mirror_value").val(url);
             var $btn = $(this);
             var $result = $("#test_mirror_result");
             var $icon = $("#test_mirror_icon");
@@ -820,7 +862,16 @@
                 } else {
                     var step = data.step || '?';
                     var msg = data.message || "{{ lang._('Test failed') }}";
-                    $result.addClass("text-danger").html('<i class="fa fa-times"></i> ' + "{{ lang._('Failed at') }} <code>" + $("<div/>").text(step).html() + "</code>: " + $("<div/>").text(msg).html());
+                    var html = '<i class="fa fa-times"></i> ' + "{{ lang._('Failed at') }} <code>" + $("<div/>").text(step).html() + "</code>: " + $("<div/>").text(msg).html();
+                    // When the controller couldn't parse the backend output,
+                    // show the raw bytes so the operator (or the dev) can see
+                    // what configd actually returned — usually points at a
+                    // missing /usr/local/sbin/otsa-test-mirror or a script
+                    // crash before it printed JSON.
+                    if (step === 'parse' && data.raw) {
+                        html += '<br><small>raw: <code>' + $("<div/>").text(data.raw).html() + '</code></small>';
+                    }
+                    $result.addClass("text-danger").html(html);
                 }
             });
         });
@@ -828,7 +879,9 @@
         $("#change_mirror").click(function(){
             $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             var confopt = {};
-            confopt.mirror = $("#firmware_mirror_value").val();
+            // Save the URL the dropdown is pointing at (or operator's custom
+            // input), not whatever leftover value lives in the input field.
+            confopt.mirror = selectedMirrorUrl();
             confopt.flavour = $("#firmware_flavour_value").val();
             confopt.type = $("#firmware_type").val();
             confopt.reboot = $("#firmware_reboot").is(":checked") ? '1' : '0';
@@ -1177,8 +1230,8 @@
                                 <td>
                                     <select class="selectpicker" id="firmware_mirror"  data-size="5" data-live-search="true">
                                     </select>
-                                    <div style="display:none;" id="firmware_mirror_custom">
-                                        <input type="text" id="firmware_mirror_value" placeholder="https://repo.kamiyuri.dev/main">
+                                    <div id="firmware_mirror_custom" style="margin-top: 6px;">
+                                        <input type="text" id="firmware_mirror_value" style="width: 100%;" placeholder="https://repo.kamiyuri.dev/main">
                                     </div>
                                     <div style="margin-top: 6px;">
                                         <button class="btn btn-default btn-sm" id="test_mirror" type="button">

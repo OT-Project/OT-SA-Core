@@ -988,7 +988,13 @@ class FirmwareController extends ApiMutableModelControllerBase
         $mirror = (string)$this->request->getPost('mirror', 'string', '');
         $mirror = trim(filter_var($mirror, FILTER_SANITIZE_URL));
 
-        if ($mirror === '' || !preg_match('#^https?://[A-Za-z0-9._~%:/?#\[\]@!$&\'()*+,;=-]+$#', $mirror)) {
+        // Delimiter is `~` (not `#`) because the URL char class legitimately
+        // contains `#` (fragment marker). PCRE terminates the pattern at the
+        // first unescaped delimiter, so using `#` here makes the regex
+        // collapse to `^https?://[A-Za-z0-9._~%:/?` and the rest is parsed as
+        // flags — preg_match() then errors out and every URL is rejected as
+        // "Invalid mirror URL".
+        if ($mirror === '' || !preg_match('~^https?://[A-Za-z0-9._%:/?#\[\]@!$&\'()*+,;=-]+$~', $mirror)) {
             return ['status' => 'failure', 'step' => 'input', 'message' => gettext('Invalid mirror URL')];
         }
 

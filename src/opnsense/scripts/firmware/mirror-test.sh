@@ -30,10 +30,19 @@
 # layer before reaching configd.
 
 URL=$1
+TOOL=/usr/local/sbin/otsa-test-mirror
 
 if [ -z "${URL}" ]; then
     echo '{"status":"failure","step":"input","message":"mirror URL missing"}'
     exit 0
 fi
 
-exec /usr/local/sbin/otsa-test-mirror "${URL}"
+# Guard against missing tool — without this the wrapper exits non-zero with
+# no stdout, and the API controller falls through to step=parse with an
+# empty `raw` field, which is hard to debug from the UI.
+if [ ! -x "${TOOL}" ]; then
+    printf '{"status":"failure","step":"tool","message":"%s not installed (install os-update package)"}\n' "${TOOL}"
+    exit 0
+fi
+
+exec "${TOOL}" "${URL}"
