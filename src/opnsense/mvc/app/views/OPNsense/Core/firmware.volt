@@ -880,13 +880,29 @@
         });
 
         $("#change_mirror").click(function(){
-            $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             var confopt = {};
             // Save the URL the dropdown is pointing at (or operator's custom
             // input), not whatever leftover value lives in the input field.
             // Strip trailing slashes so the stored value matches the
             // documented "root URL, no trailing slash" convention.
             confopt.mirror = (selectedMirrorUrl() || '').replace(/\/+$/, '');
+
+            // Block obviously invalid URLs before the round-trip. Server-side
+            // setAction() applies the canonical check; this mirrors the same
+            // first-line check used by the Test button so operators get
+            // immediate feedback instead of waiting for a validation error.
+            if (!confopt.mirror || !/^https?:\/\//.test(confopt.mirror)) {
+                stdDialogInform(
+                    '{{ lang._('Firmware status') }}',
+                    "{{ lang._('Invalid mirror URL. Expected a root URL like http://192.168.150.49 (no trailing slash).') }}",
+                    "{{ lang._('Close') }}",
+                    undefined,
+                    'danger'
+                );
+                return;
+            }
+
+            $("#settingstab_progress").addClass("fa fa-spinner fa-pulse");
             confopt.flavour = $("#firmware_flavour_value").val();
             confopt.type = $("#firmware_type").val();
             confopt.reboot = $("#firmware_reboot").is(":checked") ? '1' : '0';
@@ -962,6 +978,10 @@
             });
         }
         otsa_refresh_card();
+        var otsa_check_timer = null;
+        // 5 min — longer than any realistic firmware check on the OT mirror,
+        // short enough that operators don't stare at a frozen card forever.
+        var OTSA_CHECK_TIMEOUT_MS = 5 * 60 * 1000;
         $('#checkupdate').on('click', function() {
             otsa_card('checking');
             // The backend runs in parallel via the upstream handler (backend('check') →
@@ -971,6 +991,22 @@
             // card to uptodate before the check actually finishes. The observer
             // below refreshes the card when upstream removes the spinner on
             // #updatetab_progress.
+            //
+            // Fallback: if the spinner never clears (daemon crash, network
+            // down mid-check), the observer never fires and the card sits in
+            // 'checking' forever. Force a refresh after the timeout; if the
+            // card is still 'checking', flip to 'error' with a friendly note.
+            if (otsa_check_timer) {
+                clearTimeout(otsa_check_timer);
+            }
+            otsa_check_timer = setTimeout(function() {
+                otsa_check_timer = null;
+                otsa_refresh_card();
+                if ($('#otsa_update_checking').is(':visible')) {
+                    $('#otsa_update_error_msg').text("{{ lang._('Update check timed out. Please verify network connectivity to the mirror and try again.') }}");
+                    otsa_card('error');
+                }
+            }, OTSA_CHECK_TIMEOUT_MS);
         });
         $('#otsa_update_btn').on('click', function() {
             otsa_card('updating');
@@ -988,6 +1024,10 @@
             }
             new MutationObserver(function () {
                 if (!tabIcon.classList.contains('fa-spinner')) {
+                    if (otsa_check_timer) {
+                        clearTimeout(otsa_check_timer);
+                        otsa_check_timer = null;
+                    }
                     otsa_refresh_card();
                 }
             }).observe(tabIcon, { attributes: true, attributeFilter: ['class'] });
