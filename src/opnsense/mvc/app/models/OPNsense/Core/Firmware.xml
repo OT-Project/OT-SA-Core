@@ -9,7 +9,7 @@
                 src/opnsense/mvc/app/models/OPNsense/Core/repositories/opnsense.xml
         -->
         <mirror type="TextField">
-            <Default>https://repo.kamiyuri.dev/main</Default>
+            <Default>http://192.168.150.49</Default>
         </mirror>
         <flavour type="TextField"/>
         <plugins type="TextField"/>

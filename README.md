@@ -37,7 +37,7 @@ Project identity
 | Product | OTSA |
 | Owner | BKCS — https://bkcs.hust.edu.vn |
 | Maintainer | bkcs@hust.edu.vn |
-| Package repository | https://repo.kamiyuri.dev/main |
+| Package repository | http://192.168.150.49 |
 | License | 2-Clause BSD (inherited from OPNsense) |
 | Upstream | https://github.com/opnsense/core |
 

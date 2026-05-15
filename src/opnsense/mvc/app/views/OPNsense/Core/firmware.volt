@@ -1237,7 +1237,7 @@
                                     <select class="selectpicker" id="firmware_mirror"  data-size="5" data-live-search="true">
                                     </select>
                                     <div id="firmware_mirror_custom" style="margin-top: 6px;">
-                                        <input type="text" id="firmware_mirror_value" style="width: 100%;" placeholder="https://repo.kamiyuri.dev/main">
+                                        <input type="text" id="firmware_mirror_value" style="width: 100%;" placeholder="http://192.168.150.49">
                                     </div>
                                     <div style="margin-top: 6px;">
                                         <button class="btn btn-default btn-sm" id="test_mirror" type="button">
