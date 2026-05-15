@@ -33,3 +33,4 @@
 /src/etc/unbound.opnsense.d/**
 /src/etc/unbound_dhcpd.conf
 /src/openssl/**
+src/etc/lighttpd_webgui/*
