@@ -24,7 +24,7 @@ concurrency:
 
 env:
   BUILDER: otsa-builder                 # ~/.ssh/config (kc) -> root@192.168.150.35
-  TARGET: root@192.168.150.36
+  TARGET: otsa-dev                      # ~/.ssh/config (kc) -> root@192.168.150.36, IdentityFile id_ed25519_ci
   CORE_NAME: opnsense
   CORE_ABI: "26.1"
   CORE_PHP: "83"
