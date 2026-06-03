@@ -34,7 +34,7 @@ env:
 
 jobs:
   build-deploy:
-    runs-on: [self-hosted, linux, freebsd-build]
+    runs-on: [self-hosted, linux, kc]
     steps:
       - uses: actions/checkout@v4
         with:
