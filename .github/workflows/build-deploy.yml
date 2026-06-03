@@ -1,0 +1,106 @@
+# ============================================================================
+# YÊU CẦU SETUP MỘT LẦN (Phase 0, KHÔNG nằm trong workflow này):
+#   [A] Trên .35 (builder): /usr/local/etc/pkg/repos/OPNsense.conf trỏ MINT 26.1
+#       url "file:///srv/mirror/FreeBSD:14:amd64/26.1/MINT/26.1/latest", signature_type none
+#       -> make package resolve dep ở đúng bộ py311 (không phải 26.1.8/py313).
+#   [B] Seed base otsa/latest từ MINT/26.1 (xem setup-otsa-base.sh):
+#       cp -al MINT/26.1/latest/All/* -> otsa/latest/All/ ; gỡ CHỈ opnsense-26.1_*.pkg ; pkg repo
+#   [C] Trên .36 (target): tạo OTSA.conf + otsa.pub; pkg lock opnsense (freeze).
+#       deploy-otsa.sh tự unlock trước khi cài và lock lại sau -> lock vẫn an toàn.
+#   Sau đó workflow này chỉ ADD core fork opnsense-26.1.0_<run>.pkg mỗi run.
+#   Freeze giữ ở CLIENT bằng pkg lock (bền, không bị OPNsense ghi đè như file repo).
+# ============================================================================
+name: build-deploy-otsa
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+
+# Chỉ cho 1 run chạy tại 1 thời điểm -> tránh 2 build cùng sửa repo
+concurrency:
+  group: otsa-repo
+  cancel-in-progress: false
+
+env:
+  BUILDER: otsa-builder                 # ~/.ssh/config (kc) -> root@192.168.150.35
+  TARGET: root@192.168.150.36
+  CORE_NAME: opnsense
+  CORE_ABI: "26.1"
+  CORE_PHP: "83"
+  CORE_PYTHON: "311"
+  BASE: "/srv/mirror/FreeBSD:14:amd64/26.1"
+  OTSA_KEY: "/root/repo-keys/otsa-repo.key"
+
+jobs:
+  build-deploy:
+    runs-on: [self-hosted, linux, freebsd-build]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1) Build core trên .35
+      - name: Build core (.35)
+        id: build
+        run: |
+          set -eu
+          VER="${CORE_ABI}.0_${GITHUB_RUN_NUMBER}"
+          ssh "$BUILDER" 'rm -rf /usr/core && mkdir -p /usr/core'
+          rsync -az --delete ./ "$BUILDER:/usr/core/"
+          ssh "$BUILDER" "set -e; cd /usr/core; make package \
+            CORE_NAME=$CORE_NAME CORE_ABI=$CORE_ABI CORE_VERSION=$VER \
+            CORE_PHP=$CORE_PHP CORE_PYTHON=$CORE_PYTHON FLAVOUR=OpenSSL"
+          # find khớp output 'make package' (đã verify khi chạy tay):
+          PKG=$(ssh "$BUILDER" "find /usr/core /tmp -type f -name '${CORE_NAME}-${VER}.pkg' 2>/dev/null | head -1")
+          test -n "$PKG"
+          echo "pkg=$PKG" >> "$GITHUB_OUTPUT"
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "built: $PKG"
+
+      # 2) THÊM core fork mới + ghi BUILD_INFO + ký NGAY (add-only -> repo luôn nhất quán).
+      #    Base MINT 26.1 đứng yên; mỗi run chỉ thêm opnsense-26.1.0_<run>.pkg.
+      #    Các bản fork cũ giữ lại để rollback; pkg luôn chọn run-number cao nhất.
+      - name: Publish + sign (.35)
+        run: |
+          set -eu
+          PKG='${{ steps.build.outputs.pkg }}'
+          VER='${{ steps.build.outputs.ver }}'
+          ssh "$BUILDER" "cp '$PKG' '$BASE/otsa/latest/All/'"
+          # BUILD_INFO: truy vết bản đang phục vụ -> run/commit, xem qua curl
+          printf 'version=%s\nrun_number=%s\nrun_id=%s\ncommit=%s\nref=%s\ndate=%s\n' \
+            "$VER" "$GITHUB_RUN_NUMBER" "$GITHUB_RUN_ID" "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" \
+            | ssh "$BUILDER" "cat > '$BASE/otsa/latest/BUILD_INFO'"
+          ssh "$BUILDER" "pkg repo '$BASE/otsa/latest' '$OTSA_KEY'"
+
+      # 3) Sync .35 -> .49. Transfer gốc là otsa/latest/ (chứa All/), nên --link-dest
+      #    phải trỏ thư mục NGANG HÀNG (chứa All/) = MINT/26.1/latest, KHÔNG phải .../All.
+      #    Best-effort: chỉ tiết kiệm chỗ nếu .49 cũng có mirror MINT; không thì copy thường.
+      - name: Sync repo -> .49
+        run: |
+          rsync -aH --delay-updates --delete-delay \
+            --link-dest="$BASE/MINT/26.1/latest" \
+            "$BUILDER:$BASE/otsa/latest/" \
+            "$BASE/otsa/latest/"
+
+      # 4) Deploy + rollback trên .36 (deploy-otsa.sh tự rollback .36 nếu health fail)
+      - name: Deploy + rollback (.36)
+        run: |
+          scp ./ci/deploy-otsa.sh "$TARGET:/tmp/deploy-otsa.sh"
+          ssh "$TARGET" "sh /tmp/deploy-otsa.sh $CORE_NAME $GITHUB_SHA $GITHUB_RUN_NUMBER"
+
+      # 5) FAIL ở bất kỳ step nào: gỡ gói vừa build khỏi repo, ký lại, sync lại
+      #    -> repo về last-good, máy khác không bao giờ pull bản lỗi.
+      #    Idempotent: nếu fail trước Publish thì rm là no-op.
+      - name: Revert repo (on failure)
+        if: failure()
+        run: |
+          VER="${CORE_ABI}.0_${GITHUB_RUN_NUMBER}"
+          ssh "$BUILDER" "set -e; \
+            rm -f '$BASE/otsa/latest/All/${CORE_NAME}-${VER}.pkg'; \
+            pkg repo '$BASE/otsa/latest' '$OTSA_KEY'" || true
+          rsync -aH --delay-updates --delete-delay \
+            --link-dest="$BASE/MINT/26.1/latest" \
+            "$BUILDER:$BASE/otsa/latest/" \
+            "$BASE/otsa/latest/" || true
+          echo "repo reverted: removed ${CORE_NAME}-${VER} (nếu có)"
